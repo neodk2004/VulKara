@@ -94,7 +94,7 @@ VulKara has to work on a Mac mini M4 with 16 GB, not only on the 24 GB developme
 - A release is built from the committed state only: work that is not part of it is set aside first, so the DMG holds
   exactly what the tag holds.
 - Version in `package.json`, the dated `CHANGELOG.md` section, `tools/release.mjs`, the tag `vX.Y.Z` pushed, and the
-  release on Gitea with the DMG and its SHA-256 in the notes.
+  release on GitHub (and on the Gitea mirror) with the DMG and its SHA-256 in the notes.
 - Without the notarytool profile the DMG is signed but not notarized; the release notes say so.
 
 ### Testing on the development Mac

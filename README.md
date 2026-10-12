@@ -23,7 +23,7 @@ new models, fixes and features — free, local and private for everyone.
 
 <a href="https://buymeacoffee.com/revil.0"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
 
-[User guide](docs/USER_GUIDE.md) · [How the pipelines work](docs/PIPELINES.md) · [Developer guide](docs/DEVELOPMENT.md) · [Measurements](docs/MEASUREMENTS.md) · [Licence](LICENSE)
+[Download](https://github.com/revil-O/VulKara/releases/latest) · [User guide](docs/USER_GUIDE.md) · [How the pipelines work](docs/PIPELINES.md) · [Developer guide](docs/DEVELOPMENT.md) · [Measurements](docs/MEASUREMENTS.md) · [Licence](LICENSE)
 
 The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) · [Español](docs/es/USER_GUIDE.md) · [Português (Brasil)](docs/pt-BR/USER_GUIDE.md) · [Português (Portugal)](docs/pt-PT/USER_GUIDE.md) · [Translate it](docs/TRANSLATING.md)
 
@@ -328,10 +328,12 @@ video, upscale, restore, LoRAs, model import and privacy. They are in their own 
 
 ## Quick start
 
-1. Open VulKara and go to **Settings → Runtimes**. Install **Diffusers (Apple GPU)** (about 0.9 GB).
-2. Go to **Models → Recommended** and install a model, for example *SDXL 1.0* (16 GB of memory or more) or *Stable
+1. Download the DMG of the [latest release](https://github.com/revil-O/VulKara/releases/latest), open it and drag
+   VulKara into *Applications*. It is signed and notarized by Apple.
+2. Open VulKara and go to **Settings → Runtimes**. Install **Diffusers (Apple GPU)** (about 0.9 GB).
+3. Go to **Models → Recommended** and install a model, for example *SDXL 1.0* (16 GB of memory or more) or *Stable
    Diffusion 1.5* (8 GB).
-3. Go to **Text**, describe a picture and press **⌘↩**.
+4. Go to **Text**, describe a picture and press **⌘↩**.
 
 The [user guide](docs/USER_GUIDE.md) describes every page and setting; it is also in [German](docs/de/USER_GUIDE.md),
 [Spanish](docs/es/USER_GUIDE.md) and Portuguese ([Brazil](docs/pt-BR/USER_GUIDE.md), [Portugal](docs/pt-PT/USER_GUIDE.md)).
@@ -386,7 +388,7 @@ node tools/release.mjs   # signed and notarized DMG (notarytool profile "VulKara
 
 Architecture, engine protocol, migrations, release and the clean check: see the
 [developer guide](docs/DEVELOPMENT.md). The pipelines of every page with diagrams: [How the pipelines work](docs/PIPELINES.md).
-Concepts for what comes next: [Characters](docs/concepts/CHARACTERS.md). The project wiki on Gitea has all of it as pages.
+Concepts for what comes next: [Characters](docs/concepts/CHARACTERS.md).
 
 ## Licence
 

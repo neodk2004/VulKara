@@ -97,13 +97,13 @@ function dirBytes(dir: string): number {
   return total
 }
 
-/** The stream caches (stream_cache in each model's folder, or the folders of the shared cache dir) and the free room of
- * the disk they are on. */
 /** A folder as the pages show it: the home folder as ~ (the user's name stays out of screenshots and copied info). */
 export function shownPath(p: string, home = homedir()): string {
   return p === home ? '~' : p.startsWith(home + '/') ? '~' + p.slice(home.length) : p
 }
 
+/** The stream caches (stream_cache in each model's folder, or the folders of the shared cache dir) and the free room of
+ * the disk they are on. */
 export async function streamStorage(modelsDir: string, streamCacheDir: string): Promise<{ cacheGb: number; freeGb: number; where: string }> {
   let bytes = 0
   const where = streamCacheDir || modelsDir

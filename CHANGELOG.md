@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.1 – 2026-10-12
 
 - The Hardware page shows a folder in your home folder as `~/…`, also in **Copy info**: your user name stays out
   of screenshots and of what you paste into an issue.

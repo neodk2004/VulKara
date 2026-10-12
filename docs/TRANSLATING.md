@@ -10,7 +10,7 @@ request.
 
 - A Mac with Apple silicon, [Node.js](https://nodejs.org) 22 or newer and git, to check your work in the app. Without a
   Mac you can still translate the files and let the tests run in the pull request.
-- A fork of the repository on GitHub (or Gitea), cloned to your computer:
+- A fork of [the repository on GitHub](https://github.com/revil-O/VulKara), cloned to your computer:
 
 ```bash
 git clone https://github.com/<you>/VulKara.git
