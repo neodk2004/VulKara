@@ -1,0 +1,220 @@
+{
+ "curated": {
+  "SD-1.5": "O modelo clássico de 512 px: rápido, funciona em qualquer Mac, milhares de LoRAs.",
+  "FLUX.2-klein-4B": "A geração mais recente do FLUX, destilada para 4 passos. A melhor qualidade por GB de RAM.",
+  "SD-1.5-Inpainting": "SD 1.5 treinado para voltar a pintar partes mascaradas (página Inpainting, Tela de IA).",
+  "FLUX.2-klein-9B": "Modelo klein maior, funciona em 8/4 bits em Macs de 16–24 GB.",
+  "FLUX.1-schnell-Q4": "FLUX.1 de 4 passos, transformer GGUF pré-quantizado. Os codificadores de texto e o VAE vêm do repositório oficial.",
+  "FLUX.1-schnell-Q8": "FLUX.1 de 4 passos com transformer GGUF em 8 bits, quase com qualidade total.",
+  "FLUX.1-dev": "FLUX.1 [dev] completo. Em Macs com menos de 24 GB, o transformer é carregado por streaming do SSD: mais lento, mas funciona com 16 GB.",
+  "FLUX.1-dev-Q4": "FLUX.1 com guidance destilado para o máximo de detalhe, transformer GGUF pré-quantizado.",
+  "Chroma1-HD": "Modelo Apache 2.0 baseado no FLUX.1 [schnell] (8,9B): guidance verdadeiro com prompt negativo, sem censura. O transformer é quantizado em 8 bits ao ser carregado em Macs com menos de 32 GB e usa streaming do SSD abaixo de 20 GB.",
+  "Chroma1-Flash": "O Chroma rápido: destilado para 12 passos sem guidance (uma passagem por passo em vez de duas) – cerca de 7 minutos por imagem a 1024 px num M2 com 24 GB, sete vezes mais rápido do que o Chroma com guidance. Apache 2.0, sem censura. Quantizado em 8 bits abaixo de 32 GB, streaming do SSD abaixo de 20 GB.",
+  "Z-Image-Turbo": "Modelo de 6B da Tongyi-MAI destilado para 8–9 passos sem guidance: imagens fotorrealistas e texto legível (inglês e chinês) em poucos passos. Apache 2.0. Cerca de 5½ minutos por imagem a 1024 px num M2 com 24 GB com o runtime MLX (8 bits; 4 bits com 16 GB), cerca de 6½ com Diffusers; imagem para imagem e inpainting funcionam com Diffusers. Funcionam LoRAs com nomes do ai-toolkit, ComfyUI e kohya. O repositório oficial guarda o transformer em 32 bits (24,6 GB da transferência); é calculado em 8 ou 16 bits.",
+  "SD3.5-Medium": "Modelo MMDiT de 2,5B que segue bem o prompt.",
+  "SD3.5-Large": "Modelo MMDiT de 8B, quantizado automaticamente para caber no seu Mac.",
+  "SDXL-Base-1.0": "O clássico modelo base SDXL em 1024×1024.",
+  "SDXL-Turbo": "SDXL em tempo real: 1–4 passos em 512×512.",
+  "SD-2.1": "SD 2.1 a 768 px (v-prediction).",
+  "DreamShaper-8": "Fine-tune versátil do SD 1.5: retratos, fantasia, ilustração.",
+  "Realistic-Vision-5.1": "Fine-tune fotorrealista do SD 1.5.",
+  "epiCPhotoGasm": "Fine-tune fotográfico do SD 1.5.",
+  "Counterfeit-V2.5": "Ilustração de anime (SD 1.5).",
+  "DucHaiten-AIart": "Arte de fantasia com ar de pintura (SD 1.5).",
+  "Dreamlike-Diffusion-1.0": "Modelo SD 1.5 surreal e artístico (licença própria).",
+  "Arcane-Diffusion": "Estilo da série Arcane (SD 1.5, gatilho: arcane style).",
+  "Mo-Di-Diffusion": "Estilo de filme de animação moderno (SD 1.5, gatilho: modern disney style).",
+  "ReV-Animated-1.2.2": "Modelo SD 1.5 de fantasia / ilustração.",
+  "Wan2.2-I2V-14B": "Transforma uma imagem num vídeo curto (página Imagem para vídeo) e segue de perto o movimento descrito. Dois especialistas de 14B em 4 bits com as LoRAs lightx2v de 4 passos, 16 fps. Cerca de 25 min para 2 s em 480p num M2 com 24 GB. Apache 2.0. Funciona no runtime ComfyUI (Definições → Runtimes).",
+  "Wan2.2-TI2V-5B": "Modelo de vídeo mais pequeno (página Imagem para vídeo): transferência menor, mas segue as descrições de movimento com menos precisão e foi feito para 720p. Apache 2.0. Funciona no runtime ComfyUI (Definições → Runtimes).",
+  "Anima-Turbo": "Modelo de anime / ilustração da CircleStone Labs (2B, codificador de texto Qwen3), 10 passos. Funciona no runtime ComfyUI (Definições → Runtimes). Licença não comercial.",
+  "MiaoMiao-RealSkin-Anima": "Fine-tune do Anima para pele realista, com codificador de texto e VAE próprios. Funciona no runtime ComfyUI (Definições → Runtimes).",
+  "CyberRealistic-Final": "Modelo SD 1.5 fotorrealista.",
+  "GhostMix-v2": "Anime / ilustração semirrealista (SD 1.5).",
+  "DreamShaper-XL-v2-Turbo": "Fine-tune versátil do SDXL destilado para poucos passos.",
+  "Juggernaut-XL-v7": "Fine-tune fotorrealista do SDXL.",
+  "epiCRealism-XL-v8": "Fotos de aspeto natural com SDXL.",
+  "JANKU-Illustrious-XL": "Modelo de anime / ilustração (Illustrious, NoobAI).",
+  "Retrordinary": "Estilo de ilustração retro (Illustrious).",
+  "GonzaLomo-Chroma": "Fine-tune do Chroma (8 bits): guidance verdadeiro com prompt negativo.",
+  "LUSTIFY-apexV8": "Checkpoint SDXL fotorrealista NSFW.",
+  "MoP-Mix-asap": "Mix SDXL NSFW.",
+  "MoP-Mix-fustercluck": "Mix SDXL NSFW.",
+  "CyberRealistic-Pony-v18": "Modelo Pony (SDXL) realista, capaz de NSFW."
+ },
+ "helpers": {
+  "content-nsfw": {
+   "name": "Filtro de conteúdo: nudez",
+   "description": "Verifica se cada resultado contém nudez antes de o mostrar (modo seguro) e, juntamente com a estimativa de idade, se há menores."
+  },
+  "content-age": {
+   "name": "Filtro de conteúdo: estimativa de idade",
+   "description": "Estima a idade dos rostos num resultado: nudez juntamente com um provável menor nunca é mostrada."
+  },
+  "lama": {
+   "name": "LaMa (preenchimento)",
+   "description": "Preenche riscos, manchas e buracos de fotos antigas a partir do que os rodeia (Restaurar)."
+  },
+  "ddcolor": {
+   "name": "DDColor (colorização)",
+   "description": "Coloriza fotos a preto e branco; as formas continuam a ser as do original (Restaurar)."
+  },
+  "codeformer": {
+   "name": "CodeFormer (rostos)",
+   "description": "Restaura rostos desfocados de fotos antigas, com o YuNet para os encontrar (Restaurar). Licença não comercial."
+  },
+  "dwpose": {
+   "name": "DWPose (deteção de pose)",
+   "description": "Encontra a pose das pessoas numa foto: para o editor de Pose e imagens de controlo de pose."
+  },
+  "depth": {
+   "name": "Depth Anything V2 Small (profundidade)",
+   "description": "Transforma uma foto num mapa de profundidade: perto é claro, longe é escuro. Para imagens de controlo de profundidade."
+  },
+  "controlnet-union-sdxl-1.0-promax": {
+   "name": "ControlNet Union para SDXL (ProMax)",
+   "description": "Um só modelo para pose, profundidade, contornos, rabisco e tile com modelos SDXL."
+  },
+  "flux1-dev-controlnet-union-pro-2.0": {
+   "name": "ControlNet Union Pro 2.0 para FLUX.1",
+   "description": "Pose, profundidade e contornos com modelos FLUX.1; identifica o tipo de controlo pela imagem."
+  },
+  "control-v11p-sd15-openpose": {
+   "name": "ControlNet de pose para SD 1.5",
+   "description": "A pose de uma imagem de esqueleto para modelos SD 1.5."
+  },
+  "control-v11f1p-sd15-depth": {
+   "name": "ControlNet de profundidade para SD 1.5",
+   "description": "O espaço de um mapa de profundidade para modelos SD 1.5."
+  },
+  "control-v11p-sd15-canny": {
+   "name": "ControlNet de contornos para SD 1.5",
+   "description": "Os contornos de uma imagem para modelos SD 1.5."
+  },
+  "control-v11p-sd15-lineart": {
+   "name": "ControlNet de line art para SD 1.5",
+   "description": "Um desenho de linhas colorido por modelos SD 1.5."
+  },
+  "control-v11p-sd15-scribble": {
+   "name": "ControlNet de rabisco para SD 1.5",
+   "description": "Um esboço rápido transformado em imagem por modelos SD 1.5."
+  },
+  "sd35m-controlnet-depth": {
+   "name": "ControlNet de profundidade para SD 3.5 Medium",
+   "description": "Mapas de profundidade para SD 3.5 Medium."
+  },
+  "sd35m-controlnet-canny": {
+   "name": "ControlNet de contornos para SD 3.5 Medium",
+   "description": "Contornos para SD 3.5 Medium."
+  },
+  "sd35l-controlnet-depth": {
+   "name": "ControlNet de profundidade para SD 3.5 Large",
+   "description": "Mapas de profundidade para SD 3.5 Large (requer um token do Hugging Face)."
+  },
+  "sd35l-controlnet-canny": {
+   "name": "ControlNet de contornos para SD 3.5 Large",
+   "description": "Contornos para SD 3.5 Large (requer um token do Hugging Face)."
+  },
+  "sd35l-controlnet-blur": {
+   "name": "ControlNet tile para SD 3.5 Large",
+   "description": "Mantém a composição de uma imagem desfocada e acrescenta detalhe (requer um token do Hugging Face)."
+  },
+  "sd15-qrcode-monster-v2": {
+   "name": "QR Code Monster para SD 1.5 (Ilusão)",
+   "description": "Esconde um padrão ou texto numa imagem (página Ilusão)."
+  },
+  "sdxl-qrcode-monster": {
+   "name": "QR Code Monster para SDXL (Ilusão)",
+   "description": "Esconde um padrão ou texto numa imagem com modelos SDXL (página Ilusão)."
+  },
+  "realesrgan": {
+   "name": "Real-ESRGAN x4plus (Ampliar)",
+   "description": "Amplia imagens duas ou quatro vezes com detalhe (página Ampliar, runtime ComfyUI); reconstrói detalhes suaves de fotos antigas (Restaurar)."
+  }
+ },
+ "groups": {
+  "Content filter": "Filtro de conteúdo",
+  "ControlNet": "ControlNet",
+  "Photo tools": "Ferramentas de foto",
+  "Pose and depth": "Pose e profundidade",
+  "Restore": "Restaurar",
+  "Upscale": "Ampliar"
+ },
+ "tools": {
+  "nafnet-deblur": {
+   "name": "Nitidez (NAFNet)",
+   "summary": "Remove a desfocagem",
+   "description": "Remove a desfocagem de fotos tremidas ou ligeiramente desfocadas e torna-as mais nítidas."
+  },
+  "scunet-real": {
+   "name": "Reduzir ruído (SCUNet)",
+   "summary": "Remove o ruído",
+   "description": "Remove o ruído de fotos reais (ISO alto, pouca luz) e preserva os detalhes.",
+   "defaultLabel": "Natural",
+   "variants": {
+    "sharp": {
+     "label": "Nítido",
+     "description": "Os pesos GAN do SCUNet: mais nítido, com textura fina inventada onde havia ruído; menos fiel."
+    }
+   }
+  },
+  "swinir-real-x4": {
+   "name": "Ampliar ×4 (SwinIR)",
+   "summary": "Quatro vezes maior",
+   "description": "Amplia uma foto quatro vezes e recria detalhes finos; para fotos reais."
+  },
+  "fbcnn-color": {
+   "name": "Limpeza de JPEG (FBCNN)",
+   "summary": "Remove artefactos",
+   "description": "Remove os blocos e halos da compressão JPEG forte (fotos guardadas pequenas ou enviadas por apps de mensagens); deteta a qualidade sozinho."
+  },
+  "birefnet-lite": {
+   "name": "Remover fundo (BiRefNet)",
+   "summary": "Só o motivo",
+   "description": "Separa o motivo principal do fundo: uma imagem com fundo transparente, ou a máscara."
+  },
+  "sam21-tiny": {
+   "name": "Selecionar objetos (SAM 2.1)",
+   "summary": "Clique para selecionar",
+   "description": "Clique num objeto para o selecionar: recortá-lo, manter a máscara ou pintá-lo de novo na página Inpainting."
+  }
+ },
+ "licences": {
+  "Recommended: SD 1.x": "Recomendados: SD 1.x",
+  "Use-based restrictions (Attachment A) apply to the model and its outputs.": "Aplicam-se restrições baseadas na utilização (Anexo A) ao modelo e aos seus resultados.",
+  "Recommended: FLUX.2": "Recomendados: FLUX.2",
+  "The model only for non-commercial purposes; generated pictures may be used commercially.": "Modelo apenas para utilização não comercial; as imagens geradas podem ser usadas comercialmente.",
+  "Recommended: FLUX.1": "Recomendados: FLUX.1",
+  "Recommended: Chroma": "Recomendados: Chroma",
+  "Recommended: Z-Image": "Recomendados: Z-Image",
+  "Recommended: SD 3.5": "Recomendados: SD 3.5",
+  "Commercial use free of charge below USD 1 million annual revenue, after registering with Stability AI; above that an enterprise license.": "Uso comercial gratuito abaixo de 1 milhão de USD de receita anual, após registo na Stability AI; acima disso, uma licença empresarial.",
+  "Recommended: SDXL": "Recomendados: SDXL",
+  "Recommended: SD 2.x": "Recomendados: SD 2.x",
+  "Not in websites or apps that earn revenue or donations; outputs commercially only in teams of 10 or less.": "Não em sites ou apps que gerem receita ou donativos; uso comercial dos resultados apenas em equipas de 10 pessoas ou menos.",
+  "Civitai permissions: Image, RentCivit. Selling generated pictures: allowed. Sharing merges / derivatives: allowed. The license of the base model applies as well.": "Permissões do Civitai: Image, RentCivit. Vender imagens geradas: permitido. Partilhar merges / derivados: permitido. A licença do modelo base também se aplica.",
+  "Recommended: Wan": "Recomendados: Wan",
+  "Recommended: Anima": "Recomendados: Anima",
+  "The model only for non-commercial purposes; generated pictures may be used for any purpose.": "Modelo apenas para utilização não comercial; as imagens geradas podem ser usadas para qualquer fim.",
+  "Civitai permissions: RentCivit. Selling generated pictures: not allowed. Sharing merges / derivatives: not allowed. The license of the base model applies as well.": "Permissões do Civitai: RentCivit. Vender imagens geradas: não permitido. Partilhar merges / derivados: não permitido. A licença do modelo base também se aplica.",
+  "Civitai permissions: Image, RentCivit, Rent, Sell, SellMerge. Selling generated pictures: allowed. Sharing merges / derivatives: allowed. The license of the base model applies as well.": "Permissões do Civitai: Image, RentCivit, Rent, Sell, SellMerge. Vender imagens geradas: permitido. Partilhar merges / derivados: permitido. A licença do modelo base também se aplica.",
+  "Civitai permissions: RentCivit, Rent. Selling generated pictures: not allowed. Sharing merges / derivatives: not allowed. The license of the base model applies as well.": "Permissões do Civitai: RentCivit, Rent. Vender imagens geradas: não permitido. Partilhar merges / derivados: não permitido. A licença do modelo base também se aplica.",
+  "Civitai permissions: Image, RentCivit. Selling generated pictures: allowed. Sharing merges / derivatives: not allowed. The license of the base model applies as well.": "Permissões do Civitai: Image, RentCivit. Vender imagens geradas: permitido. Partilhar merges / derivados: não permitido. A licença do modelo base também se aplica.",
+  "Civitai permissions: RentCivit, Image. Selling generated pictures: allowed. Sharing merges / derivatives: not allowed. The license of the base model applies as well.": "Permissões do Civitai: RentCivit, Image. Vender imagens geradas: permitido. Partilhar merges / derivados: não permitido. A licença do modelo base também se aplica.",
+  "Civitai permissions: RentCivit, Rent. Selling generated pictures: not allowed. Sharing merges / derivatives: allowed. The license of the base model applies as well.": "Permissões do Civitai: RentCivit, Rent. Vender imagens geradas: não permitido. Partilhar merges / derivados: permitido. A licença do modelo base também se aplica.",
+  "Base models": "Modelos base",
+  "Commercial use only below USD 1 million company revenue. Section 4.2 requires reasonable content filter measures against prohibited content (Acceptable Use Policy: https://www.krea.ai/krea-2-use-policy).": "Uso comercial apenas abaixo de 1 milhão de USD de receita da empresa. A secção 4.2 exige medidas razoáveis de filtragem de conteúdo contra conteúdo proibido (Acceptable Use Policy: https://www.krea.ai/krea-2-use-policy).",
+  "Generating pictures for revenue-generating products or advertising is not a non-commercial purpose; AI disclosure where the law requires it.": "Gerar imagens para produtos que geram receita ou para publicidade não é um fim não comercial; identificação como IA onde a lei o exigir.",
+  "Research and evaluation only; commercial use needs a separate licence from Alibaba (Tongyi Lab).": "Apenas investigação e avaliação; o uso comercial requer uma licença separada da Alibaba (Tongyi Lab).",
+  "Video": "Vídeo",
+  "ControlNet": "ControlNet",
+  "Use-based restrictions apply.": "Aplicam-se restrições baseadas na utilização.",
+  "Helper models": "Modelos auxiliares",
+  "Photo tools": "Ferramentas de foto",
+  "The ONNX repository's licence file is MIT (from KAIR) while its model card says Apache-2.0 (SCUNet's code); both allow any use.": "O ficheiro de licença do repositório ONNX é MIT (da KAIR), enquanto o model card indica Apache-2.0 (o código do SCUNet); ambas permitem qualquer utilização.",
+  "The ONNX export (onnx-community) carries no licence statement of its own; the weights are Meta's SAM 2.1, released under Apache-2.0.": "A exportação ONNX (onnx-community) não traz declaração de licença própria; os pesos são o SAM 2.1 da Meta, lançado ao abrigo da Apache-2.0.",
+  "For non-commercial use only: restored faces may not be used commercially. VulKara is free and downloads the weights from the project on first use.": "Apenas para utilização não comercial: os rostos restaurados não podem ser usados comercialmente. O VulKara é gratuito e transfere os pesos do projeto na primeira utilização.",
+  "In the app": "Na app",
+  "Runtimes (installed on demand)": "Runtimes (instalados quando necessário)"
+ }
+}

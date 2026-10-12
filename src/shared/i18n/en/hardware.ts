@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Oliver Schmidt
+export default {
+  title: 'Hardware',
+  thisMac: 'This Mac',
+  cpu: {
+    hint: 'Apple silicon: performance cores for the heavy work, efficiency cores for the rest. The engines use the GPU for the models; the CPU prepares pictures, reads models and runs the photo tools.',
+    name: 'Name',
+    architecture: 'Architecture',
+    cores: 'Cores',
+    coreSplit: '{performance} performance + {efficiency} efficiency',
+  },
+  memory: {
+    title: 'Memory',
+    hint: 'Apple silicon shares one memory between CPU and GPU (unified memory). Metal lets a single process use about three quarters of it; that is the room a model has on the GPU.',
+    unified: 'Unified memory',
+    gpuBudget: 'GPU budget (Metal)',
+    about: 'about {gb} GB',
+    forModels: 'For models, after the reserve',
+  },
+  gpu: {
+    cores: '{n} GPU cores',
+    metalUnified: 'Metal · unified memory',
+    enginesOn: 'Engines on it',
+    engines: 'Diffusers (PyTorch MPS), MLX; ComfyUI (PyTorch MPS); the photo tools and the content filter run on the CPU',
+  },
+  monitor: {
+    title: 'Resource monitor',
+    hint: 'Measured every two seconds. VulKara: the app with its engines and helpers. System: everything in use on this Mac (active, wired and compressed memory).',
+    app: 'VulKara and its engines',
+    system: 'System in use',
+    of: 'of {total}',
+    streamCaches: 'Streaming caches on the SSD',
+    freeThere: 'Free there',
+  },
+  guard: {
+    title: 'Guard rails',
+    hint: 'What keeps this Mac responsive while a model runs. All of it is set in Settings → Engine.',
+    reserve: 'Memory kept free for other apps',
+    reserveAuto: '{gb} GB (automatic: 20 %, at least 4 GB)',
+    larger: 'Models larger than memory',
+    ssdStreaming: 'SSD streaming: {mode}',
+    stepCaching: 'Step caching',
+    runtime: 'Preferred runtime',
+    automatic: 'Automatic',
+    change: 'Change in Settings',
+  },
+  streaming: {
+    auto: 'When needed',
+    always: 'Always',
+    off: 'Never',
+  },
+  cache: {
+    off: 'Off',
+    light: 'Light',
+    strong: 'Strong',
+  },
+  copied: 'Copied',
+  copyInfo: 'Copy info',
+} as const

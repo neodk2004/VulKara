@@ -1,0 +1,23 @@
+# diffusers engine (SDXL, SD 3.5, FLUX.1, FLUX.2, Qwen-Image); runs in its own venv, see docs/Running_from_source.md
+torch>=2.8
+torchvision  # the Qwen3-VL processor of Qwen-Image 2.1
+diffusers>=0.41,<1.0  # 0.41: Qwen-Image 2.1; 1.0 drops QuantoConfig, which the 8-bit loading and its cache rely on
+transformers>=5.0
+accelerate>=1.10
+huggingface_hub>=1.0
+safetensors>=0.6
+gguf>=0.17
+optimum-quanto>=0.2.7
+sentencepiece
+protobuf
+psutil
+pillow
+numpy
+ninja  # optimum-quanto builds its kernels at first use
+peft>=0.17  # LoRA adapters
+onnxruntime  # DWPose (pose from photos), ONNX photo tools
+spandrel>=0.4,<0.5  # photo tools on the GPU from their original weights (NAFNet, SCUNet, SwinIR, FBCNN)
+spandrel_extra_arches>=0.2,<0.3  # CodeFormer (Restore: faces)
+opencv-python-headless  # ControlNet preprocessing (edges, image warps)
+scipy  # samplers: LMS, beta sigmas
+torchsde  # sampler: DPM++ SDE

@@ -1,0 +1,121 @@
+{
+ "Comfy-Org/Real-ESRGAN_repackaged": {
+  "files": {
+   "RealESRGAN_x4plus.safetensors": "37f9a931c215f040aa6d50f711f2cb115f713c46df1d0d6469a8bd7bfe9a60bb"
+  },
+  "revision": "5fd49b7b278836f48af63ecd314d0f98ab336105"
+ },
+ "Shakker-Labs/FLUX.1-dev-ControlNet-Union-Pro-2.0": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.safetensors": "9d03f63f36206bab2f36aed5cfedc8693c2881397534e9d5f9ae9a0a41362517"
+  },
+  "revision": "5d700aaad96c5ddcdf8a38ef9b22a82aac2c38e5"
+ },
+ "depth-anything/Depth-Anything-V2-Small-hf": {
+  "files": {
+   "config.json": null,
+   "model.safetensors": "3152477ce0d8d6978d76b995120de97cb5b928701fd0f817769f59e249a16b70",
+   "preprocessor_config.json": null
+  },
+  "revision": "5426e4f0f36572d16453bbda7a8389317b1bef99"
+ },
+ "lllyasviel/control_v11f1p_sd15_depth": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.fp16.safetensors": "838f3e848cb93231d41084d858d117416ab32907a5c8c80c421a131d101ba1ef"
+  },
+  "revision": "539f99181d33db39cf1af2e517cd8056785f0a87"
+ },
+ "lllyasviel/control_v11p_sd15_canny": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.fp16.safetensors": "9ed3a7f834aca0d2b26f9c7f186b3ee29465de1d13e152459e8c9cbb25a0c0bc"
+  },
+  "revision": "115a470d547982438f70198e353a921996e2e819"
+ },
+ "lllyasviel/control_v11p_sd15_lineart": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.fp16.safetensors": "de4f699573813c5ad07091fe1ad4097ddc957c22e313187caa885c82e3b6a85b"
+  },
+  "revision": "8a158f547e031c5b8fbca19ead09a74767ff4db0"
+ },
+ "lllyasviel/control_v11p_sd15_openpose": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.fp16.safetensors": "b25b1125e870275550b2a7de289056cb3c236c01c293bd5ba883657b1c006e3e"
+  },
+  "revision": "9ae9f970358db89e211b87c915f9535c6686d5ba"
+ },
+ "lllyasviel/control_v11p_sd15_scribble": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.fp16.safetensors": "46be9cc44d61ed0a0bed0b34746541c1b274e7194f2262dca7671048562bdfa1"
+  },
+  "revision": "3564ec7b87dd706d5fc760d21c9e90bb160d1e9f"
+ },
+ "monster-labs/control_v1p_sd15_qrcode_monster": {
+  "files": {
+   "v2/config.json": null,
+   "v2/diffusion_pytorch_model.safetensors": "a95dc35dfff997bd9c751a97db4959db1235f5776ef5e453d468c602c7998794"
+  },
+  "revision": "560fb7b15d0badb409f8cd578a2bfe63bd4b8046"
+ },
+ "monster-labs/control_v1p_sdxl_qrcode_monster": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.safetensors": "11e49b4e272fabda60094b35be6fd3e215e551211210938e381d27497fd2215c"
+  },
+  "revision": "1ec5dea263b28ba2925151ab5007dfbf9147ad75"
+ },
+ "stabilityai/stable-diffusion-3.5-large-controlnet-blur": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.safetensors": "450c51542992407bd2b8c123f70d8958e04129fb1ff471d93fca6e0141a0d42d"
+  },
+  "revision": "16faf1b50cfa867d2985cbc6a1e8653451839753"
+ },
+ "stabilityai/stable-diffusion-3.5-large-controlnet-canny": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.safetensors": "5f2608a8af55f223250398e04e3c497aa194ddbcb70049f556194c4a2d333865"
+  },
+  "revision": "71511b9db86ecc71b307cf122dc4f8029ef212ec"
+ },
+ "stabilityai/stable-diffusion-3.5-large-controlnet-depth": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.safetensors": "5cd54d6c670ebc864b459f251573bc0f9cb60f2adf644dbd4df4ffab6879b1a1"
+  },
+  "revision": "6bcad403a0aca0d000b3624f751d0c391303e12f"
+ },
+ "tensorart/SD3.5M-Controlnet-Canny": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.safetensors": "60f6eeaf265ba3336705ecd6dcd8170985fa577bc5f04fd7649aca06f139634a"
+  },
+  "revision": "068c3d8480ae1b8c89cccded3cab9bc462737383"
+ },
+ "tensorart/SD3.5M-Controlnet-Depth": {
+  "files": {
+   "config.json": null,
+   "diffusion_pytorch_model.safetensors": "f768adb86fa5585afd4fc9a301317d703c69921630278e1f8095364c6f71a306"
+  },
+  "revision": "8d677da02448d702b6ec90e1cc6cf7ee0958c9e0"
+ },
+ "xinsir/controlnet-union-sdxl-1.0": {
+  "files": {
+   "config_promax.json": null,
+   "diffusion_pytorch_model_promax.safetensors": "9fae2e50cb431bfcbe05822b59ec2228df545ef27f711dea8949e9f4ed9f7cdc"
+  },
+  "revision": "801a4a3fa3d4c936f4feea95b98607bc6726f80c"
+ },
+ "yzd-v/DWPose": {
+  "files": {
+   "dw-ll_ucoco_384.onnx": "724f4ff2439ed61afb86fb8a1951ec39c6220682803b4a8bd4f598cd913b1843",
+   "yolox_l.onnx": "7860ae79de6c89a3c1eb72ae9a2756c0ccfbe04b7791bb5880afabd97855a411"
+  },
+  "revision": "1a7144101628d69ee7a3768d1ee3a094070dc388"
+ }
+}

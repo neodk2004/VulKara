@@ -1,0 +1,1098 @@
+{
+ "groups": [
+  {
+   "id": "general",
+   "title": "General (todos los modelos)",
+   "intro": "Hábitos que mejoran los resultados uses el modelo que uses.",
+   "tips": [
+    {
+     "title": "Construye el prompt en un orden fijo",
+     "body": "Empieza por el sujeto, luego lo que hace, el escenario, la composición, la iluminación, la cámara o la técnica y, por último, el estilo. La mayoría de los modelos dan más peso a lo que va primero, así que pon delante lo más importante.",
+     "example": "A weathered fisherman mending a net on a wooden pier, low morning sun, medium shot, 50mm lens, shallow depth of field, muted film colors",
+     "do": [
+      "Nombra primero un sujeto claro",
+      "Añade la iluminación y el encuadre a propósito"
+     ],
+     "avoid": [
+      "Enterrar el sujeto tras largas listas de estilos",
+      "Mezclar estilos que chocan (p. ej., foto y acuarela) en un mismo prompt"
+     ]
+    },
+    {
+     "title": "Adapta el estilo del prompt al modelo",
+     "body": "Los modelos más antiguos basados en CLIP (SD 1.5, ajustes finos de anime de SDXL) responden mejor a palabras clave o etiquetas cortas separadas por comas. Los modelos más nuevos con grandes codificadores de lenguaje (FLUX, Qwen-Image, Z-Image, Chroma, Krea 2) entienden frases completas y funcionan mejor con descripciones en prosa.",
+     "do": [
+      "Etiquetas para SD 1.5, Pony, Illustrious",
+      "Frases para FLUX, Qwen-Image, Z-Image, Krea 2, Chroma"
+     ]
+    },
+    {
+     "title": "Mismo prompt, distintos modelos",
+     "body": "Cada modelo interpreta las mismas palabras a su manera: el encuadre, la luz, el estilo y lo literal que se toma el prompt varían mucho. La fila muestra un mismo prompt y seed en cinco tipos de modelo, cada uno con sus pasos y guidance recomendados. El veterano SD 1.5 descompone al gato, SDXL Turbo se acerca mucho, y los modelos más nuevos con codificadores de lenguaje construyen la escena completa.",
+     "do": [
+      "Usa los ajustes recomendados de cada modelo al comparar"
+     ],
+     "avoid": [
+      "Juzgar un modelo con ajustes pensados para otro"
+     ],
+     "images": [
+      {
+       "file": "row_model_sd1.jpg",
+       "caption": "SD 1.5",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_model_sdxl.jpg",
+       "caption": "SDXL Turbo",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_model_flux2.jpg",
+       "caption": "FLUX.2 klein 4B",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_model_zimage.jpg",
+       "caption": "Z-Image Turbo",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_model_chroma.jpg",
+       "caption": "Chroma1-Flash",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      }
+     ]
+    },
+    {
+     "title": "Usa los pesos con moderación",
+     "body": "En la sintaxis de SD, (palabra) refuerza un término en torno a 1.1x y (palabra:1.3) fija un peso explícito. Suelen bastar pequeños ajustes entre 0.8 y 1.4 aproximadamente; los pesos grandes rompen la imagen. Los modelos con codificadores de lenguaje siguen de cerca la redacción normal y a menudo ganan poco con los pesos.",
+     "example": "portrait of a woman, (freckles:1.2), soft window light",
+     "avoid": [
+      "Pesos por encima de 1.5 aproximadamente",
+      "Acumular muchos paréntesis anidados"
+     ]
+    },
+    {
+     "title": "Cuándo funcionan los prompts negativos",
+     "body": "Los prompts negativos solo surten efecto cuando el modelo funciona con classifier-free guidance real (guidance mayor que 1). SD 1.5, SDXL, SD 3.5, Chroma, Qwen-Image, Z-Image Base y Wan los usan; los modelos destilados como FLUX.1, FLUX.2 klein destilado y Z-Image Turbo los ignoran.",
+     "do": [
+      "Prompts negativos cortos y concretos (blurry, watermark, extra fingers)"
+     ],
+     "avoid": [
+      "Enormes listas negativas copiadas; pueden aplanar la imagen"
+     ]
+    },
+    {
+     "title": "Fija la seed para comparar cambios",
+     "body": "La seed fija el ruido inicial. Mantenla constante mientras cambias una palabra o un ajuste cada vez, para ver qué ha hecho ese cambio; pasa a seeds aleatorias para explorar composiciones nuevas.",
+     "do": [
+      "Cambia una sola cosa en cada generación",
+      "Anota las seeds de las imágenes que te gusten"
+     ]
+    },
+    {
+     "title": "Cada seed es una imagen nueva",
+     "body": "La seed es el ruido inicial. Con el mismo prompt y los mismos ajustes, cada seed da una composición distinta: dónde está tumbado el gato, dónde queda la ventana, qué hace la luz. La fila muestra SDXL Turbo con un prompt y cuatro seeds. Encuentra una composición que te guste probando seeds y conserva esa seed mientras pules el prompt.",
+     "do": [
+      "Prueba varias seeds antes de reescribir el prompt",
+      "Conserva la seed de una imagen que te guste"
+     ],
+     "images": [
+      {
+       "file": "row_seed_5403.jpg",
+       "caption": "Seed 5403",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_seed_5404.jpg",
+       "caption": "Seed 5404",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_seed_5405.jpg",
+       "caption": "Seed 5405",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_seed_5406.jpg",
+       "caption": "Seed 5406",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      }
+     ]
+    },
+    {
+     "title": "Pasos y guidance: lo básico",
+     "body": "Más pasos refinan la imagen hasta cierto punto; después solo cuestan tiempo. La guidance (CFG) determina con qué rigor se sigue el prompt: demasiado alta da contraste duro, sobresaturación y artefactos; demasiado baja, resultados vagos. Los modelos turbo destilados necesitan muy pocos pasos y poca o ninguna guidance.",
+     "do": [
+      "Parte de los valores recomendados del modelo",
+      "Baja la guidance si los colores parecen quemados"
+     ],
+     "avoid": [
+      "Usar un modelo turbo de 4 pasos con 50 pasos o CFG alta"
+     ]
+    },
+    {
+     "title": "Guidance de baja a alta",
+     "body": "La guidance determina cuánto empuja el modelo hacia el prompt. Demasiado baja da imágenes blandas y desvaídas; en torno al valor por defecto del modelo se ve natural; más alta endurece los colores y añade artefactos; muy alta quema la imagen. La fila muestra SD 1.5 con un prompt y seed a guidance 1.5, 4, 7, 12 y 20.",
+     "do": [
+      "Empieza por el valor por defecto del modelo y muévete en pasos pequeños"
+     ],
+     "avoid": [
+      "Guidance muy alta para forzar el prompt"
+     ],
+     "images": [
+      {
+       "file": "row_guidance_15.jpg",
+       "caption": "Guidance 1.5",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_guidance_4.jpg",
+       "caption": "Guidance 4",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_guidance_7.jpg",
+       "caption": "Guidance 7",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_guidance_12.jpg",
+       "caption": "Guidance 12",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_guidance_20.jpg",
+       "caption": "Guidance 20",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      }
+     ]
+    },
+    {
+     "title": "Pasos: refinamiento hasta cierto punto",
+     "body": "Los pasos son las veces que el modelo refina la imagen. Muy pocos la dejan sin terminar y con ruido; con el número habitual del modelo queda limpia; más allá apenas cambia y solo cuesta tiempo. La fila muestra SD 1.5 con un prompt y seed a 5, 10, 20 y 40 pasos.",
+     "avoid": [
+      "Muchos más pasos de los que necesita el modelo: solo cuesta tiempo"
+     ],
+     "images": [
+      {
+       "file": "row_steps_5.jpg",
+       "caption": "5 pasos",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_steps_10.jpg",
+       "caption": "10 pasos",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_steps_20.jpg",
+       "caption": "20 pasos",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      },
+      {
+       "file": "row_steps_40.jpg",
+       "caption": "40 pasos",
+       "prompt": "A cozy bookshop cafe on a rainy evening, warm light through the window, a cat sleeping on a stack of books"
+      }
+     ]
+    },
+    {
+     "title": "Genera al tamaño nativo del modelo",
+     "body": "Cada modelo se entrena en torno a un número de píxeles: unos 512 px para SD 1.5, alrededor de 1 megapíxel (1024x1024) para SDXL, SD 3.5 y FLUX, y más para algunos modelos recientes. Cambia la proporción, pero mantén un número total de píxeles parecido; los tamaños mucho mayores provocan sujetos duplicados y anatomías extrañas.",
+     "do": [
+      "Formato vertical para personas, panorámico para paisajes",
+      "Amplía después para impresiones grandes"
+     ]
+    },
+    {
+     "title": "Itera: imagen a imagen, inpainting, ampliar",
+     "body": "Primero consigue la composición y luego corrige los detalles. Usa imagen a imagen con intensidad moderada para variar una imagen que te guste, haz inpainting de zonas pequeñas (una mano, una cara, un cartel) con un prompt centrado en ellas y termina con un ampliador o una pasada de alta resolución con poca intensidad.",
+     "do": [
+      "Intensidad de 0.3-0.5 aproximadamente para retoques sutiles",
+      "Corrige un problema cada vez con inpainting"
+     ],
+     "avoid": [
+      "Regenerar la imagen entera para arreglar una mano"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "anatomy",
+   "title": "Anatomía y personas",
+   "intro": "Cómo conseguir caras, manos y poses creíbles en sujetos adultos.",
+   "tips": [
+    {
+     "title": "Describe a las personas con detalles concretos",
+     "body": "Indica franja de edad, complexión, pelo, ropa y expresión en lugar de palabras vagas como beautiful. Los detalles concretos llevan al modelo hacia un adulto concreto y de aspecto natural.",
+     "example": "A man in his forties with a short grey beard, navy wool coat and a calm half-smile, standing by a rainy window"
+    },
+    {
+     "title": "Encuadra las manos para que se lean bien",
+     "body": "Las manos salen mejor cuando se ven, no se superponen y hacen una acción sencilla, como sostener una taza. Los dedos entrelazados y los gestos complejos son lo que más falla, sobre todo en SD 1.5 y SDXL.",
+     "do": [
+      "Da a las manos una tarea sencilla (sostener algo, apoyarse en una mesa)",
+      "Usa una imagen más grande para que las manos tengan más píxeles"
+     ],
+     "avoid": [
+      "Dedos entrelazados y gestos complejos en imágenes pequeñas"
+     ],
+     "images": [
+      {
+       "file": "hands_plain.jpg",
+       "caption": "Prompt corto",
+       "prompt": "a woman holding a cup"
+      },
+      {
+       "file": "hands_good.jpg",
+       "caption": "Prompt detallado",
+       "prompt": "close-up of an adult woman's hands holding a ceramic cup with both hands, five relaxed fingers on each hand, natural nails, soft window light, shallow depth of field"
+      }
+     ]
+    },
+    {
+     "title": "Corrige caras y manos con inpainting",
+     "body": "Enmascara la zona defectuosa y regenérala con un prompt corto solo para esa parte. Una intensidad moderada (aprox. 0.35-0.5) mantiene la iluminación coherente con el resto de la imagen; valores más altos pueden parecer pegados. En VulKara, pinta sobre esa parte en la página Inpainting y describe solo esa parte.",
+     "do": [
+      "Corrige una mano cada vez",
+      "Reutiliza las palabras de estilo del prompt original"
+     ]
+    },
+    {
+     "title": "Da más píxeles a las caras pequeñas",
+     "body": "Las caras en planos generales o de cuerpo entero reciben pocos píxeles y salen emborronadas. Encuadra más cerca, usa una resolución mayor o haz después una pasada de detalle de caras.",
+     "do": [
+      "Usa formato vertical para planos de cuerpo entero"
+     ]
+    },
+    {
+     "title": "Controla las poses con referencias",
+     "body": "Cuando la pose importa, una referencia de pose (un ControlNet tipo OpenPose o la entrada de imagen de referencia de un modelo) es mucho más fiable que describir los ángulos de las articulaciones con palabras.",
+     "do": [
+      "Usa una foto clara o un esqueleto de pose como guía"
+     ],
+     "avoid": [
+      "Largas descripciones en texto de la posición de las extremidades"
+     ]
+    },
+    {
+     "title": "Cómo guía una imagen de pose el resultado",
+     "body": "Una imagen de pose (un esqueleto de la página Pose) fija dónde van la cabeza, los brazos y las piernas; el prompt sigue decidiendo quién es, qué lleva puesto y la luz. Sin ella, el modelo elige una pose propia; con peso 0.5 la pose se adopta en gran parte, con 1 se sigue de cerca, hasta la pierna doblada. La fila muestra un prompt y seed sin pose y con la pose a dos pesos (SDXL con un ControlNet de pose).",
+     "do": [
+      "Ajusta las proporciones de la imagen a las de la imagen de pose",
+      "Describe la ropa y el escenario en el prompt"
+     ],
+     "avoid": [
+      "Poses que el prompt contradice (p. ej., sentado en el prompt, de pie en la pose)"
+     ],
+     "images": [
+      {
+       "file": "pose_control.jpg",
+       "caption": "Imagen de pose"
+      },
+      {
+       "file": "pose_w0.jpg",
+       "caption": "Sin pose",
+       "prompt": "full body photo of a dancer in a flowing red dress on a theatre stage, warm spotlight, dark background"
+      },
+      {
+       "file": "pose_w05.jpg",
+       "caption": "Pose, peso 0.5",
+       "prompt": "full body photo of a dancer in a flowing red dress on a theatre stage, warm spotlight, dark background"
+      },
+      {
+       "file": "pose_w10.jpg",
+       "caption": "Pose, peso 1.0",
+       "prompt": "full body photo of a dancer in a flowing red dress on a theatre stage, warm spotlight, dark background"
+      }
+     ]
+    },
+    {
+     "title": "Mantén diferenciadas a varias personas",
+     "body": "Los modelos tienden a mezclar los rasgos de las personas. Describe a cada una en su propia frase con una posición (izquierda, derecha, primer plano) y mantén pocas personas; los modelos con codificador de lenguaje lo resuelven mucho mejor que SD 1.5.",
+     "example": "On the left, a tall woman in a red raincoat; on the right, a shorter man in a green sweater, both laughing at a bus stop"
+    },
+    {
+     "title": "Ojos: describe la mirada y la luz",
+     "body": "Indicar adónde mira la persona (a la cámara, por la ventana) junto con una fuente de luz suave suele dar ojos alineados con brillos limpios. Los ojos desparejados son un arreglo típico y rápido con inpainting.",
+     "images": [
+      {
+       "file": "eye_plain.jpg",
+       "caption": "Prompt corto",
+       "prompt": "an eye"
+      },
+      {
+       "file": "eye_good.jpg",
+       "caption": "Prompt detallado",
+       "prompt": "macro photo of a human eye, detailed iris with fine radial fibers, a small window reflection in the pupil, individual eyelashes, sharp focus, soft daylight"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "details",
+   "title": "Detalles y calidad",
+   "intro": "Palabras y ajustes que añaden textura y evitan el aspecto plástico de la IA.",
+   "tips": [
+    {
+     "title": "Nombra materiales y superficies",
+     "body": "Los materiales concretos dan al modelo algo tangible que representar: aluminio cepillado, cuero gastado, lino, asfalto mojado, yeso rugoso. Palabras genéricas como detailed aportan poco.",
+     "example": "close-up of a ceramic mug with a matte speckled glaze on an oak table, steam rising",
+     "images": [
+      {
+       "file": "object_plain.jpg",
+       "caption": "Prompt corto",
+       "prompt": "a teapot"
+      },
+      {
+       "file": "object_good.jpg",
+       "caption": "Prompt detallado",
+       "prompt": "a hand-thrown stoneware teapot with a speckled matte glaze and a small chip at the rim, on a weathered oak table, low side light from a window, still life photo"
+      }
+     ]
+    },
+    {
+     "title": "Describe el pelo como mechones y luz",
+     "body": "El pelo parece real cuando el prompt nombra su textura y cómo le da la luz: mechones, ondas o rizos, pelos sueltos, y un contraluz o luz de borde que los haga brillar. Solo un color da un casco de pelo liso.",
+     "do": [
+      "Nombra la textura (ondulado, grueso, fino, trenzado)",
+      "Añade contraluz o luz de borde"
+     ],
+     "avoid": [
+      "Solo un color de pelo"
+     ],
+     "images": [
+      {
+       "file": "hair_plain.jpg",
+       "caption": "Prompt corto",
+       "prompt": "a woman with red hair"
+      },
+      {
+       "file": "hair_good.jpg",
+       "caption": "Prompt detallado",
+       "prompt": "back view of a woman with long wavy auburn hair, individual strands and a few flyaway hairs catching warm backlight, soft rim light, dark background"
+      }
+     ]
+    },
+    {
+     "title": "Usa lenguaje de iluminación real",
+     "body": "Describe la fuente de luz, la dirección y la calidad: contraluz de hora dorada, luz suave de cielo nublado, sol duro de mediodía, luz de borde, reflejos de neón, luz de velas. La iluminación es una de las palancas más potentes para el ambiente y el realismo.",
+     "do": [
+      "Nombra una fuente de luz y su dirección"
+     ],
+     "avoid": [
+      "Dejar la iluminación sin especificar (suele verse plana)"
+     ],
+     "images": [
+      {
+       "file": "light_plain.jpg",
+       "caption": "Prompt corto",
+       "prompt": "a street at night"
+      },
+      {
+       "file": "light_good.jpg",
+       "caption": "Prompt detallado",
+       "prompt": "a narrow wet cobblestone street at night, warm sodium street lamps, reflections in the puddles, light fog, cinematic, 35mm photo"
+      }
+     ]
+    },
+    {
+     "title": "Evita el aspecto plástico y demasiado liso",
+     "body": "Una guidance muy alta, palabras de belleza y etiquetas de calidad acumuladas suelen dar una piel cerosa. Baja un poco la guidance y pide imperfecciones naturales como textura de piel, poros, arrugas finas o grano de película.",
+     "do": [
+      "Menciona la textura natural de la piel o el grano de película",
+      "Prueba con una guidance algo más baja"
+     ],
+     "avoid": [
+      "Acumular flawless, perfect skin, 8k, masterpiece"
+     ],
+     "images": [
+      {
+       "file": "skin_plain.jpg",
+       "caption": "Prompt corto",
+       "prompt": "portrait of an old man"
+      },
+      {
+       "file": "skin_good.jpg",
+       "caption": "Prompt detallado",
+       "prompt": "photo of an old fisherman, weathered skin with visible pores and fine wrinkles, grey stubble, natural overcast light, 85mm lens, no retouching"
+      }
+     ]
+    },
+    {
+     "title": "Usa términos de cámara y película para fotos",
+     "body": "La focal, la apertura y el tipo de película o cámara guían el realismo: foto callejera de 35mm, retrato 85mm f/1.8, película analógica, instantánea con flash. Los modelos modernos responden bien a estas pistas.",
+     "example": "candid 35mm film photo of a busy night market, tungsten light, slight grain"
+    },
+    {
+     "title": "Evita textos no deseados",
+     "body": "Los modelos antiguos suelen añadir garabatos, marcas de agua o firmas falsas. Añade watermark, text, signature al prompt negativo donde se admita; en modelos sin prompt negativo, describe una superficie limpia y sin marcas.",
+     "do": [
+      "Negativo para SD y SDXL: watermark, text, logo, signature"
+     ]
+    },
+    {
+     "title": "Pon entre comillas el texto que quieras",
+     "body": "Los modelos que representan bien el texto (FLUX, Qwen-Image, Z-Image, Ideogram 4, SD 3.5) funcionan mejor cuando las palabras exactas van entre comillas, son pocas y se describen su posición y estilo. SD 1.5 y la mayoría de los modelos SDXL no escriben de forma fiable.",
+     "example": "a vintage enamel shop sign that reads \"OPEN LATE\" in bold cream letters on dark green",
+     "avoid": [
+      "Párrafos enteros de texto en una imagen"
+     ]
+    },
+    {
+     "title": "Añade detalle con una segunda pasada",
+     "body": "Para el detalle fino, genera al tamaño nativo y luego amplía, opcionalmente con una pasada de imagen a imagen de poca intensidad, en lugar de generar directamente imágenes enormes."
+    }
+   ]
+  },
+  {
+   "id": "loras",
+   "title": "Trabajar con LoRAs",
+   "intro": "Las LoRAs añaden estilos, personajes o conceptos sobre un modelo base.",
+   "tips": [
+    {
+     "title": "Elige la LoRA de la misma familia que el modelo base",
+     "body": "Una LoRA solo funciona con la familia de modelos para la que se entrenó: SD 1.5, SDXL (Pony e Illustrious suelen necesitar los suyos), FLUX.1, FLUX.2, Qwen-Image, Z-Image, etc. La página de descarga indica el modelo base.",
+     "avoid": [
+      "Cargar una LoRA de SDXL en SD 1.5 o FLUX"
+     ]
+    },
+    {
+     "title": "Usa las palabras clave",
+     "body": "Muchas LoRAs solo se activan cuando su palabra o frase clave está en el prompt. Cópiala de la página de la LoRA y ponla cerca del principio.",
+     "do": [
+      "Busca las palabras clave o de activación en la página de la LoRA"
+     ]
+    },
+    {
+     "title": "Empieza con un peso de 0.6-0.8",
+     "body": "El peso 1.0 es la intensidad entrenada, pero muchas LoRAs se ven mejor entre 0.5 y 0.9 aproximadamente. Súbelo si el efecto es demasiado débil; bájalo si la imagen se deforma o ignora tu prompt.",
+     "do": [
+      "Ajusta en pasos de 0.1 aproximadamente"
+     ]
+    },
+    {
+     "title": "Cómo cambia el peso la imagen",
+     "body": "El peso determina con qué fuerza lleva una LoRA la imagen hacia lo que aprendió. Los pesos bajos añaden un toque de su estilo mientras el modelo base sigue decidiendo; en torno a 1 la LoRA toma el control; muy por encima de 1 empieza a romper la imagen (pixelada, con ruido o quemada). La fila muestra un prompt y seed sin la LoRA y con una LoRA de pixel art a pesos crecientes (Z-Image Turbo); con 1.5 la imagen se desmorona. VulKara pone las palabras clave de una LoRA delante del prompt cuando faltan.",
+     "do": [
+      "Sube el peso en pasos de 0.1-0.2",
+      "Consulta en la página de la LoRA su propio rango"
+     ],
+     "avoid": [
+      "Pesos muy superiores a 1, salvo que la página de la LoRA lo pida"
+     ],
+     "images": [
+      {
+       "file": "lora_w0.jpg",
+       "caption": "Sin LoRA",
+       "prompt": "A lighthouse on a rocky coast at sunset, waves breaking, a few seagulls"
+      },
+      {
+       "file": "lora_w05.jpg",
+       "caption": "Peso 0.5",
+       "prompt": "Pixel Art style., A lighthouse on a rocky coast at sunset, waves breaking, a few seagulls"
+      },
+      {
+       "file": "lora_w10.jpg",
+       "caption": "Peso 1.0",
+       "prompt": "Pixel Art style., A lighthouse on a rocky coast at sunset, waves breaking, a few seagulls"
+      },
+      {
+       "file": "lora_w15.jpg",
+       "caption": "Peso 1.5",
+       "prompt": "Pixel Art style., A lighthouse on a rocky coast at sunset, waves breaking, a few seagulls"
+      }
+     ]
+    },
+    {
+     "title": "Baja los pesos al combinar",
+     "body": "Los efectos de las LoRAs se suman. Con dos o tres LoRAs, reduce cada una (a menudo a 0.4-0.7) para que no se impongan al modelo base ni entre sí. Más de tres con peso alto suelen romper la coherencia.",
+     "do": [
+      "Combina una LoRA de estilo con una de personaje o concepto"
+     ]
+    },
+    {
+     "title": "Estilo, personaje o concepto",
+     "body": "Las LoRAs de estilo cambian todo el aspecto y a menudo funcionan con menos peso. Las de personaje necesitan peso suficiente para mantener la identidad, pero pueden fijar la pose o la ropa de sus imágenes de entrenamiento. Las de concepto (un objeto o un efecto) suelen ser las más sensibles al peso. Una mezcla habitual: una LoRA de estilo acuarela a 0.6 con una LoRA de producto a 0.8."
+    },
+    {
+     "title": "Reconoce una LoRA pasada de rosca",
+     "body": "Señales típicas: colores quemados o sobresaturados, texturas repetidas, todas las caras iguales, anatomía deformada o el prompt ignorado. Baja primero el peso y luego desactiva las LoRAs de una en una para encontrar a la culpable."
+    }
+   ]
+  },
+  {
+   "id": "special",
+   "title": "Complementos y LoRAs populares",
+   "intro": "Notas generales sobre complementos muy usados; consulta siempre la página de cada uno para los ajustes exactos.",
+   "tips": [
+    {
+     "title": "LoRAs Turbo, Lightning y Hyper",
+     "body": "Las LoRAs de velocidad permiten que un modelo completo funcione con un puñado de pasos. Usa el número de pasos, la CFG (normalmente en torno a 1) y el scheduler que indiquen; con CFG 1 los prompts negativos dejan de funcionar."
+    },
+    {
+     "title": "LoRAs de detalle y de piel",
+     "body": "Las LoRAs de detalle o de piel realista añaden textura y microdetalle. Suelen usarse con un peso de bajo a moderado, y algunas admiten también pesos negativos para reducir el detalle; en exceso dan una piel granulada y demasiado enfocada."
+    },
+    {
+     "title": "Retocadores de caras y manos",
+     "body": "Los retocadores automáticos detectan caras o manos, las enmascaran y les aplican inpainting a mayor resolución. Una intensidad moderada (aprox. 0.3-0.5) mantiene la identidad y la iluminación. En VulKara, pinta sobre la cara o la mano en la página Inpainting y describe solo esa parte."
+    },
+    {
+     "title": "Los embeddings negativos dependen del modelo",
+     "body": "Los embeddings negativos entrenados para SD 1.5 solo sirven para SD 1.5; SDXL necesita los suyos, y los modelos transformer más nuevos no los usan."
+    },
+    {
+     "title": "Consulta primero la página del modelo",
+     "body": "Los checkpoints y las LoRAs populares suelen indicar el sampler, los pasos, la CFG, la resolución, el VAE y las palabras clave recomendados. Esos ajustes superan a los valores generales."
+    },
+    {
+     "title": "Amplía las ideas cortas para modelos de prompts largos",
+     "body": "Los modelos con codificadores de lenguaje (Qwen-Image, Z-Image, Krea 2, Wan, Ideogram 4) se benefician de convertir una idea corta en un párrafo detallado, a mano o con un modelo de lenguaje."
+    }
+   ]
+  },
+  {
+   "id": "sd1",
+   "title": "Stable Diffusion 1.5",
+   "intro": "La familia clásica de 512 px, mejor con prompts de palabras clave y prompts negativos.",
+   "tips": [
+    {
+     "title": "Escribe prompts a base de palabras clave",
+     "body": "SD 1.5 usa un codificador de texto CLIP que lee unos 75 tokens cada vez, así que las palabras clave cortas separadas por comas funcionan mejor que las frases largas. Pon primero el sujeto y las palabras de estilo clave.",
+     "example": "portrait of an old sailor, oil painting, dramatic lighting, rich colors, detailed"
+    },
+    {
+     "title": "Genera a 512-768 px",
+     "body": "El SD 1.5 base se entrenó a 512x512; muchos ajustes finos admiten hasta unos 768 px por lado. Los tamaños mayores suelen duplicar cabezas o extremidades, así que amplía después.",
+     "do": [
+      "512x768 o 768x512 para vertical u horizontal"
+     ]
+    },
+    {
+     "title": "Apóyate en los prompts negativos",
+     "body": "SD 1.5 se beneficia claramente de un prompt negativo corto con los defectos habituales.",
+     "example": "Negative: lowres, blurry, bad anatomy, extra fingers, watermark, text"
+    },
+    {
+     "title": "Usa embeddings negativos",
+     "body": "Los embeddings de textual inversion condensan una larga lista de rasgos no deseados en un solo token que va en el prompt negativo. Los entrenados para SD 1.5 no sirven para SDXL ni para modelos más nuevos.",
+     "avoid": [
+      "Usar embeddings de SD 1.5 con SDXL"
+     ]
+    },
+    {
+     "title": "Ajustes habituales",
+     "body": "Normalmente 20-30 pasos con guidance en torno a 7 (a menudo 5-9). Los checkpoints de la comunidad suelen indicar en su página el sampler, la CFG y el VAE preferidos."
+    }
+   ]
+  },
+  {
+   "id": "sdxl",
+   "title": "SDXL, Pony, Illustrious, NoobAI",
+   "intro": "Modelos de 1024 px; el SDXL base admite prompts mixtos, mientras que los ajustes finos de anime esperan etiquetas.",
+   "tips": [
+    {
+     "title": "Quédate cerca de 1 megapíxel",
+     "body": "SDXL se entrenó en torno a 1024x1024. Buenas alternativas son 1152x896, 1216x832 y 1344x768 y sus versiones verticales. Los tamaños pequeños como 512 px se ven notablemente peor.",
+     "do": [
+      "Elige un tamaño de aprox. 1 MP en total"
+     ]
+    },
+    {
+     "title": "Ajustes del SDXL base",
+     "body": "Normalmente unos 25-40 pasos con guidance en torno a 5-8, y los prompts negativos ayudan. El SDXL base no es bueno con el texto legible ni con composiciones espaciales complejas, así que mantén escenas sencillas o corrige los detalles con inpainting."
+    },
+    {
+     "title": "Pony: empieza por las etiquetas score",
+     "body": "Pony Diffusion V6 XL se entrenó con etiquetas de puntuación de calidad, así que los prompts suelen empezar por score_9, score_8_up, score_7_up seguidas de etiquetas estilo booru. Su página recomienda además CLIP skip 2 y unos 25 pasos.",
+     "example": "score_9, score_8_up, score_7_up, 1boy, adult, knight, armor, castle courtyard, sunset",
+     "avoid": [
+      "Olvidar CLIP skip 2 (da manchas de baja calidad)"
+     ]
+    },
+    {
+     "title": "Illustrious y NoobAI: calidad + etiquetas booru",
+     "body": "Estos ajustes finos de anime de SDXL responden a etiquetas estilo Danbooru encabezadas por etiquetas de calidad como masterpiece, best quality. Illustrious suele funcionar con guidance en torno a 4.5-7; las versiones v-prediction de NoobAI prefieren menos guidance (aprox. 3.5-5) para evitar la sobresaturación.",
+     "example": "masterpiece, best quality, 1girl, adult, silver hair, long coat, rainy city street, night, neon"
+    },
+    {
+     "title": "Usa etiquetas que el modelo conozca",
+     "body": "Los modelos entrenados con booru entienden los nombres de etiqueta estándar de Danbooru (looking at viewer, upper body, from side). Las expresiones inventadas suelen ignorarse, así que revisa la ortografía de las etiquetas.",
+     "do": [
+      "Pon pronto las etiquetas de número y sujeto (1girl, 1boy, solo)"
+     ]
+    },
+    {
+     "title": "Acelera con LoRAs Lightning o Hyper",
+     "body": "Las LoRAs de destilación como SDXL-Lightning o Hyper-SD permiten que SDXL funcione con unos 4-8 pasos. La mayoría necesitan una CFG muy baja (en torno a 1, o el valor que indique la LoRA) y un scheduler adecuado; sigue las notas de la LoRA.",
+     "avoid": [
+      "CFG 7 normal con una LoRA de 4 pasos"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sd3",
+   "title": "Stable Diffusion 3.5",
+   "intro": "Modelos MMDiT con tres codificadores de texto, buena comprensión del prompt y tipografía básica.",
+   "tips": [
+    {
+     "title": "Escribe frases naturales",
+     "body": "SD 3.5 combina CLIP con un codificador T5, así que las frases descriptivas funcionan mejor que las listas de etiquetas. Incluye el estilo, la composición y la iluminación en lenguaje llano."
+    },
+    {
+     "title": "Large: unos 28 pasos, guidance 3.5-4.5",
+     "body": "SD 3.5 Large suele funcionar con unos 28 pasos y guidance 3.5-4.5. Una guidance más alta enseguida se ve dura."
+    },
+    {
+     "title": "Large Turbo: 4 pasos, sin guidance",
+     "body": "La variante Turbo está destilada para unos 4 pasos con guidance 0, así que ahí los prompts negativos no tienen efecto."
+    },
+    {
+     "title": "Admite prompts negativos",
+     "body": "Con los modelos no turbo, prompts negativos cortos y precisos pueden eliminar elementos no deseados."
+    },
+    {
+     "title": "Quédate en torno a 1 megapíxel",
+     "body": "Usa unos 1024x1024 o una proporción equivalente para obtener los mejores resultados."
+    },
+    {
+     "title": "Mantén el texto corto",
+     "body": "SD 3.5 puede representar palabras cortas entre comillas, pero es menos fiable que FLUX, Qwen-Image o Ideogram con textos más largos."
+    }
+   ]
+  },
+  {
+   "id": "flux1",
+   "title": "FLUX.1 [dev] y [schnell]",
+   "intro": "Los modelos de 12B de Black Forest Labs, que siguen de cerca los prompts en lenguaje natural.",
+   "tips": [
+    {
+     "title": "Describe la escena en prosa",
+     "body": "FLUX usa un codificador de lenguaje T5 y sigue bien las frases completas. Escribe una descripción clara del sujeto, el escenario, la luz y el estilo; las listas de etiquetas y los pesos aportan poco.",
+     "example": "A cozy bookshop at dusk seen through a rain-streaked window, warm lamps inside, a cat asleep on a stack of novels, soft cinematic light"
+    },
+    {
+     "title": "Sin prompt negativo",
+     "body": "FLUX.1 [dev] y [schnell] tienen la guidance destilada e ignoran los prompts negativos. Formula lo que quieres, por ejemplo sharp focus en lugar de no blur."
+    },
+    {
+     "title": "[dev]: guidance de unos 3.5",
+     "body": "Lo habitual es guidance 3.5 con hasta 50 pasos; unos 20-30 pasos es una opción más rápida muy común. Una guidance algo más baja (aprox. 2-3) suele verse más natural en fotos; más alta sigue el prompt con más rigor."
+    },
+    {
+     "title": "[schnell]: 1-4 pasos, sin guidance",
+     "body": "Schnell está destilado para 1-4 pasos con guidance 0, y los pasos extra rara vez ayudan. Su límite de longitud del prompt (256 tokens) es menor que el de [dev]."
+    },
+    {
+     "title": "Bueno con textos cortos",
+     "body": "Pon el texto entre comillas y di dónde aparece. Las frases cortas se representan de forma fiable; los párrafos largos, no."
+    },
+    {
+     "title": "Usa solo LoRAs de FLUX.1",
+     "body": "Las LoRAs hechas para FLUX.1 no funcionan en FLUX.2 ni en otras familias, y las LoRAs de SDXL nunca funcionan en FLUX."
+    }
+   ]
+  },
+  {
+   "id": "flux2",
+   "title": "FLUX.2 [klein]",
+   "intro": "Modelos FLUX.2 compactos (4B y 9B) para generar y editar rápido.",
+   "tips": [
+    {
+     "title": "Variantes destiladas y base",
+     "body": "Los modelos klein destilados funcionan con unos 4 pasos y guidance en torno a 1. Los modelos klein Base no están destilados y necesitan unos 50 pasos con guidance en torno a 4, pero son más flexibles y están pensados para ajustes finos."
+    },
+    {
+     "title": "Empieza por el elemento más importante",
+     "body": "Ordena el prompt como sujeto, acción, estilo, contexto: las primeras palabras reciben más atención. Los prompts de longitud media, de unas 30-80 palabras, van bien para la mayoría de las imágenes.",
+     "example": "A red vintage scooter parked outside a pastel bakery in Lisbon, morning sun, shot on 35mm film, shallow depth of field"
+    },
+    {
+     "title": "Describe en positivo",
+     "body": "FLUX.2 no usa prompts negativos, así que describe lo que quieres en lugar de enumerar lo que hay que evitar."
+    },
+    {
+     "title": "Usa colores hex y texto entre comillas",
+     "body": "FLUX.2 puede seguir códigos de color hex asociados a un objeto (walls in #C4725A) y representa mejor el texto entre comillas cuando indicas posición, tamaño y estilo."
+    },
+    {
+     "title": "Editar requiere más pasos",
+     "body": "Imagen a imagen y las ediciones con referencia con los modelos destilados suelen necesitar más pasos que texto a imagen; con 4 pasos el original puede volver casi sin cambios."
+    },
+    {
+     "title": "Usa LoRAs de FLUX.2 klein",
+     "body": "Las LoRAs entrenadas para klein suelen funcionar mejor en el checkpoint destilado; las LoRAs de FLUX.1 no son compatibles."
+    }
+   ]
+  },
+  {
+   "id": "chroma",
+   "title": "Chroma y Chroma1-Flash",
+   "intro": "Un modelo abierto de 8.9B derivado de FLUX.1 [schnell] que conserva la CFG real y los prompts negativos.",
+   "tips": [
+    {
+     "title": "CFG real y prompts negativos",
+     "body": "A diferencia de FLUX.1, Chroma1-HD funciona con classifier-free guidance real, así que los prompts negativos funcionan. Unos 40 pasos con guidance en torno a 3 es un buen punto de partida.",
+     "example": "Negative: low quality, blurry, out of focus, unfinished"
+    },
+    {
+     "title": "Prompts en lenguaje natural",
+     "body": "Chroma lee los prompts con un codificador T5 como FLUX, así que las frases descriptivas funcionan, y es flexible tanto en estilos fotográficos como de ilustración."
+    },
+    {
+     "title": "Chroma1-Flash: pocos pasos, CFG de aprox. 1",
+     "body": "Flash lleva la guidance integrada. Normalmente unos 8 pasos con un sampler de segundo orden como Heun, o unos 16 pasos con otros samplers, a CFG en torno a 1-1.5. Con CFG 1 los prompts negativos no tienen efecto. En VulKara se probó con 12 pasos y guidance 1: unos 7 minutos por imagen a 1024 px en un M2 con 24 GB."
+    },
+    {
+     "title": "Pensado como base para ajustes finos",
+     "body": "Chroma1-HD está pensado como punto de partida para ajustes finos, así que los ajustes finos de la comunidad y las LoRAs de Chroma pueden dar resultados más pulidos para un estilo concreto."
+    },
+    {
+     "title": "Mantén los prompts claramente seguros",
+     "body": "Los datos de entrenamiento de Chroma son más amplios y menos filtrados que los de muchos modelos; escribe prompts claros y mantén activada la protección de contenido de la app."
+    }
+   ]
+  },
+  {
+   "id": "qwen_image",
+   "title": "Qwen-Image y Qwen-Image 2.1",
+   "intro": "Los modelos de Alibaba, con gran comprensión del prompt y la mejor representación abierta de textos largos.",
+   "tips": [
+    {
+     "title": "Escribe descripciones largas y detalladas",
+     "body": "Qwen-Image lee los prompts con un gran modelo de visión y lenguaje y maneja bien prompts largos y estructurados con varios objetos y relaciones. Describe de forma explícita la composición, los colores y el texto."
+    },
+    {
+     "title": "Su punto fuerte: textos y pósteres",
+     "body": "Representa texto en varias líneas en inglés y chino, incluidos pósteres e infografías. Pon cada texto entre comillas y di dónde va.",
+     "example": "A minimalist concert poster: large title \"NIGHT TRAIN\" at the top in bold white sans-serif, smaller line \"Live at the Harbor Hall\" below, deep blue background with a single orange train light"
+    },
+    {
+     "title": "Ajustes del Qwen-Image original",
+     "body": "Normalmente unos 50 pasos con CFG real en torno a 4. Admite prompt negativo; dejarlo vacío está bien cuando no hay nada que quitar."
+    },
+    {
+     "title": "Usa sus proporciones nativas",
+     "body": "Qwen-Image se entrenó con tamaños de unos 1.3-1.6 MP, como 1328x1328 (1:1), 1664x928 (16:9) y 1472x1140 (4:3). Quedarse cerca de estos tamaños da los resultados más limpios."
+    },
+    {
+     "title": "Qwen-Image 2.1: más pequeño, 2K, transparencia",
+     "body": "La versión 2.1 es un modelo más pequeño de 7B con salida nativa en 2K, edición con varias imágenes y transparencia real: pedir un fondo transparente puede producir una imagen RGBA. Su licencia es solo para investigación y uso no comercial."
+    },
+    {
+     "title": "Un breve sufijo de calidad puede ayudar",
+     "body": "Una breve frase de calidad al final (ultra HD, cinematic composition) puede ayudar. Vale la pena probarlo, pero describir la escena en sí importa más."
+    }
+   ]
+  },
+  {
+   "id": "z_image",
+   "title": "Z-Image Turbo y Base",
+   "intro": "Los modelos de 6B de Tongyi-MAI: Turbo para resultados rápidos, Base para el control total.",
+   "tips": [
+    {
+     "title": "Turbo: unos 9 pasos, guidance 0",
+     "body": "9 pasos (unos 8 efectivos) con guidance 0. Subir mucho la guidance o los pasos no ayuda. En VulKara tarda unos 5½ minutos a 1024 px en un M2 con 24 GB (MLX)."
+    },
+    {
+     "title": "Turbo ignora los prompts negativos",
+     "body": "Como Turbo funciona sin guidance, escríbelo todo en positivo: describe un fondo limpio en lugar de enumerar el desorden que hay que evitar."
+    },
+    {
+     "title": "Prompts largos en lenguaje natural",
+     "body": "Z-Image usa un codificador de lenguaje Qwen3 y funciona mejor con frases detalladas que con listas de etiquetas. Convertir una idea corta en un párrafo completo suele mejorar los resultados.",
+     "example": "A street portrait of a woman in her thirties with short black hair and a yellow raincoat, standing under a neon pharmacy sign at night, wet pavement reflections, eye-level 50mm shot"
+    },
+    {
+     "title": "Texto entre comillas en inglés o chino",
+     "body": "Z-Image representa texto bilingüe excepcionalmente bien para ser un modelo rápido; pon las palabras exactas entre comillas."
+    },
+    {
+     "title": "Base: más pasos, CFG real",
+     "body": "Z-Image Base no está destilado. Normalmente unos 28-50 pasos con guidance en torno a 3-5, y responde con fuerza a los prompts negativos. Úsalo cuando necesites prompts negativos, más variedad o una base para entrenar LoRAs."
+    },
+    {
+     "title": "Tiende al fotorrealismo",
+     "body": "Ambas versiones tienden por defecto a fotos realistas; nombra un estilo explícito (illustration, watercolor, 3D render) cuando quieras otra cosa."
+    }
+   ]
+  },
+  {
+   "id": "krea2",
+   "title": "Krea 2",
+   "intro": "El modelo abierto de 12B de Krea centrado en la estética, con checkpoints Turbo y RAW.",
+   "tips": [
+    {
+     "title": "Turbo para imágenes, RAW para entrenar",
+     "body": "Krea 2 Turbo es un checkpoint destilado de 8 pasos para imágenes finales. RAW es la base sin destilar pensada para ajustes finos y entrenamiento de LoRAs; las LoRAs entrenadas sobre RAW están diseñadas para funcionar en Turbo."
+    },
+    {
+     "title": "Lenguaje natural con dirección de arte",
+     "body": "Krea recomienda prompts en lenguaje natural: los prompts largos y detallados dan el mayor control, aunque los cortos también se ven bien. Nombra con claridad el ambiente, la iluminación y el estilo visual.",
+     "example": "Editorial fashion photo of a man in a rust-colored linen suit on a sun-bleached rooftop, hard midday shadows, desaturated warm palette"
+    },
+    {
+     "title": "Mantén los pesos cerca de 1",
+     "body": "Su codificador Qwen3-VL lee el prompt como lenguaje, así que los pesos de tokens desplazan todo el prompt; quédate en 1.2 o menos. Reformular funciona mejor que aplicar pesos fuertes."
+    },
+    {
+     "title": "Usa solo LoRAs de Krea 2",
+     "body": "Krea 2 se entrenó desde cero y no sobre FLUX o SDXL, así que solo son compatibles las LoRAs hechas para Krea 2."
+    }
+   ]
+  },
+  {
+   "id": "ideogram4",
+   "title": "Ideogram 4",
+   "intro": "El modelo abierto de 9.3B de Ideogram, creado para diseño, maquetación y tipografía.",
+   "tips": [
+    {
+     "title": "Las descripciones JSON estructuradas funcionan mejor",
+     "body": "Ideogram 4 se entrenó con descripciones JSON estructuradas: una breve descripción general, un bloque de estilo (técnica, iluminación, paleta de colores) y una lista de elementos. El texto normal también funciona si antes se amplía a esa estructura."
+    },
+    {
+     "title": "Pon el texto entre comillas y describe su aspecto",
+     "body": "Da la cadena exacta, mantenla corta, describe el estilo tipográfico (por ejemplo, condensed bold sans-serif) en lugar de un nombre de fuente, e indica la posición y la jerarquía.",
+     "example": "Headline \"FRESH ROAST\" centered in tall condensed black letters, small subline \"since 1998\" beneath, printed on a kraft-paper coffee bag"
+    },
+    {
+     "title": "Controla el color y la composición",
+     "body": "Ideogram 4 acepta paletas de colores hex y cuadros delimitadores para los elementos, así que logotipos, títulos y objetos se pueden colocar con precisión."
+    },
+    {
+     "title": "Elige el preajuste de pasos adecuado",
+     "body": "El código de referencia ofrece preajustes de unos 12 pasos para borradores, 20 para el trabajo diario y 48 para imágenes finales con letra pequeña."
+    },
+    {
+     "title": "Tamaños flexibles de hasta 2K",
+     "body": "Admite tamaños de 256 a 2048 px en múltiplos de 16 y proporciones muy panorámicas, ideales para banners y pósteres. Los pesos tienen una licencia no comercial."
+    }
+   ]
+  },
+  {
+   "id": "wan",
+   "title": "Vídeo con Wan 2.2",
+   "intro": "Modelos de vídeo abiertos en los que el prompt debe describir el movimiento y la cámara, no solo una escena fija.",
+   "tips": [
+    {
+     "title": "Describe el movimiento en el tiempo",
+     "body": "Di qué se mueve y cómo: quién camina hacia dónde, qué hace el viento, cómo cambia la luz. Un prompt de imagen fija suele dar un clip casi estático.",
+     "example": "A woman in a long coat walks slowly toward the camera along a foggy pier, her scarf moving in the wind, gulls passing overhead"
+    },
+    {
+     "title": "Usa términos de cinematografía para la cámara",
+     "body": "Wan 2.2 sigue el lenguaje de cámara habitual: static shot, pan left, tilt up, dolly in, tracking shot, orbit, crane up.",
+     "do": [
+      "Un solo movimiento de cámara claro por clip",
+      "Empieza por lo que la cámara ve primero"
+     ],
+     "avoid": [
+      "Varios movimientos de cámara contradictorios en cinco segundos"
+     ]
+    },
+    {
+     "title": "Clips cortos en tamaños estándar",
+     "body": "Los modelos de 14B generan clips de unos 5 segundos a 480p o 720p (81 fotogramas a 16 fps por defecto); el modelo TI2V de 5B apunta a 720p a 24 fps."
+    },
+    {
+     "title": "Los prompts negativos ayudan",
+     "body": "Wan funciona con guidance real (valores por defecto de Diffusers: unos 50 pasos, guidance en torno a 5), así que es útil un prompt negativo contra el desenfoque, los fotogramas estáticos, el parpadeo y las manos deformadas."
+    },
+    {
+     "title": "Imagen a vídeo conserva tu composición",
+     "body": "Partir de una imagen fija el aspecto y el encuadre; el prompt solo tiene que describir el movimiento y la cámara. El resultado sigue la proporción de la imagen de entrada."
+    },
+    {
+     "title": "Las LoRAs de velocidad cambian calidad por tiempo",
+     "body": "Las LoRAs de destilación como LightX2V reducen la generación a unos pocos pasos con guidance de aprox. 1, lo que desactiva los prompts negativos y puede reducir el movimiento; buenas para borradores."
+    }
+   ]
+  }
+ ],
+ "sources": [
+  {
+   "title": "FLUX.1 [dev] model card (Black Forest Labs)",
+   "url": "https://huggingface.co/black-forest-labs/FLUX.1-dev"
+  },
+  {
+   "title": "FLUX.1 [schnell] model card (Black Forest Labs)",
+   "url": "https://huggingface.co/black-forest-labs/FLUX.1-schnell"
+  },
+  {
+   "title": "FLUX.2 [klein] 4B model card",
+   "url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B"
+  },
+  {
+   "title": "FLUX.2 [klein] Base 4B model card",
+   "url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-base-4B"
+  },
+  {
+   "title": "FLUX.2 prompting guide (Black Forest Labs docs)",
+   "url": "https://docs.bfl.ai/guides/prompting_guide_flux2"
+  },
+  {
+   "title": "FLUX.2 klein prompt guide (fal.ai)",
+   "url": "https://fal.ai/learn/devs/flux-2-klein-prompt-guide"
+  },
+  {
+   "title": "FLUX.2 klein GGUF notes (img2img step counts)",
+   "url": "https://huggingface.co/ChrisColeTech/flux2-klein-GGUF"
+  },
+  {
+   "title": "Stable Diffusion 3.5 Large model card",
+   "url": "https://huggingface.co/stabilityai/stable-diffusion-3.5-large"
+  },
+  {
+   "title": "Stable Diffusion 3.5 Large Turbo model card",
+   "url": "https://huggingface.co/stabilityai/stable-diffusion-3.5-large-turbo"
+  },
+  {
+   "title": "SDXL base 1.0 model card",
+   "url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
+  },
+  {
+   "title": "Qwen-Image model card",
+   "url": "https://huggingface.co/Qwen/Qwen-Image"
+  },
+  {
+   "title": "Qwen Image 2.1 overview (eesel.ai)",
+   "url": "https://www.eesel.ai/blog/qwen-image-2-1"
+  },
+  {
+   "title": "Qwen-Image-2512 tutorial (ComfyUI Wiki)",
+   "url": "https://comfyui-wiki.com/en/tutorial/advanced/image/qwen/qwen-image-2512"
+  },
+  {
+   "title": "Z-Image-Turbo model card",
+   "url": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo"
+  },
+  {
+   "title": "Z-Image (Base) model card",
+   "url": "https://huggingface.co/Tongyi-MAI/Z-Image"
+  },
+  {
+   "title": "Z-Image-Base release notes (ComfyUI Wiki)",
+   "url": "https://comfyui-wiki.com/en/news/2026-01-28-alibaba-z-image-base-release"
+  },
+  {
+   "title": "Z-Image-Turbo prompting guide discussion",
+   "url": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo/discussions/8"
+  },
+  {
+   "title": "Chroma1-HD model card",
+   "url": "https://huggingface.co/lodestones/Chroma1-HD"
+  },
+  {
+   "title": "Chroma1-Flash model card",
+   "url": "https://huggingface.co/lodestones/Chroma1-Flash"
+  },
+  {
+   "title": "Chroma guide (chromaforge)",
+   "url": "https://github.com/maybleMyers/chromaforge/blob/main/levzzz_chroma_guide.md"
+  },
+  {
+   "title": "Krea 2 open-source announcement",
+   "url": "https://www.krea.ai/krea-2-open-source"
+  },
+  {
+   "title": "Krea-2-Turbo model card",
+   "url": "https://huggingface.co/krea/Krea-2-Turbo"
+  },
+  {
+   "title": "How to use Krea 2 open source (fal.ai)",
+   "url": "https://fal.ai/learn/tools/how-to-use-krea-2-open-source"
+  },
+  {
+   "title": "Krea 2 prompt and style guide (InstaSD)",
+   "url": "https://www.instasd.com/post/krea-2-prompt-and-style-guide-comfyui"
+  },
+  {
+   "title": "Ideogram 4 repository",
+   "url": "https://github.com/ideogram-oss/ideogram4"
+  },
+  {
+   "title": "Ideogram 4 JSON prompting notes",
+   "url": "https://omkamal.github.io/articles/ideogram4/ideogram4.html"
+  },
+  {
+   "title": "Wan2.2 T2V A14B model card",
+   "url": "https://huggingface.co/Wan-AI/Wan2.2-T2V-A14B"
+  },
+  {
+   "title": "Wan2.2 repository",
+   "url": "https://github.com/Wan-Video/Wan2.2"
+  },
+  {
+   "title": "Wan pipelines (diffusers docs)",
+   "url": "https://huggingface.co/docs/diffusers/main/en/api/pipelines/wan"
+  },
+  {
+   "title": "How to prompt Wan models (Hugging Face blog)",
+   "url": "https://huggingface.co/blog/MonsterMMORPG/how-to-prompt-wan-models-full-tutorial-and-guide"
+  },
+  {
+   "title": "Prompting and prompt weighting (diffusers docs)",
+   "url": "https://huggingface.co/docs/diffusers/main/en/using-diffusers/weighted_prompts"
+  },
+  {
+   "title": "Pony Diffusion V6 XL (Civitai)",
+   "url": "https://civitai.com/models/257749/pony-diffusion-v6-xl"
+  },
+  {
+   "title": "Pony Diffusion v6 XL (Stable Diffusion Art)",
+   "url": "https://stable-diffusion-art.com/pony-diffusion-v6-xl/"
+  },
+  {
+   "title": "Illustrious XL early release model card",
+   "url": "https://huggingface.co/OnomaAIResearch/Illustrious-xl-early-release-v0"
+  },
+  {
+   "title": "Illustrious and NoobAI guide",
+   "url": "https://artificialguy.com/blog/illustrious-noobai-anime-guide/"
+  },
+  {
+   "title": "SDXL 1.0 model guide (Stable Diffusion Art)",
+   "url": "https://stable-diffusion-art.com/sdxl-model/"
+  },
+  {
+   "title": "ADetailer guide (Stable Diffusion Art)",
+   "url": "https://stable-diffusion-art.com/adetailer/"
+  },
+  {
+   "title": "How to fix hands (Stable Diffusion Art)",
+   "url": "https://stable-diffusion-art.com/fix-hands/"
+  },
+  {
+   "title": "Embeddings guide (Stable Diffusion Art)",
+   "url": "https://stable-diffusion-art.com/embedding/"
+  },
+  {
+   "title": "EasyNegative embedding (Civitai)",
+   "url": "https://civitai.com/models/7808/easynegative"
+  },
+  {
+   "title": "Mastering trigger words (Civitai article)",
+   "url": "https://civitai.com/articles/29014/mastering-trigger-words"
+  },
+  {
+   "title": "ComfyUI LoRA weights and stacking guide",
+   "url": "https://eastondev.com/blog/en/posts/ai/20260720-comfyui-lora-guide/"
+  },
+  {
+   "title": "SDXL-Lightning (ByteDance)",
+   "url": "https://huggingface.co/ByteDance/SDXL-Lightning"
+  },
+  {
+   "title": "Hyper-SD (ByteDance)",
+   "url": "https://huggingface.co/ByteDance/Hyper-SD"
+  },
+  {
+   "title": "PromptHero Stable Diffusion prompt gallery",
+   "url": "https://prompthero.com/stable-diffusion-prompts"
+  }
+ ]
+}

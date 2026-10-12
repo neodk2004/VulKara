@@ -1,0 +1,173 @@
+{
+  "format": 1,
+  "tools": [
+    {
+      "id": "nafnet-deblur",
+      "name": "Sharpen (NAFNet)",
+      "task": "sharpen",
+      "summary": "Removes blur",
+      "description": "Removes blur from shaken or slightly out-of-focus photos and sharpens them.",
+      "kind": "image",
+      "runtime": "onnx",
+      "repo": "opencv/deblurring_nafnet",
+      "revision": "f1f255116cdb628a311d2b5749871189a4639d84",
+      "files": {
+        "deblurring_nafnet_2025may.onnx": "07263f416febecce10193dd648e950b22e397cf521eedab1a114ef77b2bc9587"
+      },
+      "model": "deblurring_nafnet_2025may.onnx",
+      "size_mb": 92,
+      "range": "0-1",
+      "multiple": 16,
+      "tile": 512,
+      "licence": "MIT",
+      "licence_url": "https://github.com/megvii-research/NAFNet/blob/main/LICENSE",
+      "source_url": "https://huggingface.co/opencv/deblurring_nafnet",
+      "licence_note": "OpenCV's ONNX export stays the Sharpen tool: the original NAFNet-GoPro weights blow up on many picture crops (MEASUREMENTS.md), this export does not."
+    },
+    {
+      "id": "scunet-real",
+      "name": "Denoise (SCUNet)",
+      "task": "denoise",
+      "summary": "Removes noise",
+      "description": "Removes the noise of real photos (high ISO, low light) and keeps the details.",
+      "kind": "image",
+      "runtime": "torch",
+      "urls": {
+        "scunet_color_real_psnr.pth": "https://github.com/cszn/KAIR/releases/download/v1.0/scunet_color_real_psnr.pth"
+      },
+      "files": {
+        "scunet_color_real_psnr.pth": "fa78899ba2caec9d235a900e91d96c689da71c42029230c2028b00f09f809c2e"
+      },
+      "model": "scunet_color_real_psnr.pth",
+      "size_mb": 72,
+      "range": "0-1",
+      "multiple": 64,
+      "tile": 1024,
+      "tile_metal_gb": {
+        "512": 2.3,
+        "768": 3.4,
+        "1024": 4.9
+      },
+      "min_side": 40,
+      "licence": "Apache-2.0",
+      "licence_url": "https://github.com/cszn/SCUNet/blob/main/LICENSE",
+      "source_url": "https://github.com/cszn/KAIR/releases/tag/v1.0",
+      "licence_note": "The original weights, published with KAIR (MIT) by SCUNet's author; SCUNet itself is Apache-2.0. Both allow any use.",
+      "default_label": "Natural",
+      "variants": {
+        "sharp": {
+          "label": "Sharp",
+          "description": "SCUNet's GAN weights: crisper, with fine texture made up where the noise was; less faithful.",
+          "file": "scunet_color_real_gan.pth",
+          "url": "https://github.com/cszn/KAIR/releases/download/v1.0/scunet_color_real_gan.pth",
+          "sha256": "892c83f812c59173273b74f4f34a14ecaf57a2fdb68df056664589beb55c966e",
+          "size_mb": 72
+        }
+      }
+    },
+    {
+      "id": "swinir-real-x4",
+      "name": "Upscale ×4 (SwinIR)",
+      "task": "upscale",
+      "summary": "Four times larger",
+      "description": "Enlarges a photo four times and recreates fine detail; for real photos.",
+      "kind": "image",
+      "runtime": "torch",
+      "urls": {
+        "003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth": "https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth"
+      },
+      "files": {
+        "003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth": "b9afb61e65e04eb7f8aba5095d070bbe9af28df76acd0c9405aeb33b814bcfc6"
+      },
+      "model": "003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth",
+      "size_mb": 67,
+      "scale": 4,
+      "range": "0-1",
+      "multiple": 8,
+      "tile": 512,
+      "tile_metal_gb": {
+        "256": 2.3,
+        "384": 4.5,
+        "512": 7.1
+      },
+      "max_side": 2048,
+      "licence": "Apache-2.0",
+      "licence_url": "https://github.com/JingyunLiang/SwinIR/blob/main/LICENSE",
+      "source_url": "https://github.com/JingyunLiang/SwinIR/releases/tag/v0.0"
+    },
+    {
+      "id": "fbcnn-color",
+      "name": "JPEG cleanup (FBCNN)",
+      "task": "dejpeg",
+      "summary": "Removes artefacts",
+      "description": "Removes the blocks and halos of strong JPEG compression (photos saved small or sent through messengers); finds the quality itself.",
+      "kind": "image",
+      "runtime": "torch",
+      "urls": {
+        "fbcnn_color.pth": "https://github.com/jiaxi-jiang/FBCNN/releases/download/v1.0/fbcnn_color.pth"
+      },
+      "files": {
+        "fbcnn_color.pth": "8b0e4ef23d59cf7ac934a342cb31a17619e4fa4a0b3374a9d78c5174312387e8"
+      },
+      "model": "fbcnn_color.pth",
+      "size_mb": 288,
+      "range": "0-1",
+      "multiple": 8,
+      "tile": 1024,
+      "tile_metal_gb": {
+        "512": 1.4,
+        "768": 2.5,
+        "1024": 2.5
+      },
+      "licence": "Apache-2.0",
+      "licence_url": "https://github.com/jiaxi-jiang/FBCNN/blob/main/LICENSE",
+      "source_url": "https://github.com/jiaxi-jiang/FBCNN/releases/tag/v1.0",
+      "quality": true
+    },
+    {
+      "id": "birefnet-lite",
+      "name": "Remove background (BiRefNet)",
+      "task": "cutout",
+      "summary": "Subject only",
+      "description": "Separates the main subject from the background: a picture with a transparent background, or the mask.",
+      "kind": "mask",
+      "repo": "onnx-community/BiRefNet_lite-ONNX",
+      "revision": "de15b22ba131738a16dff04aab8bdf8dc32e3ac1",
+      "files": {
+        "onnx/model_fp16.onnx": "d39b897ceb16ae654c1731f3dba0cf9b368d9cae74b5a57459b455cc8bfec402"
+      },
+      "model": "onnx/model_fp16.onnx",
+      "size_mb": 115,
+      "range": "imagenet",
+      "size": 1024,
+      "licence": "MIT",
+      "licence_url": "https://github.com/ZhengPeng7/BiRefNet/blob/main/LICENSE",
+      "source_url": "https://huggingface.co/onnx-community/BiRefNet_lite-ONNX"
+    },
+    {
+      "id": "sam21-tiny",
+      "name": "Select objects (SAM 2.1)",
+      "task": "select",
+      "summary": "Click to select",
+      "description": "Click on an object to select it: cut it out, keep its mask or paint it new on the Inpaint page.",
+      "kind": "segment",
+      "repo": "onnx-community/sam2.1-hiera-tiny-ONNX",
+      "revision": "814a066640debee5a91e70aa401fb8e17e030503",
+      "files": {
+        "onnx/vision_encoder.onnx": "4f30aacd3aaefbca81a0b7fe4c1fc96345570ea0a6f80ced599493d1b3be2e8c",
+        "onnx/vision_encoder.onnx_data": "e83df9866a5afe68ea7f0f721f18f65137fc3acbf0da1c74e946d363e09c69cc",
+        "onnx/prompt_encoder_mask_decoder.onnx": "874414704c5d686db7d206a35f6e15d26563d50c8c4468fccc6739bd7e491dcf",
+        "onnx/prompt_encoder_mask_decoder.onnx_data": "e9874d900dd4134ed60eab1e97910327c2419e0b2954485d8fd6e7f1a1470f47"
+      },
+      "model": "onnx/vision_encoder.onnx",
+      "decoder": "onnx/prompt_encoder_mask_decoder.onnx",
+      "size_mb": 155,
+      "range": "imagenet",
+      "size": 1024,
+      "licence": "Apache-2.0",
+      "licence_url": "https://github.com/facebookresearch/sam2/blob/main/LICENSE",
+      "source_url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX",
+      "licence_note": "The ONNX export (onnx-community) carries no licence statement of its own; the weights are Meta's SAM 2.1, released under Apache-2.0."
+    }
+  ]
+}

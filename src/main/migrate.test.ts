@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Oliver Schmidt
+import { existsSync, mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { describe, expect, it, vi } from 'vitest'
+
+const { recheckLibrary, RECHECK_FLAG } = await import('./migrate')
+
+describe('the one-time check of the installed LoRAs and models', () => {
+  // "--" before the --apply the check adds: node takes what follows as the script's arguments
+  const node = (script: string) => ({ command: process.execPath, args: ['-e', script, '--'] })
+
+  it('runs once, with --apply, and has the pages reload the list when something changed', async () => {
+    const data = mkdtempSync(join(tmpdir(), 'vk-recheck-'))
+    const changed = vi.fn()
+    const script = 'if (!process.argv.includes("--apply")) process.exit(3); console.log(JSON.stringify({ type: "lora", name: "x" }))'
+    expect(await recheckLibrary(node(script), {}, data, changed)).toBe(true)
+    expect(existsSync(join(data, RECHECK_FLAG))).toBe(true)
+    expect(changed).toHaveBeenCalledTimes(1)
+    expect(await recheckLibrary(node('process.exit(1)'), {}, data, changed)).toBe(false)  // done already
+    expect(changed).toHaveBeenCalledTimes(1)
+  })
+
+  it('waits for a later start without the runtime or after a failed run', async () => {
+    const data = mkdtempSync(join(tmpdir(), 'vk-recheck-'))
+    expect(await recheckLibrary(undefined, {}, data, () => {})).toBe(false)
+    expect(await recheckLibrary(node('process.exit(2)'), {}, data, () => {})).toBe(false)
+    expect(existsSync(join(data, RECHECK_FLAG))).toBe(false)
+  })
+})

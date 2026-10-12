@@ -1,0 +1,53 @@
+{
+  "name": "vulkara",
+  "productName": "VulKara",
+  "version": "0.5.0",
+  "description": "Local image and video generation for Apple Silicon Macs",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "main": "out/main/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json",
+    "test": "vitest run",
+    "check:clean": "python3 tools/check_clean.py",
+    "check:i18n": "node tools/check_i18n.mjs",
+    "i18n:new": "node tools/new_language.mjs",
+    "notices": "node tools/gen_notices.mjs",
+    "licenses": "python3 tools/gen_licenses.py",
+    "icon": "electron tools/make_icon.mjs",
+    "package": "electron-vite build && electron-builder --config electron-builder.config.cjs --mac --arm64 --publish never",
+    "release": "node tools/release.mjs",
+    "start:app": "electron-vite build && node tools/dev-app.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "@vitejs/plugin-vue": "6.0.9",
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "electron-vite": "5.0.0",
+    "lucide-vue-next": "1.0.0",
+    "pinia": "4.0.3",
+    "typescript": "5.9.3",
+    "vite": "7.3.6",
+    "vitest": "5.0.3",
+    "vue": "3.5.43",
+    "vue-router": "5.3.1",
+    "vue-tsc": "3.3.12"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.2": true,
+    "electron-winstaller": false
+  },
+  "author": "Oliver Schmidt",
+  "homepage": "https://github.com/revil-O/VulKara",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/revil-O/VulKara.git"
+  }
+}

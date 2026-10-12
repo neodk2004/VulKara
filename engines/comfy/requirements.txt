@@ -1,0 +1,5 @@
+# ComfyUI's own packages come from ComfyUI/requirements.txt (installed with the runtime);
+# the engine itself only needs what ComfyUI already brings (aiohttp for its websocket).
+aiohttp
+# ComfyUI-GGUF (4 bit Wan 2.2 14B), installed with the runtime (src/main/runtimes.ts)
+gguf>=0.13.0

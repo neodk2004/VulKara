@@ -1,0 +1,4 @@
+# MLX engine (runtime "mlx"): FLUX.1 / FLUX.2 [klein] via mflux on Apple's MLX framework
+mflux==0.20.0
+psutil
+pillow
