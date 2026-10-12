@@ -7,12 +7,13 @@
 **Your local AI image generator with high privacy**<br>
 Text to image · Image to image · Inpainting · AI Canvas · Image to video · Upscale · Restore · Pose · Illusion · LoRAs · Training
 
+[![Release](https://img.shields.io/github/v/release/revil-O/VulKara?label=release&color=c2662d)](https://github.com/revil-O/VulKara/releases/latest)
 ![macOS](https://img.shields.io/badge/macOS-Apple%20silicon-111?logo=apple&logoColor=white)
 ![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-42b883?logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
 ![Runs locally](https://img.shields.io/badge/runs-100%25%20local-c2662d)
-![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 
 <img src="docs/images/banner.jpg" alt="Pictures made with VulKara">
 
