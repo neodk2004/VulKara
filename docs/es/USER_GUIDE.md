@@ -47,6 +47,9 @@ internet. Una compilación firmada pero no notarizada la detiene Gatekeeper en e
 **Ajustes del Sistema → Privacidad y seguridad**, desplázate hasta el mensaje sobre VulKara y haz clic en **Abrir
 igualmente** (o haz Control-clic en la app en el Finder y elige **Abrir**). Solo hace falta una vez.
 
+Con [Homebrew](https://brew.sh) también puedes instalar VulKara desde el terminal: `brew install --cask revil-O/tap/vulkara`. Las versiones nuevas
+llegan luego con `brew upgrade --cask vulkara`.
+
 ### La pantalla de bienvenida
 
 Al arrancar aparece una ventana con la imagen de la forja: el martillo rúnico golpea el yunque, las chispas se

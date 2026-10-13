@@ -47,6 +47,9 @@ was signed but not notarized is stopped by Gatekeeper at the first start on anot
 Privacy & Security**, scroll to the message about VulKara and click **Open Anyway** (or Control-click the app in the
 Finder and choose **Open**). This is needed only once.
 
+With [Homebrew](https://brew.sh) VulKara can also be installed from the terminal: `brew install --cask revil-O/tap/vulkara`. Later versions then come
+with `brew upgrade --cask vulkara`.
+
 ### The splash
 
 At start a window with the forge picture appears: the rune hammer strikes the anvil, the sparks turn into glowing

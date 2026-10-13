@@ -278,3 +278,5 @@ footer .legal a { color: inherit; }
 @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, 1fr); } .gallery figure.wide { aspect-ratio: 1200 / 686; } }
 @media (max-width: 520px) { .gallery { grid-template-columns: 1fr; } .gallery figure.wide { grid-column: auto; } .gallery figcaption { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .gallery img, .gallery figcaption { transition: none; } }
+.note.brew { margin-top: 6px; }
+.note.brew code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; padding: 2px 6px; border-radius: 6px; background: var(--card); border: 1px solid var(--line); color: var(--text); user-select: all; overflow-wrap: anywhere; }

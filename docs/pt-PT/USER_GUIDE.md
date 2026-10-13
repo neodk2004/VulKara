@@ -47,6 +47,9 @@ internet. Uma versão assinada, mas não notarizada, é bloqueada pelo Gatekeepe
 **Definições do Sistema → Privacidade e segurança**, desloque até à mensagem sobre o VulKara e clique em **Abrir mesmo
 assim** (ou clique na app no Finder com a tecla Control premida e escolha **Abrir**). Isto só é necessário uma vez.
 
+Com o [Homebrew](https://brew.sh) também pode instalar o VulKara no Terminal: `brew install --cask revil-O/tap/vulkara`. As versões novas chegam
+depois com `brew upgrade --cask vulkara`.
+
 ### O ecrã de abertura
 
 Ao iniciar, surge uma janela com a imagem da forja: o martelo rúnico golpeia a bigorna, as faíscas transformam-se em

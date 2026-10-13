@@ -331,6 +331,7 @@ video, upscale, restore, LoRAs, model import and privacy. They are in their own 
 
 1. Download the DMG of the [latest release](https://github.com/revil-O/VulKara/releases/latest), open it and drag
    VulKara into *Applications*. It is signed and notarized by Apple.
+   Or with [Homebrew](https://brew.sh): `brew install --cask revil-O/tap/vulkara` (updates with `brew upgrade --cask vulkara`).
 2. Open VulKara and go to **Settings → Runtimes**. Install **Diffusers (Apple GPU)** (about 0.9 GB).
 3. Go to **Models → Recommended** and install a model, for example *SDXL 1.0* (16 GB of memory or more) or *Stable
    Diffusion 1.5* (8 GB).
@@ -350,7 +351,7 @@ The language of the app is chosen at the top right of the Start page or in **Set
 | Storage | 5 GB | 50 GB or more for several models; external drives work; a fast internal SSD for the streaming cache |
 | System | macOS on Apple silicon | current macOS |
 
-Nothing has to be installed first: no Homebrew, no Python, no Xcode command line tools. VulKara downloads its own
+Nothing has to be installed first: no Python, no Xcode command line tools, and Homebrew only if you install with it. VulKara downloads its own
 Python (with uv, at a checked version) and only ready-built packages into its runtimes folder; the Python of the
 Mac is never used or changed.
 

@@ -46,6 +46,9 @@ assinada, mas não notarizada, é bloqueada pelo Gatekeeper na primeira abertura
 Privacidade e Segurança**, role até a mensagem sobre o VulKara e clique em **Abrir Mesmo Assim** (ou clique com a tecla
 Control pressionada no app no Finder e escolha **Abrir**). Isso só é necessário uma vez.
 
+Com o [Homebrew](https://brew.sh) também dá para instalar o VulKara pelo Terminal: `brew install --cask revil-O/tap/vulkara`. As versões novas vêm
+depois com `brew upgrade --cask vulkara`.
+
 ### A tela de abertura
 
 Ao iniciar, aparece uma janela com a imagem da forja: o martelo rúnico golpeia a bigorna, as faíscas viram pixels

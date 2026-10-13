@@ -48,6 +48,9 @@ einem anderen Mac von Gatekeeper blockiert: Öffne **Systemeinstellungen → Dat
 Meldung über VulKara und klicke auf **Dennoch öffnen** (oder klicke im Finder bei gedrückter Control-Taste auf die App
 und wähle **Öffnen**). Das ist nur einmal nötig.
 
+Mit [Homebrew](https://brew.sh) lässt sich VulKara auch im Terminal installieren: `brew install --cask revil-O/tap/vulkara`. Neue Versionen holst du dann
+mit `brew upgrade --cask vulkara`.
+
 ### Der Startbildschirm
 
 Beim Start erscheint ein Fenster mit dem Schmiedebild: Der Runenhammer schlägt auf den Amboss, die Funken werden zu
