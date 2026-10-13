@@ -24,7 +24,7 @@ new models, fixes and features — free, local and private for everyone.
 
 <a href="https://buymeacoffee.com/revil.0"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
 
-[Website](https://www.vulkara.net) · [Download](https://github.com/revil-O/VulKara/releases/latest) · [User guide](docs/USER_GUIDE.md) · [How the pipelines work](docs/PIPELINES.md) · [Developer guide](docs/DEVELOPMENT.md) · [Measurements](docs/MEASUREMENTS.md) · [Licence](LICENSE)
+[Website](https://www.vulkara.net) · [Coming next](#coming-next-your-own-characters) · [Download](https://github.com/revil-O/VulKara/releases/latest) · [User guide](docs/USER_GUIDE.md) · [How the pipelines work](docs/PIPELINES.md) · [Developer guide](docs/DEVELOPMENT.md) · [Measurements](docs/MEASUREMENTS.md) · [Licence](LICENSE)
 
 The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) · [Español](docs/es/USER_GUIDE.md) · [Português (Brasil)](docs/pt-BR/USER_GUIDE.md) · [Português (Portugal)](docs/pt-PT/USER_GUIDE.md) · [Translate it](docs/TRANSLATING.md)
 
@@ -40,6 +40,20 @@ The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) ·
 > picture is computed. It keeps its full 16-bit quality, and models that need 24 GB run on a Mac with 16 GB
 > (tested on a Mac mini M4: FLUX.1 [dev], Krea 2, Qwen-Image 2.1). Automatic, nothing to set up.
 > [How it works](#big-models-on-small-macs-ssd-streaming)
+
+## <img src="docs/icons/sparkles.svg" width="22" height="22" alt=""> Coming next: your own characters
+
+> [!IMPORTANT]
+> **Create a character once – put them into any scene.** Face, hair, outfit and style stay the same in every picture:
+> comic panels, anime shots, a whole story. Made and kept on your Mac, like everything else.
+> Planned, no date yet – a [coffee](https://buymeacoffee.com/revil.0) helps it along.
+
+<table>
+<tr><td width="14%"><img src="docs/images/characters/mira.jpg" alt="Mira, the reference"></td><td width="14%"><img src="docs/images/characters/cafe.jpg" alt="Sketching in a café"></td><td width="14%"><img src="docs/images/characters/rooftop.jpg" alt="On a rooftop at sunset"></td><td width="14%"><img src="docs/images/characters/neon.jpg" alt="Neon street in the rain"></td><td width="14%"><img src="docs/images/characters/mountain.jpg" alt="Hiking at dawn"></td><td width="14%"><img src="docs/images/characters/anime.jpg" alt="As an anime character"></td><td width="14%"><img src="docs/images/characters/comic.jpg" alt="As a comic panel"></td></tr>
+<tr><td><sub>Mira, the reference</sub></td><td><sub>Sketching in a café</sub></td><td><sub>On a rooftop at sunset</sub></td><td><sub>Neon street in the rain</sub></td><td><sub>Hiking at dawn</sub></td><td><sub>As an anime character</sub></td><td><sub>As a comic panel</sub></td></tr>
+</table>
+
+<sub>One character, seven pictures: the reference and six scenes, made with VulKara today (FLUX.2 klein with the reference picture on the Image page). The feature will make it a few clicks.</sub>
 
 ## Why VulKara
 
@@ -387,19 +401,6 @@ Mac is never used or changed.
 Models are never part of the app. They are downloaded on demand from Hugging Face or Civitai, and their licences are
 shown on the Licenses page. LoRAs of families without a runtime in the app (Z-Image, HiDream, Lumina …) are shown
 under their family, but no page offers them.
-
-## Coming next: your own characters
-
-Create a character once – face, hair, outfit, style – and put them into any scene: comic panels, anime shots, a whole
-story. The same character in every picture, made and kept on your Mac like everything else. Planned, no date yet; a
-[coffee](https://buymeacoffee.com/revil.0) helps it along.
-
-<table>
-<tr><td width="14%"><img src="docs/images/characters/mira.jpg" alt="Mira, the reference"></td><td width="14%"><img src="docs/images/characters/cafe.jpg" alt="Sketching in a café"></td><td width="14%"><img src="docs/images/characters/rooftop.jpg" alt="On a rooftop at sunset"></td><td width="14%"><img src="docs/images/characters/neon.jpg" alt="Neon street in the rain"></td><td width="14%"><img src="docs/images/characters/mountain.jpg" alt="Hiking at dawn"></td><td width="14%"><img src="docs/images/characters/anime.jpg" alt="As an anime character"></td><td width="14%"><img src="docs/images/characters/comic.jpg" alt="As a comic panel"></td></tr>
-<tr><td><sub>Mira, the reference</sub></td><td><sub>Sketching in a café</sub></td><td><sub>On a rooftop at sunset</sub></td><td><sub>Neon street in the rain</sub></td><td><sub>Hiking at dawn</sub></td><td><sub>As an anime character</sub></td><td><sub>As a comic panel</sub></td></tr>
-</table>
-
-<sub>One character, seven pictures: the reference and six scenes, made with VulKara today (FLUX.2 klein with the reference picture on the Image page). The feature will make it a few clicks.</sub>
 
 ## For developers
 
