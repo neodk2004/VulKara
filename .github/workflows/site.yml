@@ -1,0 +1,54 @@
+# The landing page www.vulkara.net: built (tools/build_site_pages.mjs, build_site.mjs) and uploaded to all-inkl over
+# FTPS (tools/deploy_site.sh) when it or its pictures change. Secrets: FTP_HOST, FTP_USER, FTP_PASSWORD (an FTP account
+# of its own, limited to the website's folder), FTP_DIR (optional), VK_LEGAL (the operator's name, address and e-mail
+# for the legal notice, as JSON). Only on GitHub: the repository is mirrored to a Gitea server.
+name: Website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'docs/images/**'
+      - 'docs/icons/**'
+      - 'docs/screenshots/**'
+      - 'build/icon.*'
+      - 'tools/build_site*.mjs'
+      - 'tools/deploy_site.sh'
+      - '.github/workflows/site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    env:
+      HAS_SECRETS: ${{ secrets.FTP_HOST != '' && secrets.FTP_PASSWORD != '' && secrets.VK_LEGAL != '' }}
+    steps:
+      - name: Secrets missing
+        if: env.HAS_SECRETS != 'true'
+        run: echo "::notice::FTP_HOST, FTP_USER, FTP_PASSWORD and VK_LEGAL are not all set; nothing uploaded."
+      - uses: actions/checkout@v4
+        if: env.HAS_SECRETS == 'true'
+      - uses: actions/setup-node@v4
+        if: env.HAS_SECRETS == 'true'
+        with:
+          node-version: 22
+      - run: sudo apt-get install -y lftp
+        if: env.HAS_SECRETS == 'true'
+      - name: Build and upload
+        if: env.HAS_SECRETS == 'true'
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+          VK_LEGAL: ${{ secrets.VK_LEGAL }}
+        run: bash tools/deploy_site.sh

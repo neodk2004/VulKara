@@ -743,6 +743,23 @@ Gatekeeper judges a build.
 After adding models to `src/shared/data/curated_models.json`, run `npm run licenses` to update the licence data. After
 changing dependencies, run `npm run notices` to update the package licences.
 
+## Landing page and release automation
+
+- **Landing page** (https://www.vulkara.net/, hosted at all-inkl): `site/`, five languages, with a legal notice and a
+  privacy page (German, with English). The pages are written by `node tools/build_site_pages.mjs` (texts of every
+  language in that file); `node tools/build_site.mjs` copies the pictures they use (icon, banner, Lucide icons,
+  screenshots per language) into `site/assets/`. The page loads nothing from other servers (a Content-Security-Policy
+  in the pages and in `site/.htaccess`, which also sends every request to `https://www.vulkara.net`).
+  The operator's name, address and e-mail for the legal pages are not in the repository: `site/legal.local.json`
+  (git-ignored) or the secret `VK_LEGAL`. `tools/deploy_site.sh` uploads `site/` over FTPS (lftp) and refuses while a
+  page has `{{…}}` placeholders; `.github/workflows/site.yml` runs it on GitHub when the site or its pictures change.
+- **Social preview** of the repository: `docs/images/social_preview.png` (1280 × 640, made by
+  `marketing/make_social_preview.py` in the working repository).
+- **A published release** (`.github/workflows/release.yml`): `tools/announce_release.mjs` posts the version, the first
+  entry of the notes and the link on Mastodon and Bluesky; the Homebrew cask of `revil-O/homebrew-tap` gets the new
+  version and checksum. Each part runs only when its secrets are set; `node tools/announce_release.mjs --dry-run` with
+  `TAG`, `RELEASE_URL` and `BODY` shows the text. Both workflows run only on GitHub, not on the Gitea mirror.
+
 ## Clean check
 
 `tools/check_clean.py` compares the project with fingerprints of the earlier app (`tools/original_fingerprints.json`:

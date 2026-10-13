@@ -3,4 +3,9 @@ out/
 dist/
 *.tsbuildinfo
 __pycache__/
-.pytest_cache/
+.pytest_cache/# landing page: copied by tools/build_site.mjs (the Pages workflow runs it)
+site/assets/
+site/social_preview.png
+site/legal.local.json
+site/impressum/
+site/datenschutz/

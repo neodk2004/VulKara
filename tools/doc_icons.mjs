@@ -36,6 +36,14 @@ export const DOC_ICONS = {
   'shield-check': 'privacy, guard rails',
   'check': 'supported',
   'x': 'remove, close',
+  'aperture': 'Enhance',
+  'graduation-cap': 'Training',
+  'lightbulb': 'Tips',
+  'file-clock': 'Changelog',
+  'languages': 'language menu',
+  'heart': 'Favorites',
+  'coffee': 'support the project',
+  'scroll-text': 'Logs, wiki',
 }
 
 const attrs = (o) => Object.entries(o).filter(([k]) => k !== 'key').map(([k, v]) => `${k}="${v}"`).join(' ')

@@ -1,0 +1,56 @@
+# A published release: announced on Mastodon and Bluesky (tools/announce_release.mjs), and the Homebrew cask of the
+# tap revil-O/homebrew-tap set to the new version and the DMG's checksum. Each part runs only when its secrets are set
+# (Settings → Secrets and variables → Actions): MASTODON_INSTANCE + MASTODON_TOKEN, BLUESKY_HANDLE +
+# BLUESKY_APP_PASSWORD, TAP_TOKEN (a fine-grained token with Contents: write on revil-O/homebrew-tap only).
+# Only on GitHub: the repository is mirrored to a Gitea server.
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  announce:
+    if: github.server_url == 'https://github.com' && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Mastodon and Bluesky
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          BODY: ${{ github.event.release.body }}
+          MASTODON_INSTANCE: ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_TOKEN: ${{ secrets.MASTODON_TOKEN }}
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+        run: node tools/announce_release.mjs
+
+  homebrew:
+    if: github.server_url == 'https://github.com' && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    env:
+      TAP_TOKEN: ${{ secrets.TAP_TOKEN }}
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Cask version and checksum
+        if: env.TAP_TOKEN != ''
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          dmg="VulKara-${version}-arm64.dmg"
+          curl -fsSL -o "$dmg" "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${dmg}"
+          sum=$(sha256sum "$dmg" | cut -d' ' -f1)
+          git clone -q "https://x-access-token:${TAP_TOKEN}@github.com/revil-O/homebrew-tap.git" tap
+          cd tap
+          sed -i -E "s/^  version \".*\"/  version \"${version}\"/; s/^  sha256 \".*\"/  sha256 \"${sum}\"/" Casks/vulkara.rb
+          git diff --quiet && { echo "cask already at ${version}"; exit 0; }
+          git -c user.name=revil-O -c user.email=revil-O@users.noreply.github.com commit -qam "vulkara ${version}"
+          git push -q
+          echo "cask set to ${version} (${sum})"

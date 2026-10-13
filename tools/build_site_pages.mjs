@@ -1,0 +1,782 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Oliver Schmidt
+// The landing page (GitHub Pages) in every language: writes site/index.html and site/<lang>/index.html from the texts
+// below; tools/build_site.mjs then copies the pictures they use into site/assets.
+//   node tools/build_site_pages.mjs && node tools/build_site.mjs
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+const SITE = join(import.meta.dirname, '..', 'site')
+const BASE = 'https://www.vulkara.net/'
+const GH = 'https://github.com/revil-O/VulKara'
+const BLOB = `${GH}/blob/main`
+
+const LANGS = [
+  { code: 'en', dir: '', name: 'English', og: 'en_US' },
+  { code: 'de', dir: 'de/', name: 'Deutsch', og: 'de_DE' },
+  { code: 'es', dir: 'es/', name: 'Español', og: 'es_ES' },
+  { code: 'pt-BR', dir: 'pt-BR/', name: 'Português (Brasil)', og: 'pt_BR' },
+  { code: 'pt-PT', dir: 'pt-PT/', name: 'Português (Portugal)', og: 'pt_PT' },
+]
+
+// screenshot, icon, height (all 1600 wide)
+// the gallery: pictures made with VulKara (docs/images/gallery, with the EU icon AI GENERATED), file, width, height
+const GALLERY = [
+  ['greenhouse', 1200, 686], ['cat_astronaut', 1024, 1024], ['silver_gown', 1024, 1024],
+  ['snow_leopard', 1024, 1024], ['hummingbird', 1024, 1024], ['sky_koi', 1200, 686],
+  ['crystal_cat', 1024, 1024], ['gold_freckles', 1024, 1024], ['fox_mushroom', 1024, 1024], ['kitten_cloud', 1024, 1024],
+]
+
+const SHOTS = [
+  ['text', 1100], ['canvas', 1100], ['inpaint', 1100], ['restore', 1500],
+  ['video', 1100], ['pose', 1100], ['training', 1100], ['models_recommended', 1100],
+]
+
+const T = {
+  en: {
+    title: 'VulKara – local AI image generator for your Mac',
+    desc: 'Free, open-source AI image app for Apple-silicon Macs: text to image, inpainting, AI canvas, video, photo restoration and LoRA training. Everything runs on your Mac.',
+    ogAlt: 'VulKara, your local AI image generator with high privacy',
+    skip: 'Skip to content',
+    nav: ['Features', 'Why VulKara', 'Screenshots', 'Get started'],
+    language: 'Language',
+    download: 'Download',
+    kicker: 'Free · open source · for Macs with Apple silicon',
+    tagline: 'Your local AI image generator with high privacy',
+    lead: 'Turn ideas into pictures, sketches into scenes and old photos into keepers – right on your Mac. No cloud, no credits, no subscription.',
+    chips: ['Creators', 'Students', 'Anime &amp; comic artists', 'Digital artists', 'Photo fans'],
+    dlBig: 'Download for Mac',
+    github: 'Source on GitHub',
+    note: 'Free · macOS on Apple silicon · signed and notarized by Apple',
+    bannerAlt: 'Five pictures made with VulKara: a lighthouse on a rocky coast, a fox in a snowy forest, a neon city street at night, an astronaut in a greenhouse dome and a cabin by a lake in autumn',
+    bannerCap: 'Made with VulKara on an M2: Juggernaut XL v7, styles Cinematic, Digital Art, Neon Punk, Fantasy Art and Analog Film.',
+    galEyebrow: "Gallery",
+    galTitle: "Made on a Mac. Not in the cloud.",
+    galLead: "Every picture here was made with VulKara on a MacBook Pro M2 with Z-Image Turbo, from one sentence each, in under a minute per picture.",
+    galCaps: {"greenhouse": "A glass greenhouse floating above a misty forest", "silver_gown": "A gown of liquid silver", "snow_leopard": "Snow leopard with morpho butterflies", "cat_astronaut": "Orange cat among glowing jellyfish", "crystal_cat": "Black cat on crystal books", "sky_koi": "Koi swimming through a neon city", "gold_freckles": "Freckles, gold leaf and white flowers", "fox_mushroom": "A fox asleep under a glowing mushroom", "hummingbird": "A hummingbird of stained glass", "kitten_cloud": "A white kitten asleep in a teacup on a cloud"},
+    featEyebrow: 'Features',
+    featTitle: 'One app, a whole studio',
+    featLead: 'Pictures, edits, video and your own LoRAs – for creators, students, comic and anime fans and digital artists.',
+    feats: [
+      ['type', 'Text to image', 'Describe it, pick a style, press ⌘↩. Twenty styles from photo to illustration and 3D, and up to three LoRAs, each with its own weight.'],
+      ['eraser', 'Image to image and inpainting', 'Keep the motif, change the scene. Or paint over just the part that should change – the rest stays untouched.'],
+      ['frame', 'AI Canvas', 'An endless surface: move the frame over the edge and Generate continues the picture. Paint a mask to redo a part.'],
+      ['clapperboard', 'Image to video', 'Bring a picture to life with Wan 2.2: describe the movement and get 1–5 seconds at 480p or 720p.'],
+      ['maximize-2', 'Upscale and photo tools', '2× or 4× with Real-ESRGAN, plus sharpen, denoise, remove JPEG artefacts, remove the background and select objects with a click.'],
+      ['wand-sparkles', 'Restore old photos', 'Colour casts, dust and scratches fixed, blurred faces restored, black-and-white photos coloured.'],
+      ['person-standing', 'Pose editor', 'OpenPose skeletons with hands and faces, templates, or a pose detected from a photo – then use it in Text to image.'],
+      ['sparkles', 'Illusions', 'Hide a spiral, a pattern, a word or a logo inside a picture.'],
+      ['graduation-cap', 'LoRA training', 'Teach a model your art style or character from 10–30 of your own pictures, on SDXL, FLUX.2 [klein] or Krea 2, with a live loss curve.'],
+      ['boxes', 'Many models', 'SD 1.5, SDXL (also Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, Chroma, Qwen-Image, Z-Image, Krea 2, Ideogram 4, Anima and Wan 2.2 video. From a tested list, or imported from Hugging Face, Civitai or a file.'],
+    ],
+    whyEyebrow: 'Why VulKara',
+    whyTitle: 'Your ideas stay yours',
+    why: [
+      ['monitor', 'Everything on your Mac', ['Pictures, videos, restorations and training run on the Apple GPU. Your prompts and pictures never leave the Mac – the network is only used to download runtimes, models and LoRA descriptions.']],
+      ['heart', 'Free, no strings', ['No account, no subscription, no credits. Open source under the AGPL-3.0: read the code, change it, share it.'], 'Some models ask for a free Hugging Face or Civitai token before they download.'],
+      ['hard-drive', 'Runs on small Macs too', ['A model too big for the memory streams from the SSD block by block, at full quality. On a Mac mini M4 with 16 GB, FLUX.1 [dev], Krea 2 and Qwen-Image 2.1 run.'], 'Streaming trades speed for size: big models take minutes per picture. Stable Diffusion 1.5 runs with 8 GB.'],
+      ['languages', 'Speaks your language', ['English, Deutsch, Español, Português (Brasil) and Português (Portugal) – the app and the user guide. Yours is missing? A new language is a folder of text files.']],
+    ],
+    stepsEyebrow: 'Get started',
+    stepsTitle: 'Your first picture in 3 steps',
+    steps: [
+      ['Install', 'Download the DMG, open it and drag VulKara into <b>Applications</b>.'],
+      ['Runtime and model', '<b>Settings → Runtimes</b>: install <b>Diffusers (Apple GPU)</b>. Then <b>Models → Recommended</b>: <i>SDXL 1.0</i> with 16 GB, <i>Stable Diffusion 1.5</i> with 8 GB.'],
+      ['Create', 'Open <b>Text</b>, describe your picture and press <b>⌘↩</b>. The Start page ticks off each step.'],
+    ],
+    shotsEyebrow: 'Screenshots',
+    shotsTitle: 'Take a look inside',
+    shotsOpen: 'opens the full-size screenshot',
+    shots: {
+      text: ['Text to image', 'prompt, model, style, size and LoRAs on one page'],
+      canvas: ['AI Canvas', 'continue a picture beyond its edges'],
+      inpaint: ['Inpainting', 'repaint only what you mark'],
+      restore: ['Restore', 'old photos with a before-and-after slider'],
+      video: ['Image to video', 'a start picture and a description of the movement'],
+      pose: ['Pose editor', 'skeletons with hands and faces'],
+      training: ['Training', 'a LoRA from your own pictures'],
+      models_recommended: ['Recommended models', 'with the memory and download size for your Mac'],
+    },
+    respTitle: 'Responsible by design',
+    resp: 'A prompt check and a check of every result before it is shown, the protection of minors always on, a consent question for edits of real photos, and an AI note in the file of every picture – the visible EU icon AI GENERATED is one switch away.',
+    linksEyebrow: 'Learn more',
+    linksTitle: 'Guides, news and code',
+    links: [
+      ['lightbulb', 'User guide', 'every page and setting', `${BLOB}/docs/USER_GUIDE.md`],
+      ['scroll-text', 'Wiki', 'guides and help', `${GH}/wiki`],
+      ['file-clock', 'Changelog', 'what is new', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'Translate VulKara', 'bring it to your language', `${BLOB}/docs/TRANSLATING.md`],
+      ['scale', 'Licence', 'AGPL-3.0', `${BLOB}/LICENSE`],
+    ],
+    supportTitle: 'Made in spare time. Kept going by coffee.',
+    support: 'VulKara is free for everyone. If it is useful to you, a coffee pays for new models, fixes and features.',
+    coffee: 'Buy me a coffee',
+    footAi: 'The pictures made with VulKara on this page carry the EU icon AI GENERATED.',
+    foot: '© 2026 Oliver Schmidt · VulKara is free software under the AGPL-3.0. This page sets no cookies and loads nothing from other servers.',
+    legal: ['Legal notice (Impressum)', 'Privacy'],
+    footTm: 'Apple, Mac and macOS are trademarks of Apple Inc. VulKara is not affiliated with Apple.',
+  },
+
+  de: {
+    title: 'VulKara – lokaler KI-Bildgenerator für deinen Mac',
+    desc: 'Kostenlose Open-Source-App für KI-Bilder auf Macs mit Apple-Chip: Text zu Bild, Inpainting, KI-Leinwand, Video, Fotos restaurieren und LoRA-Training. Alles läuft auf deinem Mac.',
+    ogAlt: 'VulKara, dein lokaler KI-Bildgenerator mit hohem Datenschutz',
+    skip: 'Zum Inhalt springen',
+    nav: ['Funktionen', 'Warum VulKara', 'Screenshots', 'Loslegen'],
+    language: 'Sprache',
+    download: 'Download',
+    kicker: 'Kostenlos · Open Source · für Macs mit Apple-Chip',
+    tagline: 'Dein lokaler KI-Bildgenerator mit hohem Datenschutz',
+    lead: 'Mach aus Ideen Bilder, aus Skizzen Szenen und aus alten Fotos wieder Lieblingsstücke – direkt auf deinem Mac. Keine Cloud, keine Credits, kein Abo.',
+    chips: ['Creator', 'Studierende', 'Anime- und Comic-Zeichner', 'Digital Artists', 'Foto-Fans'],
+    dlBig: 'Download für Mac',
+    github: 'Quellcode auf GitHub',
+    note: 'Kostenlos · macOS auf Apple-Chip · signiert und von Apple notarisiert',
+    bannerAlt: 'Fünf mit VulKara erstellte Bilder: ein Leuchtturm an einer Felsküste, ein Fuchs im verschneiten Wald, eine Neon-Straße bei Nacht, ein Astronaut in einer Gewächshauskuppel und eine Hütte am See im Herbst',
+    bannerCap: 'Mit VulKara auf einem M2 erstellt: Juggernaut XL v7, Stile Cinematic, Digital Art, Neon Punk, Fantasy Art und Analog Film.',
+    galEyebrow: "Galerie",
+    galTitle: "Auf dem Mac gemacht. Nicht in der Cloud.",
+    galLead: "Jedes Bild hier ist mit VulKara auf einem MacBook Pro M2 mit Z-Image Turbo entstanden, aus jeweils einem Satz, in unter einer Minute pro Bild.",
+    galCaps: {"greenhouse": "Ein Glas-Gewächshaus schwebt über dem Nebelwald", "silver_gown": "Ein Kleid aus flüssigem Silber", "snow_leopard": "Schneeleopard mit Morphofaltern", "cat_astronaut": "Rote Katze zwischen leuchtenden Quallen", "crystal_cat": "Schwarze Katze auf Kristallbüchern", "sky_koi": "Kois schwimmen durch eine Neonstadt", "gold_freckles": "Sommersprossen, Blattgold und weiße Blüten", "fox_mushroom": "Ein Fuchs schläft unter einem leuchtenden Pilz", "hummingbird": "Ein Kolibri aus Buntglas", "kitten_cloud": "Ein weißes Kätzchen schläft in einer Teetasse auf einer Wolke"},
+    featEyebrow: 'Funktionen',
+    featTitle: 'Eine App, ein ganzes Studio',
+    featLead: 'Bilder, Bearbeitung, Video und eigene LoRAs – für Creator, Studierende, Comic- und Anime-Fans und Digital Artists.',
+    feats: [
+      ['type', 'Text zu Bild', 'Beschreib es, wähl einen Stil, drück ⌘↩. Zwanzig Stile von Foto bis Illustration und 3D, dazu bis zu drei LoRAs, jede mit eigenem Gewicht.'],
+      ['eraser', 'Bild zu Bild und Inpainting', 'Motiv behalten, Szene wechseln. Oder nur den Teil übermalen, der sich ändern soll – der Rest bleibt unberührt.'],
+      ['frame', 'KI-Leinwand', 'Eine endlose Fläche: Schieb den Rahmen über den Rand, und Erstellen setzt das Bild fort. Mit einer Maske malst du einen Teil neu.'],
+      ['clapperboard', 'Bild zu Video', 'Erweck ein Bild mit Wan 2.2 zum Leben: Beschreib die Bewegung und bekomm 1–5 Sekunden in 480p oder 720p.'],
+      ['maximize-2', 'Vergrößern und Fotowerkzeuge', '2× oder 4× mit Real-ESRGAN, dazu schärfen, entrauschen, JPEG-Artefakte entfernen, Hintergrund entfernen und Objekte per Klick auswählen.'],
+      ['wand-sparkles', 'Alte Fotos restaurieren', 'Farbstiche, Staub und Kratzer behoben, unscharfe Gesichter wiederhergestellt, Schwarzweißfotos eingefärbt.'],
+      ['person-standing', 'Pose-Editor', 'OpenPose-Skelette mit Händen und Gesichtern, Vorlagen oder eine Pose aus einem Foto erkannt – dann ab damit in Text zu Bild.'],
+      ['sparkles', 'Illusionen', 'Versteck eine Spirale, ein Muster, ein Wort oder ein Logo in einem Bild.'],
+      ['graduation-cap', 'LoRA-Training', 'Bring einem Modell deinen Zeichenstil oder deinen Charakter bei, mit 10–30 eigenen Bildern, auf SDXL, FLUX.2 [klein] oder Krea 2, mit Live-Verlustkurve.'],
+      ['boxes', 'Viele Modelle', 'SD 1.5, SDXL (auch Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, Chroma, Qwen-Image, Z-Image, Krea 2, Ideogram 4, Anima und Wan 2.2 für Video. Aus einer getesteten Liste oder importiert von Hugging Face, Civitai oder aus einer Datei.'],
+    ],
+    whyEyebrow: 'Warum VulKara',
+    whyTitle: 'Deine Ideen bleiben deine',
+    why: [
+      ['monitor', 'Alles auf deinem Mac', ['Bilder, Videos, Restaurierungen und Training laufen auf der Apple-GPU. Deine Prompts und Bilder verlassen den Mac nie – das Netzwerk dient nur zum Herunterladen von Runtimes, Modellen und LoRA-Beschreibungen.']],
+      ['heart', 'Kostenlos, ohne Haken', ['Kein Konto, kein Abo, keine Credits. Open Source unter der AGPL-3.0: Lies den Code, änder ihn, gib ihn weiter.'], 'Manche Modelle verlangen vor dem Download einen kostenlosen Token von Hugging Face oder Civitai.'],
+      ['hard-drive', 'Läuft auch auf kleinen Macs', ['Ein Modell, das nicht in den Arbeitsspeicher passt, wird Block für Block von der SSD gestreamt, in voller Qualität. Auf einem Mac mini M4 mit 16 GB laufen FLUX.1 [dev], Krea 2 und Qwen-Image 2.1.'], 'Streaming tauscht Tempo gegen Größe: Große Modelle brauchen Minuten pro Bild. Stable Diffusion 1.5 läuft mit 8 GB.'],
+      ['languages', 'Spricht deine Sprache', ['English, Deutsch, Español, Português (Brasil) und Português (Portugal) – die App und das Handbuch. Deine fehlt? Eine neue Sprache ist ein Ordner mit Textdateien.']],
+    ],
+    stepsEyebrow: 'Loslegen',
+    stepsTitle: 'Dein erstes Bild in 3 Schritten',
+    steps: [
+      ['Installieren', 'Lad das DMG, öffne es und zieh VulKara in <b>Programme</b>.'],
+      ['Runtime und Modell', '<b>Einstellungen → Runtimes</b>: <b>Diffusers (Apple GPU)</b> installieren. Dann <b>Modelle → Empfohlen</b>: <i>SDXL 1.0</i> mit 16 GB, <i>Stable Diffusion 1.5</i> mit 8 GB.'],
+      ['Erstellen', 'Öffne <b>Text</b>, beschreib dein Bild und drück <b>⌘↩</b>. Die Start-Seite hakt jeden Schritt ab.'],
+    ],
+    shotsEyebrow: 'Screenshots',
+    shotsTitle: 'Ein Blick hinein',
+    shotsOpen: 'öffnet den Screenshot in voller Größe',
+    shots: {
+      text: ['Text zu Bild', 'Prompt, Modell, Stil, Format und LoRAs auf einer Seite'],
+      canvas: ['KI-Leinwand', 'ein Bild über seine Ränder hinaus fortsetzen'],
+      inpaint: ['Inpainting', 'nur neu malen, was du markierst'],
+      restore: ['Restaurieren', 'alte Fotos mit Vorher-nachher-Regler'],
+      video: ['Bild zu Video', 'ein Startbild und eine Beschreibung der Bewegung'],
+      pose: ['Pose-Editor', 'Skelette mit Händen und Gesichtern'],
+      training: ['Training', 'eine LoRA aus deinen eigenen Bildern'],
+      models_recommended: ['Empfohlene Modelle', 'mit Speicherbedarf und Downloadgröße für deinen Mac'],
+    },
+    respTitle: 'Verantwortungsvoll gebaut',
+    resp: 'Eine Prüfung des Prompts und jedes Ergebnisses, bevor es angezeigt wird, der Schutz Minderjähriger immer an, eine Einwilligungsfrage bei der Bearbeitung echter Fotos und ein KI-Vermerk in der Datei jedes Bildes – das sichtbare EU-Symbol AI GENERATED ist nur einen Schalter entfernt.',
+    linksEyebrow: 'Mehr erfahren',
+    linksTitle: 'Handbuch, Neuigkeiten und Code',
+    links: [
+      ['lightbulb', 'Benutzerhandbuch', 'jede Seite, jede Einstellung', `${BLOB}/docs/de/USER_GUIDE.md`],
+      ['scroll-text', 'Wiki', 'Anleitungen und Hilfe', `${GH}/wiki`],
+      ['file-clock', 'Änderungen', 'was neu ist (Englisch)', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'VulKara übersetzen', 'in deine Sprache bringen (Englisch)', `${BLOB}/docs/TRANSLATING.md`],
+      ['scale', 'Lizenz', 'AGPL-3.0', `${BLOB}/LICENSE`],
+    ],
+    supportTitle: 'In der Freizeit gebaut. Mit Kaffee am Laufen gehalten.',
+    support: 'VulKara ist für alle kostenlos. Wenn es dir nützt, bezahlt ein Kaffee neue Modelle, Fehlerbehebungen und Funktionen.',
+    coffee: 'Spendier mir einen Kaffee',
+    footAi: 'Die mit VulKara erstellten Bilder auf dieser Seite tragen das EU-Symbol AI GENERATED.',
+    foot: '© 2026 Oliver Schmidt · VulKara ist freie Software unter der AGPL-3.0. Diese Seite setzt keine Cookies und lädt nichts von anderen Servern.',
+    legal: ['Impressum', 'Datenschutz'],
+    footTm: 'Apple, Mac und macOS sind Marken der Apple Inc. VulKara steht in keiner Verbindung zu Apple.',
+  },
+
+  es: {
+    title: 'VulKara – generador local de imágenes con IA para tu Mac',
+    desc: 'App gratuita y de código abierto para imágenes con IA en Macs con Apple silicon: texto a imagen, inpainting, lienzo IA, vídeo, restauración de fotos y entrenamiento de LoRAs. Todo se ejecuta en tu Mac.',
+    ogAlt: 'VulKara, tu generador local de imágenes con IA, con alta privacidad',
+    skip: 'Saltar al contenido',
+    nav: ['Funciones', 'Por qué VulKara', 'Capturas', 'Empezar'],
+    language: 'Idioma',
+    download: 'Descargar',
+    kicker: 'Gratis · código abierto · para Macs con Apple silicon',
+    tagline: 'Tu generador local de imágenes con IA, con alta privacidad',
+    lead: 'Convierte ideas en imágenes, bocetos en escenas y fotos antiguas en recuerdos que vuelven a brillar, directamente en tu Mac. Sin nube, sin créditos, sin suscripción.',
+    chips: ['Creadores', 'Estudiantes', 'Artistas de anime y cómic', 'Artistas digitales', 'Fans de la fotografía'],
+    dlBig: 'Descargar para Mac',
+    github: 'Código en GitHub',
+    note: 'Gratis · macOS en Apple silicon · firmada y notarizada por Apple',
+    bannerAlt: 'Cinco imágenes creadas con VulKara: un faro en una costa rocosa, un zorro en un bosque nevado, una calle de neón de noche, un astronauta en una cúpula invernadero y una cabaña junto a un lago en otoño',
+    bannerCap: 'Creadas con VulKara en un M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art y Analog Film.',
+    galEyebrow: "Galería",
+    galTitle: "Hecho en un Mac. No en la nube.",
+    galLead: "Cada imagen se creó con VulKara en un MacBook Pro M2 con Z-Image Turbo, a partir de una sola frase, en menos de un minuto por imagen.",
+    galCaps: {"greenhouse": "Un invernadero de cristal flota sobre un bosque con niebla", "silver_gown": "Un vestido de plata líquida", "snow_leopard": "Leopardo de las nieves con mariposas morfo", "cat_astronaut": "Gato naranja entre medusas luminosas", "crystal_cat": "Gato negro sobre libros de cristal", "sky_koi": "Kois nadando por una ciudad de neón", "gold_freckles": "Pecas, pan de oro y flores blancas", "fox_mushroom": "Un zorro dormido bajo una seta luminosa", "hummingbird": "Un colibrí de vidriera", "kitten_cloud": "Un gatito blanco dormido en una taza sobre una nube"},
+    featEyebrow: 'Funciones',
+    featTitle: 'Una app, todo un estudio',
+    featLead: 'Imágenes, edición, vídeo y tus propias LoRAs, para creadores, estudiantes, fans del cómic y del anime y artistas digitales.',
+    feats: [
+      ['type', 'Texto a imagen', 'Descríbelo, elige un estilo y pulsa ⌘↩. Veinte estilos, de foto a ilustración y 3D, y hasta tres LoRAs, cada una con su propio peso.'],
+      ['eraser', 'Imagen a imagen e inpainting', 'Mantén el motivo y cambia la escena. O pinta solo la parte que debe cambiar: el resto queda intacto.'],
+      ['frame', 'Lienzo IA', 'Una superficie sin fin: mueve el marco más allá del borde y Generar continúa la imagen. Pinta una máscara para rehacer una parte.'],
+      ['clapperboard', 'Imagen a vídeo', 'Da vida a una imagen con Wan 2.2: describe el movimiento y obtén de 1 a 5 segundos en 480p o 720p.'],
+      ['maximize-2', 'Ampliar y herramientas de fotos', '2× o 4× con Real-ESRGAN, además de enfocar, quitar ruido, eliminar artefactos JPEG, quitar el fondo y seleccionar objetos con un clic.'],
+      ['wand-sparkles', 'Restaurar fotos antiguas', 'Dominantes de color, polvo y arañazos corregidos, caras borrosas restauradas y fotos en blanco y negro coloreadas.'],
+      ['person-standing', 'Editor de poses', 'Esqueletos OpenPose con manos y caras, plantillas o una pose detectada en una foto; luego, a Texto a imagen.'],
+      ['sparkles', 'Ilusiones', 'Esconde una espiral, un patrón, una palabra o un logo dentro de una imagen.'],
+      ['graduation-cap', 'Entrenamiento de LoRAs', 'Enseña a un modelo tu estilo de dibujo o tu personaje con 10–30 imágenes propias, en SDXL, FLUX.2 [klein] o Krea 2, con la curva de pérdida en directo.'],
+      ['boxes', 'Muchos modelos', 'SD 1.5, SDXL (también Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, Chroma, Qwen-Image, Z-Image, Krea 2, Ideogram 4, Anima y Wan 2.2 para vídeo. De una lista probada, o importados de Hugging Face, Civitai o un archivo.'],
+    ],
+    whyEyebrow: 'Por qué VulKara',
+    whyTitle: 'Tus ideas siguen siendo tuyas',
+    why: [
+      ['monitor', 'Todo en tu Mac', ['Imágenes, vídeos, restauraciones y entrenamiento se ejecutan en la GPU de Apple. Tus prompts e imágenes nunca salen del Mac: la red solo se usa para descargar runtimes, modelos y descripciones de LoRAs.']],
+      ['heart', 'Gratis, sin trampa', ['Sin cuenta, sin suscripción, sin créditos. Código abierto bajo la AGPL-3.0: lee el código, cámbialo, compártelo.'], 'Algunos modelos piden un token gratuito de Hugging Face o Civitai antes de descargarse.'],
+      ['hard-drive', 'Funciona también en Macs pequeños', ['Un modelo demasiado grande para la memoria se transmite desde el SSD bloque a bloque, con toda su calidad. En un Mac mini M4 con 16 GB funcionan FLUX.1 [dev], Krea 2 y Qwen-Image 2.1.'], 'El streaming cambia velocidad por tamaño: los modelos grandes tardan minutos por imagen. Stable Diffusion 1.5 funciona con 8 GB.'],
+      ['languages', 'Habla tu idioma', ['English, Deutsch, Español, Português (Brasil) y Português (Portugal): la app y la guía de usuario. ¿Falta el tuyo? Un idioma nuevo es una carpeta de archivos de texto.']],
+    ],
+    stepsEyebrow: 'Empezar',
+    stepsTitle: 'Tu primera imagen en 3 pasos',
+    steps: [
+      ['Instala', 'Descarga el DMG, ábrelo y arrastra VulKara a <b>Aplicaciones</b>.'],
+      ['Runtime y modelo', '<b>Ajustes → Runtimes</b>: instala <b>Diffusers (Apple GPU)</b>. Luego <b>Modelos → Recomendados</b>: <i>SDXL 1.0</i> con 16 GB, <i>Stable Diffusion 1.5</i> con 8 GB.'],
+      ['Crea', 'Abre <b>Texto</b>, describe tu imagen y pulsa <b>⌘↩</b>. La página de Inicio marca cada paso.'],
+    ],
+    shotsEyebrow: 'Capturas',
+    shotsTitle: 'Echa un vistazo dentro',
+    shotsOpen: 'abre la captura a tamaño completo',
+    shots: {
+      text: ['Texto a imagen', 'prompt, modelo, estilo, tamaño y LoRAs en una página'],
+      canvas: ['Lienzo IA', 'continúa una imagen más allá de sus bordes'],
+      inpaint: ['Inpainting', 'vuelve a pintar solo lo que marques'],
+      restore: ['Restaurar', 'fotos antiguas con un control de antes y después'],
+      video: ['Imagen a vídeo', 'una imagen inicial y una descripción del movimiento'],
+      pose: ['Editor de poses', 'esqueletos con manos y caras'],
+      training: ['Entrenamiento', 'una LoRA a partir de tus propias imágenes'],
+      models_recommended: ['Modelos recomendados', 'con la memoria y el tamaño de descarga para tu Mac'],
+    },
+    respTitle: 'Responsable por diseño',
+    resp: 'Una comprobación del prompt y de cada resultado antes de mostrarlo, la protección de menores siempre activa, una pregunta de consentimiento al editar fotos reales y una nota de IA en el archivo de cada imagen; el icono visible de la UE AI GENERATED está a un interruptor.',
+    linksEyebrow: 'Más información',
+    linksTitle: 'Guía, novedades y código',
+    links: [
+      ['lightbulb', 'Guía de usuario', 'cada página y cada ajuste', `${BLOB}/docs/es/USER_GUIDE.md`],
+      ['scroll-text', 'Wiki', 'guías y ayuda', `${GH}/wiki`],
+      ['file-clock', 'Cambios', 'lo nuevo (en inglés)', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'Traduce VulKara', 'llévala a tu idioma (en inglés)', `${BLOB}/docs/TRANSLATING.md`],
+      ['scale', 'Licencia', 'AGPL-3.0', `${BLOB}/LICENSE`],
+    ],
+    supportTitle: 'Hecha en el tiempo libre. Impulsada por café.',
+    support: 'VulKara es gratis para todos. Si te resulta útil, un café paga nuevos modelos, correcciones y funciones.',
+    coffee: 'Invítame a un café',
+    footAi: 'Las imágenes creadas con VulKara en esta página llevan el icono de la UE AI GENERATED.',
+    foot: '© 2026 Oliver Schmidt · VulKara es software libre bajo la AGPL-3.0. Esta página no usa cookies y no carga nada de otros servidores.',
+    legal: ['Aviso legal (Impressum)', 'Privacidad'],
+    footTm: 'Apple, Mac y macOS son marcas comerciales de Apple Inc. VulKara no está afiliada a Apple.',
+  },
+
+  'pt-BR': {
+    title: 'VulKara – gerador local de imagens com IA para o seu Mac',
+    desc: 'App gratuito e de código aberto para imagens com IA em Macs com Apple silicon: texto para imagem, inpainting, tela de IA, vídeo, restauração de fotos e treinamento de LoRAs. Tudo roda no seu Mac.',
+    ogAlt: 'VulKara, seu gerador local de imagens com IA, com alta privacidade',
+    skip: 'Pular para o conteúdo',
+    nav: ['Recursos', 'Por que o VulKara', 'Capturas', 'Começar'],
+    language: 'Idioma',
+    download: 'Baixar',
+    kicker: 'Grátis · código aberto · para Macs com Apple silicon',
+    tagline: 'Seu gerador local de imagens com IA, com alta privacidade',
+    lead: 'Transforme ideias em imagens, rascunhos em cenas e fotos antigas em lembranças que brilham de novo – direto no seu Mac. Sem nuvem, sem créditos, sem assinatura.',
+    chips: ['Criadores', 'Estudantes', 'Artistas de anime e HQ', 'Artistas digitais', 'Fãs de fotografia'],
+    dlBig: 'Baixar para Mac',
+    github: 'Código no GitHub',
+    note: 'Grátis · macOS em Apple silicon · assinado e notarizado pela Apple',
+    bannerAlt: 'Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua neon à noite, um astronauta numa estufa em cúpula e uma cabana à beira de um lago no outono',
+    bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
+    galEyebrow: "Galeria",
+    galTitle: "Feito num Mac. Não na nuvem.",
+    galLead: "Cada imagem foi criada com o VulKara num MacBook Pro M2 com Z-Image Turbo, a partir de uma única frase, em menos de um minuto por imagem.",
+    galCaps: {"greenhouse": "Uma estufa de vidro flutua sobre uma floresta enevoada", "silver_gown": "Um vestido de prata líquida", "snow_leopard": "Leopardo-das-neves com borboletas morfo", "cat_astronaut": "Gato laranja entre águas-vivas luminosas", "crystal_cat": "Gato preto sobre livros de cristal", "sky_koi": "Carpas nadando por uma cidade neon", "gold_freckles": "Sardas, folha de ouro e flores brancas", "fox_mushroom": "Uma raposa dorme sob um cogumelo luminoso", "hummingbird": "Um beija-flor de vitral", "kitten_cloud": "Um gatinho branco dormindo numa xícara sobre uma nuvem"},
+    featEyebrow: 'Recursos',
+    featTitle: 'Um app, um estúdio inteiro',
+    featLead: 'Imagens, edição, vídeo e suas próprias LoRAs – para criadores, estudantes, fãs de HQ e anime e artistas digitais.',
+    feats: [
+      ['type', 'Texto para imagem', 'Descreva, escolha um estilo e pressione ⌘↩. Vinte estilos, de foto a ilustração e 3D, e até três LoRAs, cada uma com seu próprio peso.'],
+      ['eraser', 'Imagem para imagem e inpainting', 'Mantenha o motivo e mude a cena. Ou pinte só a parte que deve mudar – o resto fica intacto.'],
+      ['frame', 'Tela de IA', 'Uma superfície sem fim: leve a moldura além da borda e Gerar continua a imagem. Pinte uma máscara para refazer uma parte.'],
+      ['clapperboard', 'Imagem para vídeo', 'Dê vida a uma imagem com o Wan 2.2: descreva o movimento e receba de 1 a 5 segundos em 480p ou 720p.'],
+      ['maximize-2', 'Ampliar e ferramentas de foto', '2× ou 4× com Real-ESRGAN, além de nitidez, redução de ruído, remoção de artefatos JPEG, remoção do fundo e seleção de objetos com um clique.'],
+      ['wand-sparkles', 'Restaurar fotos antigas', 'Dominantes de cor, poeira e arranhões corrigidos, rostos borrados restaurados e fotos em preto e branco coloridas.'],
+      ['person-standing', 'Editor de pose', 'Esqueletos OpenPose com mãos e rostos, modelos prontos ou uma pose detectada numa foto – depois é só usar em Texto para imagem.'],
+      ['sparkles', 'Ilusões', 'Esconda uma espiral, um padrão, uma palavra ou um logo dentro de uma imagem.'],
+      ['graduation-cap', 'Treinamento de LoRAs', 'Ensine a um modelo seu estilo de desenho ou seu personagem com 10–30 imagens suas, em SDXL, FLUX.2 [klein] ou Krea 2, com a curva de perda ao vivo.'],
+      ['boxes', 'Muitos modelos', 'SD 1.5, SDXL (também Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, Chroma, Qwen-Image, Z-Image, Krea 2, Ideogram 4, Anima e Wan 2.2 para vídeo. De uma lista testada, ou importados do Hugging Face, do Civitai ou de um arquivo.'],
+    ],
+    whyEyebrow: 'Por que o VulKara',
+    whyTitle: 'Suas ideias continuam suas',
+    why: [
+      ['monitor', 'Tudo no seu Mac', ['Imagens, vídeos, restaurações e treinamento rodam na GPU da Apple. Seus prompts e imagens nunca saem do Mac – a rede só é usada para baixar runtimes, modelos e descrições de LoRAs.']],
+      ['heart', 'Grátis, sem pegadinha', ['Sem conta, sem assinatura, sem créditos. Código aberto sob a AGPL-3.0: leia o código, mude, compartilhe.'], 'Alguns modelos pedem um token gratuito do Hugging Face ou do Civitai antes do download.'],
+      ['hard-drive', 'Roda também em Macs pequenos', ['Um modelo grande demais para a memória é transmitido do SSD bloco a bloco, com qualidade total. Num Mac mini M4 com 16 GB rodam o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1.'], 'O streaming troca velocidade por tamanho: modelos grandes levam minutos por imagem. O Stable Diffusion 1.5 roda com 8 GB.'],
+      ['languages', 'Fala o seu idioma', ['English, Deutsch, Español, Português (Brasil) e Português (Portugal) – o app e o guia do usuário. Falta o seu? Um idioma novo é uma pasta de arquivos de texto.']],
+    ],
+    stepsEyebrow: 'Começar',
+    stepsTitle: 'Sua primeira imagem em 3 passos',
+    steps: [
+      ['Instale', 'Baixe o DMG, abra e arraste o VulKara para <b>Aplicativos</b>.'],
+      ['Runtime e modelo', '<b>Ajustes → Runtimes</b>: instale o <b>Diffusers (Apple GPU)</b>. Depois, <b>Modelos → Recomendados</b>: <i>SDXL 1.0</i> com 16 GB, <i>Stable Diffusion 1.5</i> com 8 GB.'],
+      ['Crie', 'Abra <b>Texto</b>, descreva sua imagem e pressione <b>⌘↩</b>. A página Início marca cada passo.'],
+    ],
+    shotsEyebrow: 'Capturas',
+    shotsTitle: 'Dê uma olhada por dentro',
+    shotsOpen: 'abre a captura em tamanho real',
+    shots: {
+      text: ['Texto para imagem', 'prompt, modelo, estilo, tamanho e LoRAs numa página'],
+      canvas: ['Tela de IA', 'continue uma imagem além das bordas'],
+      inpaint: ['Inpainting', 'repinte só o que você marcar'],
+      restore: ['Restaurar', 'fotos antigas com um controle de antes e depois'],
+      video: ['Imagem para vídeo', 'uma imagem inicial e uma descrição do movimento'],
+      pose: ['Editor de pose', 'esqueletos com mãos e rostos'],
+      training: ['Treino', 'uma LoRA a partir das suas próprias imagens'],
+      models_recommended: ['Modelos recomendados', 'com a memória e o tamanho do download para o seu Mac'],
+    },
+    respTitle: 'Responsável desde o início',
+    resp: 'Uma verificação do prompt e de cada resultado antes de ser exibido, a proteção de menores sempre ativa, uma pergunta de consentimento ao editar fotos reais e uma nota de IA no arquivo de cada imagem – o ícone visível da UE AI GENERATED está a um botão de distância.',
+    linksEyebrow: 'Saiba mais',
+    linksTitle: 'Guia, novidades e código',
+    links: [
+      ['lightbulb', 'Guia do usuário', 'cada página e cada ajuste', `${BLOB}/docs/pt-BR/USER_GUIDE.md`],
+      ['scroll-text', 'Wiki', 'guias e ajuda', `${GH}/wiki`],
+      ['file-clock', 'Novidades', 'o que mudou (em inglês)', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'Traduza o VulKara', 'leve-o para o seu idioma (em inglês)', `${BLOB}/docs/TRANSLATING.md`],
+      ['scale', 'Licença', 'AGPL-3.0', `${BLOB}/LICENSE`],
+    ],
+    supportTitle: 'Feito no tempo livre. Movido a café.',
+    support: 'O VulKara é grátis para todos. Se ele for útil para você, um café paga novos modelos, correções e recursos.',
+    coffee: 'Me pague um café',
+    footAi: 'As imagens criadas com o VulKara nesta página levam o ícone da UE AI GENERATED.',
+    foot: '© 2026 Oliver Schmidt · O VulKara é software livre sob a AGPL-3.0. Esta página não usa cookies e não carrega nada de outros servidores.',
+    legal: ['Aviso legal (Impressum)', 'Privacidade'],
+    footTm: 'Apple, Mac e macOS são marcas registradas da Apple Inc. O VulKara não tem vínculo com a Apple.',
+  },
+
+  'pt-PT': {
+    title: 'VulKara – gerador local de imagens com IA para Mac',
+    desc: 'App gratuita e de código aberto para imagens com IA em Mac com Apple silicon: texto para imagem, inpainting, tela de IA, vídeo, restauro de fotografias e treino de LoRAs. Tudo é executado no Mac.',
+    ogAlt: 'VulKara, o seu gerador local de imagens com IA, com elevada privacidade',
+    skip: 'Avançar para o conteúdo',
+    nav: ['Funcionalidades', 'Porquê o VulKara', 'Capturas', 'Começar'],
+    language: 'Idioma',
+    download: 'Transferir',
+    kicker: 'Gratuito · código aberto · para Mac com Apple silicon',
+    tagline: 'O seu gerador local de imagens com IA, com elevada privacidade',
+    lead: 'Ideias que se tornam imagens, esboços que se tornam cenas e fotografias antigas que voltam a brilhar – diretamente no Mac. Sem nuvem, sem créditos, sem subscrição.',
+    chips: ['Criadores', 'Estudantes', 'Artistas de anime e BD', 'Artistas digitais', 'Fãs de fotografia'],
+    dlBig: 'Transferir para Mac',
+    github: 'Código no GitHub',
+    note: 'Gratuito · macOS em Apple silicon · assinado e notarizado pela Apple',
+    bannerAlt: 'Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua em néon à noite, um astronauta numa estufa em cúpula e uma cabana junto a um lago no outono',
+    bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
+    galEyebrow: "Galeria",
+    galTitle: "Feito num Mac. Não na nuvem.",
+    galLead: "Cada imagem foi criada com o VulKara num MacBook Pro M2 com o Z-Image Turbo, a partir de uma única frase, em menos de um minuto por imagem.",
+    galCaps: {"greenhouse": "Uma estufa de vidro flutua sobre uma floresta com nevoeiro", "silver_gown": "Um vestido de prata líquida", "snow_leopard": "Leopardo-das-neves com borboletas morfo", "cat_astronaut": "Gato laranja entre medusas luminosas", "crystal_cat": "Gato preto sobre livros de cristal", "sky_koi": "Carpas a nadar por uma cidade de néon", "gold_freckles": "Sardas, folha de ouro e flores brancas", "fox_mushroom": "Uma raposa a dormir sob um cogumelo luminoso", "hummingbird": "Um colibri de vitral", "kitten_cloud": "Um gatinho branco a dormir numa chávena sobre uma nuvem"},
+    featEyebrow: 'Funcionalidades',
+    featTitle: 'Uma app, um estúdio completo',
+    featLead: 'Imagens, edição, vídeo e LoRAs próprias – para criadores, estudantes, fãs de BD e anime e artistas digitais.',
+    feats: [
+      ['type', 'Texto para imagem', 'Descreva a imagem, escolha um estilo e prima ⌘↩. Vinte estilos, da fotografia à ilustração e ao 3D, e até três LoRAs, cada uma com o seu peso.'],
+      ['eraser', 'Imagem para imagem e inpainting', 'Mantenha o motivo e mude a cena. Ou pinte apenas a parte que deve mudar – o resto fica intacto.'],
+      ['frame', 'Tela de IA', 'Uma superfície infinita: leve a moldura para lá do limite e Gerar continua a imagem. Pinte uma máscara para refazer uma parte.'],
+      ['clapperboard', 'Imagem para vídeo', 'Dê vida a uma imagem com o Wan 2.2: descreva o movimento e obtenha 1 a 5 segundos em 480p ou 720p.'],
+      ['maximize-2', 'Ampliar e ferramentas de foto', '2× ou 4× com Real-ESRGAN, além de nitidez, redução de ruído, remoção de artefactos JPEG, remoção do fundo e seleção de objetos com um clique.'],
+      ['wand-sparkles', 'Restaurar fotografias antigas', 'Dominantes de cor, pó e riscos corrigidos, rostos desfocados restaurados e fotografias a preto e branco coloridas.'],
+      ['person-standing', 'Editor de pose', 'Esqueletos OpenPose com mãos e rostos, modelos ou uma pose detetada numa fotografia – depois, basta utilizá-la em Texto para imagem.'],
+      ['sparkles', 'Ilusões', 'Esconda uma espiral, um padrão, uma palavra ou um logótipo numa imagem.'],
+      ['graduation-cap', 'Treino de LoRAs', 'Ensine a um modelo o seu estilo de desenho ou a sua personagem com 10 a 30 imagens próprias, em SDXL, FLUX.2 [klein] ou Krea 2, com a curva de perda em direto.'],
+      ['boxes', 'Muitos modelos', 'SD 1.5, SDXL (também Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, Chroma, Qwen-Image, Z-Image, Krea 2, Ideogram 4, Anima e Wan 2.2 para vídeo. A partir de uma lista testada, ou importados do Hugging Face, do Civitai ou de um ficheiro.'],
+    ],
+    whyEyebrow: 'Porquê o VulKara',
+    whyTitle: 'As suas ideias continuam suas',
+    why: [
+      ['monitor', 'Tudo no Mac', ['Imagens, vídeos, restauros e treino são executados na GPU da Apple. Os prompts e as imagens nunca saem do Mac – a rede só é utilizada para transferir runtimes, modelos e descrições de LoRAs.']],
+      ['heart', 'Gratuito, sem letras pequenas', ['Sem conta, sem subscrição, sem créditos. Código aberto ao abrigo da AGPL-3.0: leia o código, altere-o, partilhe-o.'], 'Alguns modelos pedem um token gratuito do Hugging Face ou do Civitai antes da transferência.'],
+      ['hard-drive', 'Também em Mac mais pequenos', ['Um modelo demasiado grande para a memória é transmitido do SSD bloco a bloco, com qualidade total. Num Mac mini M4 com 16 GB, o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1 funcionam.'], 'O streaming troca velocidade por tamanho: os modelos grandes demoram minutos por imagem. O Stable Diffusion 1.5 funciona com 8 GB.'],
+      ['languages', 'No seu idioma', ['English, Deutsch, Español, Português (Brasil) e Português (Portugal) – a app e o guia do utilizador. Falta o seu? Um novo idioma é uma pasta de ficheiros de texto.']],
+    ],
+    stepsEyebrow: 'Começar',
+    stepsTitle: 'A primeira imagem em 3 passos',
+    steps: [
+      ['Instalar', 'Transfira o DMG, abra-o e arraste o VulKara para <b>Aplicações</b>.'],
+      ['Runtime e modelo', '<b>Definições → Runtimes</b>: instale o <b>Diffusers (Apple GPU)</b>. Depois, <b>Modelos → Recomendados</b>: <i>SDXL 1.0</i> com 16 GB, <i>Stable Diffusion 1.5</i> com 8 GB.'],
+      ['Criar', 'Abra <b>Texto</b>, descreva a imagem e prima <b>⌘↩</b>. A página Início assinala cada passo.'],
+    ],
+    shotsEyebrow: 'Capturas',
+    shotsTitle: 'Um olhar por dentro',
+    shotsOpen: 'abre a captura em tamanho real',
+    shots: {
+      text: ['Texto para imagem', 'prompt, modelo, estilo, tamanho e LoRAs numa página'],
+      canvas: ['Tela de IA', 'continuar uma imagem para lá dos limites'],
+      inpaint: ['Inpainting', 'voltar a pintar apenas o que marcar'],
+      restore: ['Restaurar', 'fotografias antigas com um controlo de antes e depois'],
+      video: ['Imagem para vídeo', 'uma imagem inicial e uma descrição do movimento'],
+      pose: ['Editor de pose', 'esqueletos com mãos e rostos'],
+      training: ['Treino', 'uma LoRA a partir das suas imagens'],
+      models_recommended: ['Modelos recomendados', 'com a memória e o tamanho da transferência para o Mac'],
+    },
+    respTitle: 'Responsável de raiz',
+    resp: 'Uma verificação do prompt e de cada resultado antes de ser apresentado, a proteção de menores sempre ativa, uma pergunta de consentimento ao editar fotografias reais e uma nota de IA no ficheiro de cada imagem – o ícone visível da UE AI GENERATED está à distância de um interruptor.',
+    linksEyebrow: 'Saber mais',
+    linksTitle: 'Guia, novidades e código',
+    links: [
+      ['lightbulb', 'Guia do utilizador', 'cada página e cada definição', `${BLOB}/docs/pt-PT/USER_GUIDE.md`],
+      ['scroll-text', 'Wiki', 'guias e ajuda', `${GH}/wiki`],
+      ['file-clock', 'Novidades', 'o que mudou (em inglês)', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'Traduzir o VulKara', 'para o seu idioma (em inglês)', `${BLOB}/docs/TRANSLATING.md`],
+      ['scale', 'Licença', 'AGPL-3.0', `${BLOB}/LICENSE`],
+    ],
+    supportTitle: 'Feito nos tempos livres. Alimentado a café.',
+    support: 'O VulKara é gratuito para todos. Se lhe for útil, um café paga novos modelos, correções e funcionalidades.',
+    coffee: 'Ofereça-me um café',
+    footAi: 'As imagens criadas com o VulKara nesta página têm o ícone da UE AI GENERATED.',
+    foot: '© 2026 Oliver Schmidt · O VulKara é software livre ao abrigo da AGPL-3.0. Esta página não utiliza cookies e não carrega nada de outros servidores.',
+    legal: ['Aviso legal (Impressum)', 'Privacidade'],
+    footTm: 'Apple, Mac e macOS são marcas comerciais da Apple Inc. O VulKara não está associado à Apple.',
+  },
+}
+
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+const icon = (up, name, cls = 'ico') => `<img class="${cls}" src="${up}assets/icons/${name}.svg" width="24" height="24" alt="">`
+
+function page(lang) {
+  const t = T[lang.code]
+  const up = lang.dir ? '../' : ''
+  const url = BASE + lang.dir
+  const shotDir = lang.code === 'en' ? 'en' : lang.code
+  const ext = (href, body, cls = '') => `<a${cls ? ` class="${cls}"` : ''} href="${href}" rel="noopener">${body}</a>`
+  const alternates = LANGS.map((l) => `  <link rel="alternate" hreflang="${l.code}" href="${BASE}${l.dir}">`).join('\n')
+  const ogAlts = LANGS.filter((l) => l !== lang).map((l) => `  <meta property="og:locale:alternate" content="${l.og}">`).join('\n')
+  const langItems = LANGS.map((l) => {
+    const href = up + (l.dir || './')
+    const cur = l === lang ? ' aria-current="page"' : ''
+    return `          <li><a href="${href}" hreflang="${l.code}" lang="${l.code}"${cur}>${l.name}</a></li>`
+  }).join('\n')
+
+  return `<!doctype html>
+<html lang="${lang.code}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>${esc(t.title)}</title>
+  <meta name="description" content="${esc(t.desc)}">
+  <link rel="canonical" href="${url}">
+${alternates}
+  <link rel="alternate" hreflang="x-default" href="${BASE}">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e1014" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="${up}assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="${up}assets/icon.png">
+  <link rel="stylesheet" href="${up}style.css">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VulKara">
+  <meta property="og:title" content="${esc(t.title)}">
+  <meta property="og:description" content="${esc(t.desc)}">
+  <meta property="og:url" content="${url}">
+  <meta property="og:image" content="${BASE}social_preview.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="${esc(t.ogAlt)}">
+  <meta property="og:locale" content="${lang.og}">
+${ogAlts}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${esc(t.title)}">
+  <meta name="twitter:description" content="${esc(t.desc)}">
+  <meta name="twitter:image" content="${BASE}social_preview.png">
+  <meta name="twitter:image:alt" content="${esc(t.ogAlt)}">
+</head>
+<body>
+  <a class="skip" href="#main">${t.skip}</a>
+
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="${up}${lang.dir || './'}"><img src="${up}assets/icon.svg" width="30" height="30" alt="">VulKara</a>
+      <nav aria-label="VulKara">
+        <a href="#features">${t.nav[0]}</a>
+        <a href="#why">${t.nav[1]}</a>
+        <a href="#screenshots">${t.nav[2]}</a>
+        <a href="#start">${t.nav[3]}</a>
+      </nav>
+      <span class="spacer"></span>
+      <details class="lang">
+        <summary aria-label="${t.language}: ${lang.name}">${icon(up, 'languages')}<span>${lang.name}</span></summary>
+        <ul>
+${langItems}
+        </ul>
+      </details>
+      ${ext('https://github.com/revil-O/VulKara/releases/latest', t.download, 'btn primary small')}
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="hero">
+      <div class="wrap">
+        <img class="appicon" src="${up}assets/icon.svg" width="128" height="128" alt="">
+        <p class="kicker">${t.kicker}</p>
+        <h1>VulKara</h1>
+        <p class="tagline">${t.tagline}</p>
+        <p class="lead">${t.lead}</p>
+        <ul class="chips">
+${t.chips.map((c) => `          <li>${c}</li>`).join('\n')}
+        </ul>
+        <div class="cta">
+          ${ext('https://github.com/revil-O/VulKara/releases/latest', `${icon(up, 'download')}${t.dlBig}`, 'btn primary big')}
+          ${ext(GH, t.github, 'btn big ghost')}
+        </div>
+        <p class="note">${t.note}</p>
+        <figure class="banner">
+          <img src="${up}assets/banner.jpg" width="1712" height="420" alt="${esc(t.bannerAlt)}" fetchpriority="high">
+          <figcaption>${t.bannerCap}</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <section id="gallery" aria-labelledby="gallery-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">${t.galEyebrow}</span>
+          <h2 id="gallery-title">${t.galTitle}</h2>
+          <p>${t.galLead}</p>
+        </div>
+        <div class="gallery">
+${GALLERY.map(([file, w, h]) => `          <figure class="${w > h ? 'wide' : ''}">
+            <img src="${up}assets/gallery/${file}.jpg" width="${w}" height="${h}" alt="${esc(t.galCaps[file])}" loading="lazy" decoding="async">
+            <figcaption>${t.galCaps[file]}</figcaption>
+          </figure>`).join('\n')}
+        </div>
+      </div>
+    </section>
+
+    <section id="features" aria-labelledby="features-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">${t.featEyebrow}</span>
+          <h2 id="features-title">${t.featTitle}</h2>
+          <p>${t.featLead}</p>
+        </div>
+        <div class="grid">
+${t.feats.map(([ic, h, p], i) => `          <article class="card${i >= 8 ? ' wide' : ''}">
+            <div class="tile">${icon(up, ic)}</div>
+            <h3>${h}</h3>
+            <p>${p}</p>
+          </article>`).join('\n')}
+        </div>
+      </div>
+    </section>
+
+    <section id="why" aria-labelledby="why-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">${t.whyEyebrow}</span>
+          <h2 id="why-title">${t.whyTitle}</h2>
+        </div>
+        <div class="why">
+${t.why.map(([ic, h, ps, fine]) => `          <article class="card">
+            <div class="tile">${icon(up, ic)}</div>
+            <h3>${h}</h3>
+${ps.map((p) => `            <p>${p}</p>`).join('\n')}${fine ? `\n            <p class="fine">${fine}</p>` : ''}
+          </article>`).join('\n')}
+        </div>
+      </div>
+    </section>
+
+    <section id="start" aria-labelledby="start-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">${t.stepsEyebrow}</span>
+          <h2 id="start-title">${t.stepsTitle}</h2>
+        </div>
+        <ol class="steps">
+${t.steps.map(([h, p]) => `          <li class="card">
+            <h3>${h}</h3>
+            <p>${p}</p>
+          </li>`).join('\n')}
+        </ol>
+      </div>
+    </section>
+
+    <section id="screenshots" aria-labelledby="screenshots-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">${t.shotsEyebrow}</span>
+          <h2 id="screenshots-title">${t.shotsTitle}</h2>
+        </div>
+        <div class="shots">
+${SHOTS.map(([name, h]) => {
+    const [title, cap] = t.shots[name]
+    const src = `${up}assets/screenshots/${shotDir}/${name}.jpg`
+    return `          <figure>
+            <a href="${src}" aria-label="${esc(`${title}: ${t.shotsOpen}`)}"><img src="${src}" width="1600" height="${h}" alt="${esc(`VulKara, ${title}: ${cap}`)}" loading="lazy" decoding="async"></a>
+            <figcaption><b>${title}</b> – ${cap}</figcaption>
+          </figure>`
+  }).join('\n')}
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="responsible-title">
+      <div class="wrap">
+        <div class="responsible">
+          ${icon(up, 'shield-check')}
+          <div>
+            <h2 id="responsible-title">${t.respTitle}</h2>
+            <p>${t.resp}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="more" aria-labelledby="more-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">${t.linksEyebrow}</span>
+          <h2 id="more-title">${t.linksTitle}</h2>
+        </div>
+        <ul class="links">
+${t.links.map(([ic, h, s, href]) => `          <li>${ext(href, `${icon(up, ic)}<span>${h}<small>${s}</small></span>`)}</li>`).join('\n')}
+        </ul>
+        <div class="support">
+          <h2>${t.supportTitle}</h2>
+          <p>${t.support}</p>
+          ${ext('https://buymeacoffee.com/revil.0', `${icon(up, 'coffee')}${t.coffee}`, 'btn primary big')}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p class="ai">${t.footAi}</p>
+      <p>${t.foot}</p>
+      <p>${t.footTm}</p>
+      <p class="legal"><a href="${up}impressum/">${t.legal[0]}</a> · <a href="${up}datenschutz/">${t.legal[1]}</a></p>
+    </div>
+  </footer>
+</body>
+</html>
+`
+}
+
+for (const lang of LANGS) {
+  const dir = join(SITE, lang.dir)
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(join(dir, 'index.html'), page(lang))
+}
+console.log('pages written')
+
+// ---------------------------------------------------------------- legal notice and privacy (German law), with English
+// The operator's name, address and e-mail are not in the repository: site/legal.local.json (git-ignored) or the
+// environment variable VK_LEGAL (the same JSON, a secret in CI): { "name", "street", "city", "email" }. Without them the
+// pages keep {{…}} placeholders, and tools/deploy_site.sh refuses to upload.
+const legalFile = join(SITE, 'legal.local.json')
+const L = process.env.VK_LEGAL ? JSON.parse(process.env.VK_LEGAL)
+  : existsSync(legalFile) ? JSON.parse(readFileSync(legalFile, 'utf8')) : {}
+const v = (k) => L[k] || `{{${k}}}`
+const operator = `${v('name')}<br>${v('street')}<br>${v('city')}<br>Deutschland`
+const mail = L.email ? `<a href="mailto:${L.email}">${L.email}</a>` : '{{email}}'
+
+const LEGAL = {
+  impressum: {
+    title: 'Impressum · Legal notice',
+    body: `
+      <h1>Impressum</h1>
+      <h2>Angaben gemäß § 5 DDG</h2>
+      <p>${operator}</p>
+      <h2>Kontakt</h2>
+      <p>E-Mail: ${mail}</p>
+      <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+      <p>${v('name')}, Anschrift wie oben</p>
+      <h2>Haftung für Links</h2>
+      <p>Diese Seite verlinkt auf Angebote Dritter (GitHub, Buy Me a Coffee). Für deren Inhalte sind allein deren
+      Anbieter verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werden solche Links umgehend entfernt.</p>
+      <h2>Verbraucherstreitbeilegung</h2>
+      <p>Ich bin nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer
+      Verbraucherschlichtungsstelle teilzunehmen.</p>
+      <hr>
+      <h1 lang="en">Legal notice</h1>
+      <p lang="en">VulKara is made by ${v('name')}, ${v('street')}, ${v('city')}, Germany. Contact: ${mail}.
+      The German text above is the binding one.</p>`,
+  },
+  datenschutz: {
+    title: 'Datenschutz · Privacy',
+    body: `
+      <h1>Datenschutzerklärung</h1>
+      <h2>Verantwortlicher</h2>
+      <p>${operator}<br>E-Mail: ${mail}</p>
+      <h2>Kurz gesagt</h2>
+      <p>Diese Website setzt keine Cookies, nutzt keine Analyse- oder Tracking-Werkzeuge und lädt keine Inhalte von
+      anderen Servern (keine Schriften, Skripte oder eingebetteten Medien Dritter).</p>
+      <h2>Hosting und Server-Logdateien</h2>
+      <p>Die Website liegt bei ALL-INKL.COM – Neue Medien Münnich, Hauptstraße 68, 02742 Friedersdorf, Deutschland,
+      mit dem ein Vertrag zur Auftragsverarbeitung besteht. Beim Aufruf einer Seite verarbeitet der Server technisch
+      notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Seite, übertragene Datenmenge, Referrer und
+      Browser-Kennung. Das dient dem sicheren und stabilen Betrieb (Art. 6 Abs. 1 lit. f DSGVO). Die Logdateien werden
+      nach {{log_days}} Tagen gelöscht; eine Zusammenführung mit anderen Daten findet nicht statt.</p>
+      <h2>Links zu anderen Anbietern</h2>
+      <p>Die Links zu GitHub (Download, Quellcode, Wiki) und zu Buy Me a Coffee führen auf deren Seiten; dort gelten
+      deren Datenschutzerklärungen. Erst mit dem Klick werden Daten an diese Anbieter übertragen.</p>
+      <h2>Die App</h2>
+      <p>VulKara selbst rechnet auf deinem Mac. Prompts, Bilder und Pfade verlassen den Mac nicht; das Netz wird nur
+      zum Herunterladen von Runtimes, Modellen und Beschreibungen von LoRAs genutzt.</p>
+      <h2>Deine Rechte</h2>
+      <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung, auf
+      Datenübertragbarkeit und auf Widerspruch gegen die Verarbeitung (Art. 15–21 DSGVO), sowie das Recht auf
+      Beschwerde bei einer Datenschutz-Aufsichtsbehörde (Art. 77 DSGVO). Eine E-Mail an ${mail} genügt.</p>
+      <hr>
+      <h1 lang="en">Privacy</h1>
+      <p lang="en">This website sets no cookies, uses no analytics or tracking and loads nothing from other servers. The
+      host (ALL-INKL.COM, Germany) keeps technically necessary server logs (IP address, time, page, referrer, browser)
+      for {{log_days}} days for a secure operation. Links to GitHub and Buy Me a Coffee lead to their sites and their
+      privacy policies. The app itself computes on your Mac; prompts, pictures and paths never leave it. Your rights
+      under the GDPR (access, correction, deletion, objection, complaint to a supervisory authority): write to
+      ${mail}. The German text above is the binding one.</p>`,
+  },
+}
+
+for (const [slug, p] of Object.entries(LEGAL)) {
+  const dir = join(SITE, slug)
+  mkdirSync(dir, { recursive: true })
+  const body = p.body.replace(/\{\{log_days\}\}/g, L.log_days ? String(L.log_days) : '{{log_days}}')
+  writeFileSync(join(dir, 'index.html'), `<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>${p.title} – VulKara</title>
+  <link rel="canonical" href="${BASE}${slug}/">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <main class="legal-page">
+    <div class="wrap">
+      <p><a href="../">← VulKara</a></p>${body}
+    </div>
+  </main>
+</body>
+</html>
+`)
+}
+console.log(L.name ? 'legal pages written' : 'legal pages written with placeholders (site/legal.local.json missing)')
