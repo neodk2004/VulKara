@@ -115,6 +115,8 @@ const T = {
     support: 'VulKara is free for everyone. If it is useful to you, a coffee pays for new models, fixes and features.',
     coffee: 'Buy me a coffee',
     next: ["Coming next", "Your own characters", "Create a character once – face, hair, outfit, style – and put them into any scene: comic panels, anime shots, a whole story. The same character in every picture. Made and kept on your Mac, like everything else.", "Planned, no date yet. A coffee helps it along."],
+    nextCap: "One character, seven pictures: the reference and six scenes, made with VulKara today (FLUX.2 klein with the reference picture on the Image page). The feature will make it a few clicks.",
+    nextAlts: {"mira": "Mira, the reference", "cafe": "Sketching in a café", "rooftop": "On a rooftop at sunset", "neon": "Neon street in the rain", "mountain": "Hiking at dawn", "anime": "As an anime character", "comic": "As a comic panel"},
     footAi: 'The pictures made with VulKara on this page carry the EU icon AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · VulKara is free software under the AGPL-3.0. This page sets no cookies and loads nothing from other servers.',
     legal: ['Legal notice (Impressum)', 'Privacy'],
@@ -203,6 +205,8 @@ const T = {
     support: 'VulKara ist für alle kostenlos. Wenn es dir nützt, bezahlt ein Kaffee neue Modelle, Fehlerbehebungen und Funktionen.',
     coffee: 'Spendier mir einen Kaffee',
     next: ["Als Nächstes", "Deine eigenen Charaktere", "Erschaffe einen Charakter einmal – Gesicht, Haare, Outfit, Stil – und setz ihn in jede Szene: Comic-Panels, Anime-Shots, eine ganze Geschichte. Derselbe Charakter auf jedem Bild. Erstellt und gespeichert auf deinem Mac, wie alles andere.", "Geplant, noch ohne Termin. Ein Kaffee bringt es voran."],
+    nextCap: "Ein Charakter, sieben Bilder: die Vorlage und sechs Szenen, heute schon mit VulKara gemacht (FLUX.2 klein mit dem Vorlagebild auf der Seite Bild). Das Feature macht daraus ein paar Klicks.",
+    nextAlts: {"mira": "Mira, die Vorlage", "cafe": "Zeichnen im Café", "rooftop": "Auf dem Dach bei Sonnenuntergang", "neon": "Neon-Straße im Regen", "mountain": "Wandern im Morgenlicht", "anime": "Als Anime-Figur", "comic": "Als Comic-Panel"},
     footAi: 'Die mit VulKara erstellten Bilder auf dieser Seite tragen das EU-Symbol AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · VulKara ist freie Software unter der AGPL-3.0. Diese Seite setzt keine Cookies und lädt nichts von anderen Servern.',
     legal: ['Impressum', 'Datenschutz'],
@@ -291,6 +295,8 @@ const T = {
     support: 'VulKara es gratis para todos. Si te resulta útil, un café paga nuevos modelos, correcciones y funciones.',
     coffee: 'Invítame a un café',
     next: ["Lo próximo", "Tus propios personajes", "Crea un personaje una vez – cara, pelo, ropa, estilo – y ponlo en cualquier escena: viñetas de cómic, planos de anime, una historia entera. El mismo personaje en cada imagen. Creado y guardado en tu Mac, como todo lo demás.", "Planeado, todavía sin fecha. Un café ayuda a que llegue."],
+    nextCap: "Un personaje, siete imágenes: la referencia y seis escenas, hechas hoy ya con VulKara (FLUX.2 klein con la imagen de referencia en la página Imagen). La función lo convertirá en unos pocos clics.",
+    nextAlts: {"mira": "Mira, la referencia", "cafe": "Dibujando en un café", "rooftop": "En una azotea al atardecer", "neon": "Calle de neón bajo la lluvia", "mountain": "De excursión al amanecer", "anime": "Como personaje de anime", "comic": "Como viñeta de cómic"},
     footAi: 'Las imágenes creadas con VulKara en esta página llevan el icono de la UE AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · VulKara es software libre bajo la AGPL-3.0. Esta página no usa cookies y no carga nada de otros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidad'],
@@ -379,6 +385,8 @@ const T = {
     support: 'O VulKara é grátis para todos. Se ele for útil para você, um café paga novos modelos, correções e recursos.',
     coffee: 'Me pague um café',
     next: ["Próximo passo", "Seus próprios personagens", "Crie um personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-o em qualquer cena: quadrinhos, cenas de anime, uma história inteira. O mesmo personagem em todas as imagens. Criado e guardado no seu Mac, como todo o resto.", "Planejado, ainda sem data. Um café ajuda a chegar lá."],
+    nextCap: "Um personagem, sete imagens: a referência e seis cenas, feitas hoje mesmo com o VulKara (FLUX.2 klein com a imagem de referência na página Imagem). O recurso vai transformar isso em poucos cliques.",
+    nextAlts: {"mira": "Mira, a referência", "cafe": "Desenhando num café", "rooftop": "Num terraço ao pôr do sol", "neon": "Rua de neon na chuva", "mountain": "Trilha ao amanhecer", "anime": "Como personagem de anime", "comic": "Como quadrinho"},
     footAi: 'As imagens criadas com o VulKara nesta página levam o ícone da UE AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · O VulKara é software livre sob a AGPL-3.0. Esta página não usa cookies e não carrega nada de outros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidade'],
@@ -467,6 +475,8 @@ const T = {
     support: 'O VulKara é gratuito para todos. Se lhe for útil, um café paga novos modelos, correções e funcionalidades.',
     coffee: 'Ofereça-me um café',
     next: ["Próximo passo", "As suas próprias personagens", "Crie uma personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-a em qualquer cena: banda desenhada, cenas de anime, uma história inteira. A mesma personagem em todas as imagens. Criada e guardada no seu Mac, como tudo o resto.", "Planeado, ainda sem data. Um café ajuda a lá chegar."],
+    nextCap: "Uma personagem, sete imagens: a referência e seis cenas, feitas hoje mesmo com o VulKara (FLUX.2 klein com a imagem de referência na página Imagem). A funcionalidade vai transformar isto em poucos cliques.",
+    nextAlts: {"mira": "Mira, a referência", "cafe": "A desenhar num café", "rooftop": "Num terraço ao pôr do sol", "neon": "Rua de néon à chuva", "mountain": "A caminhar ao amanhecer", "anime": "Como personagem de anime", "comic": "Como banda desenhada"},
     footAi: 'As imagens criadas com o VulKara nesta página têm o ícone da UE AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · O VulKara é software livre ao abrigo da AGPL-3.0. Esta página não utiliza cookies e não carrega nada de outros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidade'],
@@ -700,6 +710,13 @@ ${SHOTS.map(([name, h]) => {
             <p class="fine">${t.next[3]}</p>
           </div>
         </div>
+        <div class="chars">
+${['mira', 'cafe', 'rooftop', 'neon', 'mountain', 'anime', 'comic'].map((f) => `          <figure${f === 'mira' ? ' class="ref"' : ''}>
+            <img src="${up}assets/characters/${f}.jpg" width="832" height="1216" alt="${esc(t.nextAlts[f])}" loading="lazy" decoding="async">
+            <figcaption>${t.nextAlts[f]}</figcaption>
+          </figure>`).join('\n')}
+        </div>
+        <p class="chars-cap">${t.nextCap}</p>
       </div>
     </section>
 

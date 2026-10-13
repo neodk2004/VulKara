@@ -394,6 +394,13 @@ Create a character once – face, hair, outfit, style – and put them into any 
 story. The same character in every picture, made and kept on your Mac like everything else. Planned, no date yet; a
 [coffee](https://buymeacoffee.com/revil.0) helps it along.
 
+<table>
+<tr><td width="14%"><img src="docs/images/characters/mira.jpg" alt="Mira, the reference"></td><td width="14%"><img src="docs/images/characters/cafe.jpg" alt="Sketching in a café"></td><td width="14%"><img src="docs/images/characters/rooftop.jpg" alt="On a rooftop at sunset"></td><td width="14%"><img src="docs/images/characters/neon.jpg" alt="Neon street in the rain"></td><td width="14%"><img src="docs/images/characters/mountain.jpg" alt="Hiking at dawn"></td><td width="14%"><img src="docs/images/characters/anime.jpg" alt="As an anime character"></td><td width="14%"><img src="docs/images/characters/comic.jpg" alt="As a comic panel"></td></tr>
+<tr><td><sub>Mira, the reference</sub></td><td><sub>Sketching in a café</sub></td><td><sub>On a rooftop at sunset</sub></td><td><sub>Neon street in the rain</sub></td><td><sub>Hiking at dawn</sub></td><td><sub>As an anime character</sub></td><td><sub>As a comic panel</sub></td></tr>
+</table>
+
+<sub>One character, seven pictures: the reference and six scenes, made with VulKara today (FLUX.2 klein with the reference picture on the Image page). The feature will make it a few clicks.</sub>
+
 ## For developers
 
 ```bash

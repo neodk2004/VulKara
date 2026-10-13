@@ -312,3 +312,11 @@ footer .legal a { color: inherit; }
 .stream article p { color: var(--muted); font-size: 0.97rem; }
 .stream .fine { margin-top: 18px; color: var(--muted); font-size: 0.86rem; }
 @media (max-width: 560px) { .stream { padding: 28px 20px; } }
+.chars { display: grid; gap: 12px; margin-top: 18px; grid-template-columns: repeat(7, 1fr); }
+.chars figure { margin: 0; }
+.chars img { width: 100%; height: auto; aspect-ratio: 832 / 1216; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); display: block; }
+.chars .ref img { border: 2px solid var(--accent); }
+.chars figcaption { margin-top: 6px; font-size: 0.8rem; color: var(--muted); line-height: 1.3; }
+.chars-cap { margin-top: 12px; font-size: 0.86rem; color: var(--muted); }
+@media (max-width: 960px) { .chars { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 560px) { .chars { grid-template-columns: repeat(2, 1fr); } }
