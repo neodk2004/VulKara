@@ -2,19 +2,25 @@
 # tap revil-O/homebrew-tap set to the new version and the DMG's checksum. Each part runs only when its secrets are set
 # (Settings → Secrets and variables → Actions): MASTODON_INSTANCE + MASTODON_TOKEN, BLUESKY_HANDLE +
 # BLUESKY_APP_PASSWORD, TAP_TOKEN (a fine-grained token with Contents: write on revil-O/homebrew-tap only).
-# Only on GitHub: the repository is mirrored to a Gitea server.
+# Only on GitHub: the repository is mirrored to a Gitea server. Started by hand (Actions → Release → Run workflow) only
+# the cask is set, for the tag given; a tag the cask already has checks that TAP_TOKEN may push to the tap.
 name: Release
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag for the cask (e.g. v0.5.1)
+        required: true
 
 permissions:
   contents: read
 
 jobs:
   announce:
-    if: github.server_url == 'https://github.com' && !github.event.release.prerelease
+    if: github.server_url == 'https://github.com' && github.event_name == 'release' && !github.event.release.prerelease
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,12 +43,16 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TAP_TOKEN: ${{ secrets.TAP_TOKEN }}
-      TAG: ${{ github.event.release.tag_name }}
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
     steps:
+      - name: No token
+        if: env.TAP_TOKEN == ''
+        run: echo "::notice::TAP_TOKEN is not set, the Homebrew cask stays as it is"
       - name: Cask version and checksum
         if: env.TAP_TOKEN != ''
         run: |
           set -euo pipefail
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::not a release tag: $TAG"; exit 1; }
           version="${TAG#v}"
           dmg="VulKara-${version}-arm64.dmg"
           curl -fsSL -o "$dmg" "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${dmg}"
@@ -50,7 +60,11 @@ jobs:
           git clone -q "https://x-access-token:${TAP_TOKEN}@github.com/revil-O/homebrew-tap.git" tap
           cd tap
           sed -i -E "s/^  version \".*\"/  version \"${version}\"/; s/^  sha256 \".*\"/  sha256 \"${sum}\"/" Casks/vulkara.rb
-          git diff --quiet && { echo "cask already at ${version}"; exit 0; }
+          if git diff --quiet; then
+            git push -q --dry-run origin HEAD:refs/heads/main
+            echo "cask already at ${version}; TAP_TOKEN may push to the tap"
+            exit 0
+          fi
           git -c user.name=revil-O -c user.email=revil-O@users.noreply.github.com commit -qam "vulkara ${version}"
           git push -q
           echo "cask set to ${version} (${sum})"

@@ -758,7 +758,9 @@ changing dependencies, run `npm run notices` to update the package licences.
 - **A published release** (`.github/workflows/release.yml`): `tools/announce_release.mjs` posts the version, the first
   entry of the notes and the link on Mastodon and Bluesky; the Homebrew cask of `revil-O/homebrew-tap` gets the new
   version and checksum. Each part runs only when its secrets are set; `node tools/announce_release.mjs --dry-run` with
-  `TAG`, `RELEASE_URL` and `BODY` shows the text. Both workflows run only on GitHub, not on the Gitea mirror.
+  `TAG`, `RELEASE_URL` and `BODY` shows the text. Started by hand (Actions → Release → Run workflow, a tag such as
+  `v0.5.1`) it only sets the cask; when the cask already has that version it checks that `TAP_TOKEN` may push to the
+  tap. Both workflows run only on GitHub, not on the Gitea mirror.
 
 ## Clean check
 
