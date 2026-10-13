@@ -49,6 +49,7 @@ const T = {
     github: 'Source on GitHub',
     note: 'Free · macOS on Apple silicon · signed and notarized by Apple',
     brew: 'Or with Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
+    inspired: 'Inspired by DiffusionBee &amp; ComfyUI',
     bannerAlt: 'Five pictures made with VulKara: a lighthouse on a rocky coast, a fox in a snowy forest, a neon city street at night, an astronaut in a greenhouse dome and a cabin by a lake in autumn',
     bannerCap: 'Made with VulKara on an M2: Juggernaut XL v7, styles Cinematic, Digital Art, Neon Punk, Fantasy Art and Analog Film.',
     galEyebrow: "Gallery",
@@ -134,6 +135,7 @@ const T = {
     github: 'Quellcode auf GitHub',
     note: 'Kostenlos · macOS auf Apple-Chip · signiert und von Apple notarisiert',
     brew: 'Oder mit Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
+    inspired: 'Inspiriert von DiffusionBee &amp; ComfyUI',
     bannerAlt: 'Fünf mit VulKara erstellte Bilder: ein Leuchtturm an einer Felsküste, ein Fuchs im verschneiten Wald, eine Neon-Straße bei Nacht, ein Astronaut in einer Gewächshauskuppel und eine Hütte am See im Herbst',
     bannerCap: 'Mit VulKara auf einem M2 erstellt: Juggernaut XL v7, Stile Cinematic, Digital Art, Neon Punk, Fantasy Art und Analog Film.',
     galEyebrow: "Galerie",
@@ -219,6 +221,7 @@ const T = {
     github: 'Código en GitHub',
     note: 'Gratis · macOS en Apple silicon · firmada y notarizada por Apple',
     brew: 'O con Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
+    inspired: 'Inspirada en DiffusionBee y ComfyUI',
     bannerAlt: 'Cinco imágenes creadas con VulKara: un faro en una costa rocosa, un zorro en un bosque nevado, una calle de neón de noche, un astronauta en una cúpula invernadero y una cabaña junto a un lago en otoño',
     bannerCap: 'Creadas con VulKara en un M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art y Analog Film.',
     galEyebrow: "Galería",
@@ -304,6 +307,7 @@ const T = {
     github: 'Código no GitHub',
     note: 'Grátis · macOS em Apple silicon · assinado e notarizado pela Apple',
     brew: 'Ou com Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
+    inspired: 'Inspirado no DiffusionBee e no ComfyUI',
     bannerAlt: 'Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua neon à noite, um astronauta numa estufa em cúpula e uma cabana à beira de um lago no outono',
     bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
     galEyebrow: "Galeria",
@@ -389,6 +393,7 @@ const T = {
     github: 'Código no GitHub',
     note: 'Gratuito · macOS em Apple silicon · assinado e notarizado pela Apple',
     brew: 'Ou com o Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
+    inspired: 'Inspirada no DiffusionBee e no ComfyUI',
     bannerAlt: 'Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua em néon à noite, um astronauta numa estufa em cúpula e uma cabana junto a um lago no outono',
     bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
     galEyebrow: "Galeria",
@@ -551,6 +556,7 @@ ${t.chips.map((c) => `          <li>${c}</li>`).join('\n')}
         </div>
         <p class="note">${t.note}</p>
         <p class="note brew">${t.brew}</p>
+        <p class="note inspired">${t.inspired}</p>
         <figure class="banner">
           <img src="${up}assets/banner.jpg" width="1712" height="420" alt="${esc(t.bannerAlt)}" fetchpriority="high">
           <figcaption>${t.bannerCap}</figcaption>

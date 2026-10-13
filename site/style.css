@@ -280,3 +280,4 @@ footer .legal a { color: inherit; }
 @media (prefers-reduced-motion: reduce) { .gallery img, .gallery figcaption { transition: none; } }
 .note.brew { margin-top: 6px; }
 .note.brew code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; padding: 2px 6px; border-radius: 6px; background: var(--card); border: 1px solid var(--line); color: var(--text); user-select: all; overflow-wrap: anywhere; }
+.note.inspired { margin-top: 6px; font-style: italic; }

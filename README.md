@@ -28,6 +28,8 @@ new models, fixes and features — free, local and private for everyone.
 
 The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) · [Español](docs/es/USER_GUIDE.md) · [Português (Brasil)](docs/pt-BR/USER_GUIDE.md) · [Português (Portugal)](docs/pt-PT/USER_GUIDE.md) · [Translate it](docs/TRANSLATING.md)
 
+<sub>Inspired by DiffusionBee &amp; ComfyUI</sub>
+
 </div>
 
 ---
