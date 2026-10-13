@@ -50,6 +50,7 @@ const T = {
     note: 'Free · macOS on Apple silicon · signed and notarized by Apple',
     brew: 'Or with Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspired by DiffusionBee &amp; ComfyUI',
+    stream: {"eyebrow": "Model streaming", "title": "Big models. Small Mac.", "lead": "VulKara streams a model from the SSD – internal or external – block by block while the picture is computed. Only the part that is working sits in memory, so models that need 24 GB run on a Mac with 16 GB, at full 16-bit quality.", "points": [["hard-drive", "Internal or external SSD", "Keep models and the streaming cache on the Mac’s SSD or on an external drive over USB or Thunderbolt. The faster the drive, the faster the picture."], ["sparkles", "Full quality", "No squeezing into 4 bits: the model keeps its 16-bit weights. As much as fits stays in memory, the rest is read ahead while the GPU works."], ["memory-stick", "Automatic", "The memory plan decides for each model: in memory when it fits, streamed when it does not. Nothing to set up – but you can force it or switch it off."]], "fine": "Tested on a Mac mini M4 with 16 GB: FLUX.1 [dev], Krea 2 and Qwen-Image 2.1 run. Streaming trades speed for size – big models take minutes per picture."},
     bannerAlt: 'Five pictures made with VulKara: a lighthouse on a rocky coast, a fox in a snowy forest, a neon city street at night, an astronaut in a greenhouse dome and a cabin by a lake in autumn',
     bannerCap: 'Made with VulKara on an M2: Juggernaut XL v7, styles Cinematic, Digital Art, Neon Punk, Fantasy Art and Analog Film.',
     galEyebrow: "Gallery",
@@ -137,6 +138,7 @@ const T = {
     note: 'Kostenlos · macOS auf Apple-Chip · signiert und von Apple notarisiert',
     brew: 'Oder mit Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspiriert von DiffusionBee &amp; ComfyUI',
+    stream: {"eyebrow": "Modell-Streaming", "title": "Große Modelle. Kleiner Mac.", "lead": "VulKara streamt ein Modell von der SSD – intern oder extern – Block für Block, während das Bild entsteht. Nur der Teil, der gerade rechnet, liegt im Arbeitsspeicher. So laufen Modelle, die 24 GB brauchen, auf einem Mac mit 16 GB, in voller 16-Bit-Qualität.", "points": [["hard-drive", "Interne oder externe SSD", "Leg Modelle und den Streaming-Cache auf die SSD des Macs oder auf ein externes Laufwerk an USB oder Thunderbolt. Je schneller das Laufwerk, desto schneller das Bild."], ["sparkles", "Volle Qualität", "Kein Zusammenquetschen auf 4 Bit: Das Modell behält seine 16-Bit-Gewichte. Was passt, bleibt im Speicher, der Rest wird vorausgelesen, während die GPU rechnet."], ["memory-stick", "Automatisch", "Der Speicherplan entscheidet für jedes Modell: im Speicher, wenn es passt, gestreamt, wenn nicht. Nichts einzurichten – du kannst es aber erzwingen oder ausschalten."]], "fine": "Getestet auf einem Mac mini M4 mit 16 GB: FLUX.1 [dev], Krea 2 und Qwen-Image 2.1 laufen. Streaming tauscht Tempo gegen Größe – große Modelle brauchen Minuten pro Bild."},
     bannerAlt: 'Fünf mit VulKara erstellte Bilder: ein Leuchtturm an einer Felsküste, ein Fuchs im verschneiten Wald, eine Neon-Straße bei Nacht, ein Astronaut in einer Gewächshauskuppel und eine Hütte am See im Herbst',
     bannerCap: 'Mit VulKara auf einem M2 erstellt: Juggernaut XL v7, Stile Cinematic, Digital Art, Neon Punk, Fantasy Art und Analog Film.',
     galEyebrow: "Galerie",
@@ -224,6 +226,7 @@ const T = {
     note: 'Gratis · macOS en Apple silicon · firmada y notarizada por Apple',
     brew: 'O con Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspirada en DiffusionBee y ComfyUI',
+    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeño.", "lead": "VulKara transmite el modelo desde el SSD – interno o externo – bloque a bloque mientras se calcula la imagen. Solo la parte que está trabajando ocupa la memoria, así que modelos que necesitan 24 GB funcionan en un Mac con 16 GB, con toda su calidad de 16 bits.", "points": [["hard-drive", "SSD interno o externo", "Guarda los modelos y la caché de streaming en el SSD del Mac o en un disco externo por USB o Thunderbolt. Cuanto más rápido el disco, más rápida la imagen."], ["sparkles", "Calidad completa", "Nada de comprimir a 4 bits: el modelo conserva sus pesos de 16 bits. Lo que cabe se queda en memoria; el resto se lee por adelantado mientras trabaja la GPU."], ["memory-stick", "Automático", "El plan de memoria decide para cada modelo: en memoria si cabe, por streaming si no. No hay nada que configurar, aunque puedes forzarlo o desactivarlo."]], "fine": "Probado en un Mac mini M4 con 16 GB: funcionan FLUX.1 [dev], Krea 2 y Qwen-Image 2.1. El streaming cambia velocidad por tamaño: los modelos grandes tardan minutos por imagen."},
     bannerAlt: 'Cinco imágenes creadas con VulKara: un faro en una costa rocosa, un zorro en un bosque nevado, una calle de neón de noche, un astronauta en una cúpula invernadero y una cabaña junto a un lago en otoño',
     bannerCap: 'Creadas con VulKara en un M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art y Analog Film.',
     galEyebrow: "Galería",
@@ -311,6 +314,7 @@ const T = {
     note: 'Grátis · macOS em Apple silicon · assinado e notarizado pela Apple',
     brew: 'Ou com Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspirado no DiffusionBee e no ComfyUI',
+    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeno.", "lead": "O VulKara transmite o modelo do SSD – interno ou externo – bloco a bloco enquanto a imagem é calculada. Só a parte que está trabalhando ocupa a memória, então modelos que precisam de 24 GB rodam num Mac com 16 GB, com qualidade total de 16 bits.", "points": [["hard-drive", "SSD interno ou externo", "Guarde os modelos e o cache de streaming no SSD do Mac ou num disco externo via USB ou Thunderbolt. Quanto mais rápido o disco, mais rápida a imagem."], ["sparkles", "Qualidade total", "Nada de espremer em 4 bits: o modelo mantém os pesos de 16 bits. O que cabe fica na memória, o resto é lido antes enquanto a GPU trabalha."], ["memory-stick", "Automático", "O plano de memória decide para cada modelo: na memória se couber, por streaming se não. Nada para configurar, mas você pode forçar ou desligar."]], "fine": "Testado num Mac mini M4 com 16 GB: rodam o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1. O streaming troca velocidade por tamanho: modelos grandes levam minutos por imagem."},
     bannerAlt: 'Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua neon à noite, um astronauta numa estufa em cúpula e uma cabana à beira de um lago no outono',
     bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
     galEyebrow: "Galeria",
@@ -398,6 +402,7 @@ const T = {
     note: 'Gratuito · macOS em Apple silicon · assinado e notarizado pela Apple',
     brew: 'Ou com o Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspirada no DiffusionBee e no ComfyUI',
+    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeno.", "lead": "O VulKara transmite o modelo a partir do SSD – interno ou externo – bloco a bloco enquanto a imagem é calculada. Só a parte que está a trabalhar ocupa a memória, pelo que modelos que precisam de 24 GB funcionam num Mac com 16 GB, com a qualidade total de 16 bits.", "points": [["hard-drive", "SSD interno ou externo", "Guarde os modelos e a cache de streaming no SSD do Mac ou num disco externo por USB ou Thunderbolt. Quanto mais rápido o disco, mais rápida a imagem."], ["sparkles", "Qualidade total", "Nada de comprimir para 4 bits: o modelo mantém os pesos de 16 bits. O que cabe fica na memória; o resto é lido antecipadamente enquanto a GPU trabalha."], ["memory-stick", "Automático", "O plano de memória decide para cada modelo: na memória se couber, por streaming se não. Nada a configurar, mas pode forçá-lo ou desligá-lo."]], "fine": "Testado num Mac mini M4 com 16 GB: o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1 funcionam. O streaming troca velocidade por tamanho: os modelos grandes demoram minutos por imagem."},
     bannerAlt: 'Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua em néon à noite, um astronauta numa estufa em cúpula e uma cabana junto a um lago no outono',
     bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
     galEyebrow: "Galeria",
@@ -568,6 +573,26 @@ ${t.chips.map((c) => `          <li>${c}</li>`).join('\n')}
         </figure>
       </div>
     </div>
+
+    <section id="streaming" aria-labelledby="streaming-title">
+      <div class="wrap">
+        <div class="stream">
+          <div class="head">
+            <span class="eyebrow">${icon(up, 'hard-drive')}${t.stream.eyebrow}</span>
+            <h2 id="streaming-title">${t.stream.title}</h2>
+            <p>${t.stream.lead}</p>
+          </div>
+          <div class="points">
+${t.stream.points.map(([ic, h, p]) => `            <article>
+              <div class="tile">${icon(up, ic)}</div>
+              <h3>${h}</h3>
+              <p>${p}</p>
+            </article>`).join('\n')}
+          </div>
+          <p class="fine">${t.stream.fine}</p>
+        </div>
+      </div>
+    </section>
 
     <section id="gallery" aria-labelledby="gallery-title">
       <div class="wrap">

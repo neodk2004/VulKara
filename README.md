@@ -34,6 +34,13 @@ The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) ·
 
 ---
 
+> [!TIP]
+> **<img src="docs/icons/hard-drive.svg" width="16" height="16" alt=""> Model streaming from the SSD – big models on small Macs.**
+> A model that does not fit into memory is streamed block by block from the SSD, internal or external, while the
+> picture is computed. It keeps its full 16-bit quality, and models that need 24 GB run on a Mac with 16 GB
+> (tested on a Mac mini M4: FLUX.1 [dev], Krea 2, Qwen-Image 2.1). Automatic, nothing to set up.
+> [How it works](#big-models-on-small-macs-ssd-streaming)
+
 ## Why VulKara
 
 <table>
@@ -116,8 +123,10 @@ squeezed into 4 bits, and the text encoder can stay loaded for editing.
   Z-Image model, the job goes on with Diffusers, which streams it; the job, its pictures and the history say so.
   Krea 2, which only MLX runs, frees its text encoder after reading the prompt and so fits a 16 GB Mac as well.
   Tested on a Mac mini M4 with 16 GB: FLUX.1 [dev], Krea 2, Qwen-Image 2.1 and a FLUX.1 fine-tune from Civitai run.
-- **Put the cache on the fastest drive.** Every step reads the whole model once, so the drive sets the pace: on an
-  internal SSD streaming is much faster than on a USB disk.
+- **Internal or external SSD.** Models and the streaming cache can live on the Mac's own SSD or on an external drive
+  (USB or Thunderbolt), each in its own folder (*Settings → Folders*). Every step reads the whole model once, so the
+  drive sets the pace: put the cache on the fastest one; on the internal SSD streaming is much faster than on a USB
+  disk.
 
 | Measured on an M2 with 24 GB (16 GB budget: *Memory kept free* 12 GB) | Peak memory | Time per picture |
 | --- | --- | --- |
