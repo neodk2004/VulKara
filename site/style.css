@@ -11,6 +11,8 @@
   --accent: #d65a12;
   --accent-text: #b44a0c;
   --on-accent: #ffffff;
+  /* filled buttons: white text needs 4.5:1, the bright accent has 3.9:1 (#b44a0c has 7.7:1) */
+  --accent-fill: #b44a0c;
   --accent-tint: rgba(214, 90, 18, 0.10);
   --glow: rgba(255, 138, 61, 0.22);
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.06), 0 8px 28px rgba(20, 20, 30, 0.08);
@@ -33,6 +35,7 @@
     --accent: #ff8a3d;
     --accent-text: #ff9a55;
     --on-accent: #1b1006;
+    --accent-fill: #ff8a3d;
     --accent-tint: rgba(255, 138, 61, 0.12);
     --glow: rgba(255, 138, 61, 0.16);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.35);
@@ -70,11 +73,12 @@ p { margin: 0; }
 
 .skip {
   position: absolute; left: 16px; top: -60px; z-index: 100;
-  background: var(--accent); color: var(--on-accent); padding: 10px 16px; border-radius: 10px; font-weight: 600;
+  background: var(--accent-fill); color: var(--on-accent); padding: 10px 16px; border-radius: 10px; font-weight: 600;
 }
 .skip:focus { top: 12px; }
 
-.ico { width: 24px; height: 24px; flex: none; }
+.ico { width: 24px; height: 24px; flex: none; color: var(--accent-text); }
+.btn .ico, .lang summary .ico { color: inherit; }
 
 /* header */
 .top {
@@ -99,7 +103,7 @@ p { margin: 0; }
 }
 .lang summary::-webkit-details-marker { display: none; }
 .lang summary:hover, .lang[open] summary { color: var(--text); border-color: var(--line); background: var(--card); }
-.lang summary img { width: 18px; height: 18px; }
+.lang summary .ico { width: 18px; height: 18px; }
 .lang ul {
   position: absolute; right: 0; top: calc(100% + 6px); margin: 0; padding: 6px; list-style: none; min-width: 220px;
   background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lg);
@@ -115,15 +119,11 @@ p { margin: 0; }
   transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
-.btn img { width: 20px; height: 20px; }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.btn.primary img { filter: brightness(0) invert(1); }
+.btn .ico { width: 20px; height: 20px; }
+.btn.primary { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--on-accent); }
 .btn.small { padding: 7px 14px; border-radius: 10px; font-size: 0.9rem; }
 .btn.big { padding: 17px 30px; font-size: 1.15rem; border-radius: 16px; box-shadow: 0 10px 30px var(--glow); }
-.btn.big img { width: 22px; height: 22px; }
-@media (prefers-color-scheme: dark) {
-  .btn.primary img { filter: brightness(0); }
-}
+.btn.big .ico { width: 22px; height: 22px; }
 
 /* hero */
 .hero { position: relative; text-align: center; padding: 72px 0 40px; overflow: hidden; }
@@ -181,7 +181,7 @@ section { padding: 84px 0 0; }
 .steps li::before {
   counter-increment: step; content: counter(step);
   position: absolute; left: 22px; top: 22px; width: 36px; height: 36px; border-radius: 50%;
-  display: grid; place-items: center; background: var(--accent); color: var(--on-accent); font-weight: 700;
+  display: grid; place-items: center; background: var(--accent-fill); color: var(--on-accent); font-weight: 700;
 }
 .steps h3 { margin-bottom: 6px; }
 .steps p { color: var(--muted); font-size: 0.97rem; }
@@ -259,7 +259,7 @@ footer .ai { color: var(--text); font-weight: 500; }
 .legal-page h2 { font-size: 1.15rem; margin: 1.6em 0 0.4em; }
 .legal-page p { line-height: 1.6; }
 .legal-page hr { margin: 48px 0 8px; border: 0; border-top: 1px solid currentColor; opacity: 0.2; }
-footer .legal a { color: inherit; }
+footer .legal a { color: inherit; display: inline-block; padding: 5px 2px; }
 
 /* the gallery: pictures made with VulKara. Squares stay whole; the wide ones fill two columns and lose only some of
    their top, so the EU icon in the lower right corner always shows */
@@ -272,11 +272,10 @@ footer .legal a { color: inherit; }
 .gallery figure:hover img { transform: scale(1.04); }
 .gallery figcaption {
   position: absolute; left: 0; right: 0; top: 0; padding: 12px 14px 28px; font-size: 0.9rem; color: #fff;
-  background: linear-gradient(rgba(0, 0, 0, 0.6), transparent); opacity: 0; transition: opacity 0.3s ease;
+  background: linear-gradient(rgba(0, 0, 0, 0.62), transparent); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
-.gallery figure:hover figcaption, .gallery figure:focus-within figcaption { opacity: 1; }
 @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, 1fr); } .gallery figure.wide { aspect-ratio: 1200 / 686; } }
-@media (max-width: 520px) { .gallery { grid-template-columns: 1fr; } .gallery figure.wide { grid-column: auto; } .gallery figcaption { opacity: 1; } }
+@media (max-width: 520px) { .gallery { grid-template-columns: 1fr; } .gallery figure.wide { grid-column: auto; } }
 @media (prefers-reduced-motion: reduce) { .gallery img, .gallery figcaption { transition: none; } }
 .note.brew { margin-top: 6px; }
 .note.brew code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; padding: 2px 6px; border-radius: 6px; background: var(--card); border: 1px solid var(--line); color: var(--text); user-select: all; overflow-wrap: anywhere; }
@@ -338,4 +337,32 @@ footer .legal a { color: inherit; }
   .mosaic .ref { grid-row: auto; grid-column: span 2; }
   .mosaic .ref { min-height: 0; }
   .mosaic .ref img { position: static; aspect-ratio: 848 / 1216; }
+}
+
+/* ---- motion: a few calm movements, transform and opacity only, none with reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  /* the app icon floats; its glow breathes */
+  .hero .appicon { animation: float 6s ease-in-out infinite; filter: drop-shadow(0 18px 36px var(--glow)); }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  /* cards lift, their icon turns slightly toward the pointer */
+  .card, .stream article { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease; }
+  .card:hover, .stream article:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+  .card .tile, .stream .tile { transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s ease; }
+  .card:hover .tile, .stream article:hover .tile { transform: scale(1.1) rotate(-6deg); background: color-mix(in srgb, var(--accent) 20%, transparent); }
+  /* the main button: a light passes over it */
+  .btn.primary.big { position: relative; overflow: hidden; }
+  .btn.primary.big::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+    transform: translateX(-120%); transition: transform 0.7s ease;
+  }
+  .btn.primary.big:hover::after { transform: translateX(120%); }
+  /* sections and pictures come in as they scroll into view, where the browser can tie motion to scrolling */
+  @supports (animation-timeline: view()) {
+    .card, .stream article, .steps li, .gallery figure, .mosaic figure, .shots figure, .links li, .spot-head, .head {
+      animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 60%;
+    }
+    /* translate and scale, not transform: the hover lift of the cards (transform) keeps working */
+    @keyframes rise { from { opacity: 0; translate: 0 28px; scale: 0.98; } to { opacity: 1; translate: none; scale: none; } }
+  }
 }

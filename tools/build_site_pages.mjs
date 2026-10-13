@@ -5,8 +5,12 @@
 //   node tools/build_site_pages.mjs && node tools/build_site.mjs
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { createHash } from 'node:crypto'
 
-const SITE = join(import.meta.dirname, '..', 'site')
+const ROOT = join(import.meta.dirname, '..')
+const SITE = join(ROOT, 'site')
+// the stylesheet's address changes with its content: browsers keep CSS for a week (.htaccess), a new one loads at once
+const CSS_V = createHash('sha256').update(readFileSync(join(SITE, 'style.css'))).digest('hex').slice(0, 10)
 const BASE = 'https://www.vulkara.net/'
 const GH = 'https://github.com/revil-O/VulKara'
 const BLOB = `${GH}/blob/main`
@@ -490,7 +494,16 @@ const T = {
 }
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-const icon = (up, name, cls = 'ico') => `<img class="${cls}" src="${up}assets/icons/${name}.svg" width="24" height="24" alt="">`
+// the icons inline (docs/icons, Lucide from the app): no request each, the colour from the text around them
+// (currentColor), and they can move with CSS. Decorative: hidden from screen readers, the text next to them says it
+const ICON_SVG = {}
+const icon = (up, name, cls = 'ico') => {
+  if (!ICON_SVG[name]) {
+    const raw = readFileSync(join(ROOT, 'docs', 'icons', `${name}.svg`), 'utf8')
+    ICON_SVG[name] = raw.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '')
+  }
+  return `<svg class="${cls}" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICON_SVG[name]}</svg>`
+}
 
 function page(lang) {
   const t = T[lang.code]
@@ -523,7 +536,7 @@ ${alternates}
   <meta name="theme-color" content="#0e1014" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="${up}assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="${up}assets/icon.png">
-  <link rel="stylesheet" href="${up}style.css">
+  <link rel="stylesheet" href="${up}style.css?v=${CSS_V}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VulKara">
   <meta property="og:title" content="${esc(t.title)}">
@@ -843,7 +856,7 @@ for (const [slug, p] of Object.entries(LEGAL)) {
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
   <title>${p.title} – VulKara</title>
   <link rel="canonical" href="${BASE}${slug}/">
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../style.css?v=${CSS_V}">
 </head>
 <body>
   <main class="legal-page">
