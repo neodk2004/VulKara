@@ -281,3 +281,19 @@ footer .legal a { color: inherit; }
 .note.brew { margin-top: 6px; }
 .note.brew code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; padding: 2px 6px; border-radius: 6px; background: var(--card); border: 1px solid var(--line); color: var(--text); user-select: all; overflow-wrap: anywhere; }
 .note.inspired { margin-top: 6px; font-style: italic; }
+
+.next {
+  display: flex; gap: 22px; align-items: flex-start; padding: 32px 32px;
+  border-radius: 24px; border: 1px solid var(--accent);
+  background: radial-gradient(120% 160% at 0% 0%, var(--accent-tint), transparent 65%), var(--card);
+  box-shadow: var(--shadow);
+}
+.next .tile {
+  flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px;
+  background: var(--accent-tint);
+}
+.next .tile .ico { width: 30px; height: 30px; }
+.next h2 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.2rem); letter-spacing: -0.015em; margin-bottom: 8px; }
+.next p { color: var(--muted); max-width: 680px; }
+.next .fine { margin-top: 10px; font-size: 0.86rem; color: var(--accent-text); font-weight: 500; }
+@media (max-width: 560px) { .next { flex-direction: column; padding: 26px 22px; } }

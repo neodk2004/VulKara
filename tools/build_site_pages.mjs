@@ -113,6 +113,7 @@ const T = {
     supportTitle: 'Made in spare time. Kept going by coffee.',
     support: 'VulKara is free for everyone. If it is useful to you, a coffee pays for new models, fixes and features.',
     coffee: 'Buy me a coffee',
+    next: ["Coming next", "Your own characters", "Create a character once – face, hair, outfit, style – and put them into any scene: comic panels, anime shots, a whole story. The same character in every picture. Made and kept on your Mac, like everything else.", "Planned, no date yet. A coffee helps it along."],
     footAi: 'The pictures made with VulKara on this page carry the EU icon AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · VulKara is free software under the AGPL-3.0. This page sets no cookies and loads nothing from other servers.',
     legal: ['Legal notice (Impressum)', 'Privacy'],
@@ -199,6 +200,7 @@ const T = {
     supportTitle: 'In der Freizeit gebaut. Mit Kaffee am Laufen gehalten.',
     support: 'VulKara ist für alle kostenlos. Wenn es dir nützt, bezahlt ein Kaffee neue Modelle, Fehlerbehebungen und Funktionen.',
     coffee: 'Spendier mir einen Kaffee',
+    next: ["Als Nächstes", "Deine eigenen Charaktere", "Erschaffe einen Charakter einmal – Gesicht, Haare, Outfit, Stil – und setz ihn in jede Szene: Comic-Panels, Anime-Shots, eine ganze Geschichte. Derselbe Charakter auf jedem Bild. Erstellt und gespeichert auf deinem Mac, wie alles andere.", "Geplant, noch ohne Termin. Ein Kaffee bringt es voran."],
     footAi: 'Die mit VulKara erstellten Bilder auf dieser Seite tragen das EU-Symbol AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · VulKara ist freie Software unter der AGPL-3.0. Diese Seite setzt keine Cookies und lädt nichts von anderen Servern.',
     legal: ['Impressum', 'Datenschutz'],
@@ -285,6 +287,7 @@ const T = {
     supportTitle: 'Hecha en el tiempo libre. Impulsada por café.',
     support: 'VulKara es gratis para todos. Si te resulta útil, un café paga nuevos modelos, correcciones y funciones.',
     coffee: 'Invítame a un café',
+    next: ["Lo próximo", "Tus propios personajes", "Crea un personaje una vez – cara, pelo, ropa, estilo – y ponlo en cualquier escena: viñetas de cómic, planos de anime, una historia entera. El mismo personaje en cada imagen. Creado y guardado en tu Mac, como todo lo demás.", "Planeado, todavía sin fecha. Un café ayuda a que llegue."],
     footAi: 'Las imágenes creadas con VulKara en esta página llevan el icono de la UE AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · VulKara es software libre bajo la AGPL-3.0. Esta página no usa cookies y no carga nada de otros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidad'],
@@ -371,6 +374,7 @@ const T = {
     supportTitle: 'Feito no tempo livre. Movido a café.',
     support: 'O VulKara é grátis para todos. Se ele for útil para você, um café paga novos modelos, correções e recursos.',
     coffee: 'Me pague um café',
+    next: ["Próximo passo", "Seus próprios personagens", "Crie um personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-o em qualquer cena: quadrinhos, cenas de anime, uma história inteira. O mesmo personagem em todas as imagens. Criado e guardado no seu Mac, como todo o resto.", "Planejado, ainda sem data. Um café ajuda a chegar lá."],
     footAi: 'As imagens criadas com o VulKara nesta página levam o ícone da UE AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · O VulKara é software livre sob a AGPL-3.0. Esta página não usa cookies e não carrega nada de outros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidade'],
@@ -457,6 +461,7 @@ const T = {
     supportTitle: 'Feito nos tempos livres. Alimentado a café.',
     support: 'O VulKara é gratuito para todos. Se lhe for útil, um café paga novos modelos, correções e funcionalidades.',
     coffee: 'Ofereça-me um café',
+    next: ["Próximo passo", "As suas próprias personagens", "Crie uma personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-a em qualquer cena: banda desenhada, cenas de anime, uma história inteira. A mesma personagem em todas as imagens. Criada e guardada no seu Mac, como tudo o resto.", "Planeado, ainda sem data. Um café ajuda a lá chegar."],
     footAi: 'As imagens criadas com o VulKara nesta página têm o ícone da UE AI GENERATED.',
     foot: '© 2026 Oliver Schmidt · O VulKara é software livre ao abrigo da AGPL-3.0. Esta página não utiliza cookies e não carrega nada de outros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidade'],
@@ -654,6 +659,20 @@ ${SHOTS.map(([name, h]) => {
           <div>
             <h2 id="responsible-title">${t.respTitle}</h2>
             <p>${t.resp}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="next" aria-labelledby="next-title">
+      <div class="wrap">
+        <div class="next">
+          <div class="tile">${icon(up, 'person-standing')}</div>
+          <div>
+            <span class="eyebrow">${t.next[0]}</span>
+            <h2 id="next-title">${t.next[1]}</h2>
+            <p>${t.next[2]}</p>
+            <p class="fine">${t.next[3]}</p>
           </div>
         </div>
       </div>

@@ -379,6 +379,12 @@ Models are never part of the app. They are downloaded on demand from Hugging Fac
 shown on the Licenses page. LoRAs of families without a runtime in the app (Z-Image, HiDream, Lumina …) are shown
 under their family, but no page offers them.
 
+## Coming next: your own characters
+
+Create a character once – face, hair, outfit, style – and put them into any scene: comic panels, anime shots, a whole
+story. The same character in every picture, made and kept on your Mac like everything else. Planned, no date yet; a
+[coffee](https://buymeacoffee.com/revil.0) helps it along.
+
 ## For developers
 
 ```bash
