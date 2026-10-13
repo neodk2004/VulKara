@@ -10,6 +10,9 @@ import { createHash } from 'node:crypto'
 const ROOT = join(import.meta.dirname, '..')
 const SITE = join(ROOT, 'site')
 // the stylesheet's address changes with its content: browsers keep CSS for a week (.htaccess), a new one loads at once
+const BREW = 'brew install --cask revil-O/tap/vulkara'
+// theme.js too: it changes rarely, but a browser keeps it like the stylesheet
+const JS_V = createHash('sha256').update(readFileSync(join(SITE, 'theme.js'))).digest('hex').slice(0, 10)
 const CSS_V = createHash('sha256').update(readFileSync(join(SITE, 'style.css'))).digest('hex').slice(0, 10)
 const BASE = 'https://www.vulkara.net/'
 const GH = 'https://github.com/revil-O/VulKara'
@@ -44,6 +47,11 @@ const T = {
     skip: 'Skip to content',
     nav: ['Features', 'Why VulKara', 'Screenshots', 'Get started'],
     language: 'Language',
+    theme: 'Appearance',
+    themes: ["Like the system", "Light", "Dark"],
+    copy: 'Copy the command',
+    copied: 'Copied',
+    brewLabel: 'Or with Homebrew',
     download: 'Download',
     kicker: 'Free · open source · for Macs with Apple silicon',
     tagline: 'Your local AI image generator with high privacy',
@@ -59,7 +67,7 @@ const T = {
     bannerCap: 'Made with VulKara on an M2: Juggernaut XL v7, styles Cinematic, Digital Art, Neon Punk, Fantasy Art and Analog Film.',
     galEyebrow: "Gallery",
     galTitle: "Made on a Mac. Not in the cloud.",
-    galLead: "Every picture here was made with VulKara on a MacBook Pro M2 with Z-Image Turbo, from one sentence each, in under a minute per picture.",
+    galLead: "Every picture here was made with VulKara on a MacBook Pro M2 with Z-Image Turbo, from one sentence each, in about five minutes per picture.",
     galCaps: {"greenhouse": "A glass greenhouse floating above a misty forest", "silver_gown": "A gown of liquid silver", "snow_leopard": "Snow leopard with morpho butterflies", "cat_astronaut": "Orange cat among glowing jellyfish", "crystal_cat": "Black cat on crystal books", "sky_koi": "Koi swimming through a neon city", "gold_freckles": "Freckles, gold leaf and white flowers", "fox_mushroom": "A fox asleep under a glowing mushroom", "hummingbird": "A hummingbird of stained glass", "kitten_cloud": "A white kitten asleep in a teacup on a cloud"},
     featEyebrow: 'Features',
     featTitle: 'One app, a whole studio',
@@ -135,6 +143,11 @@ const T = {
     skip: 'Zum Inhalt springen',
     nav: ['Funktionen', 'Warum VulKara', 'Screenshots', 'Loslegen'],
     language: 'Sprache',
+    theme: 'Darstellung',
+    themes: ["Wie das System", "Hell", "Dunkel"],
+    copy: 'Befehl kopieren',
+    copied: 'Kopiert',
+    brewLabel: 'Oder mit Homebrew',
     download: 'Download',
     kicker: 'Kostenlos · Open Source · für Macs mit Apple-Chip',
     tagline: 'Dein lokaler KI-Bildgenerator mit hohem Datenschutz',
@@ -150,7 +163,7 @@ const T = {
     bannerCap: 'Mit VulKara auf einem M2 erstellt: Juggernaut XL v7, Stile Cinematic, Digital Art, Neon Punk, Fantasy Art und Analog Film.',
     galEyebrow: "Galerie",
     galTitle: "Auf dem Mac gemacht. Nicht in der Cloud.",
-    galLead: "Jedes Bild hier ist mit VulKara auf einem MacBook Pro M2 mit Z-Image Turbo entstanden, aus jeweils einem Satz, in unter einer Minute pro Bild.",
+    galLead: "Jedes Bild hier ist mit VulKara auf einem MacBook Pro M2 mit Z-Image Turbo entstanden, aus jeweils einem Satz, in etwa fünf Minuten pro Bild.",
     galCaps: {"greenhouse": "Ein Glas-Gewächshaus schwebt über dem Nebelwald", "silver_gown": "Ein Kleid aus flüssigem Silber", "snow_leopard": "Schneeleopard mit Morphofaltern", "cat_astronaut": "Rote Katze zwischen leuchtenden Quallen", "crystal_cat": "Schwarze Katze auf Kristallbüchern", "sky_koi": "Kois schwimmen durch eine Neonstadt", "gold_freckles": "Sommersprossen, Blattgold und weiße Blüten", "fox_mushroom": "Ein Fuchs schläft unter einem leuchtenden Pilz", "hummingbird": "Ein Kolibri aus Buntglas", "kitten_cloud": "Ein weißes Kätzchen schläft in einer Teetasse auf einer Wolke"},
     featEyebrow: 'Funktionen',
     featTitle: 'Eine App, ein ganzes Studio',
@@ -226,6 +239,11 @@ const T = {
     skip: 'Saltar al contenido',
     nav: ['Funciones', 'Por qué VulKara', 'Capturas', 'Empezar'],
     language: 'Idioma',
+    theme: 'Apariencia',
+    themes: ["Como el sistema", "Claro", "Oscuro"],
+    copy: 'Copiar el comando',
+    copied: 'Copiado',
+    brewLabel: 'O con Homebrew',
     download: 'Descargar',
     kicker: 'Gratis · código abierto · para Macs con Apple silicon',
     tagline: 'Tu generador local de imágenes con IA, con alta privacidad',
@@ -241,7 +259,7 @@ const T = {
     bannerCap: 'Creadas con VulKara en un M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art y Analog Film.',
     galEyebrow: "Galería",
     galTitle: "Hecho en un Mac. No en la nube.",
-    galLead: "Cada imagen se creó con VulKara en un MacBook Pro M2 con Z-Image Turbo, a partir de una sola frase, en menos de un minuto por imagen.",
+    galLead: "Cada imagen se creó con VulKara en un MacBook Pro M2 con Z-Image Turbo, a partir de una sola frase, en unos cinco minutos por imagen.",
     galCaps: {"greenhouse": "Un invernadero de cristal flota sobre un bosque con niebla", "silver_gown": "Un vestido de plata líquida", "snow_leopard": "Leopardo de las nieves con mariposas morfo", "cat_astronaut": "Gato naranja entre medusas luminosas", "crystal_cat": "Gato negro sobre libros de cristal", "sky_koi": "Kois nadando por una ciudad de neón", "gold_freckles": "Pecas, pan de oro y flores blancas", "fox_mushroom": "Un zorro dormido bajo una seta luminosa", "hummingbird": "Un colibrí de vidriera", "kitten_cloud": "Un gatito blanco dormido en una taza sobre una nube"},
     featEyebrow: 'Funciones',
     featTitle: 'Una app, todo un estudio',
@@ -317,6 +335,11 @@ const T = {
     skip: 'Pular para o conteúdo',
     nav: ['Recursos', 'Por que o VulKara', 'Capturas', 'Começar'],
     language: 'Idioma',
+    theme: 'Aparência',
+    themes: ["Como o sistema", "Claro", "Escuro"],
+    copy: 'Copiar o comando',
+    copied: 'Copiado',
+    brewLabel: 'Ou com Homebrew',
     download: 'Baixar',
     kicker: 'Grátis · código aberto · para Macs com Apple silicon',
     tagline: 'Seu gerador local de imagens com IA, com alta privacidade',
@@ -332,7 +355,7 @@ const T = {
     bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
     galEyebrow: "Galeria",
     galTitle: "Feito num Mac. Não na nuvem.",
-    galLead: "Cada imagem foi criada com o VulKara num MacBook Pro M2 com Z-Image Turbo, a partir de uma única frase, em menos de um minuto por imagem.",
+    galLead: "Cada imagem foi criada com o VulKara num MacBook Pro M2 com Z-Image Turbo, a partir de uma única frase, em cerca de cinco minutos por imagem.",
     galCaps: {"greenhouse": "Uma estufa de vidro flutua sobre uma floresta enevoada", "silver_gown": "Um vestido de prata líquida", "snow_leopard": "Leopardo-das-neves com borboletas morfo", "cat_astronaut": "Gato laranja entre águas-vivas luminosas", "crystal_cat": "Gato preto sobre livros de cristal", "sky_koi": "Carpas nadando por uma cidade neon", "gold_freckles": "Sardas, folha de ouro e flores brancas", "fox_mushroom": "Uma raposa dorme sob um cogumelo luminoso", "hummingbird": "Um beija-flor de vitral", "kitten_cloud": "Um gatinho branco dormindo numa xícara sobre uma nuvem"},
     featEyebrow: 'Recursos',
     featTitle: 'Um app, um estúdio inteiro',
@@ -408,6 +431,11 @@ const T = {
     skip: 'Avançar para o conteúdo',
     nav: ['Funcionalidades', 'Porquê o VulKara', 'Capturas', 'Começar'],
     language: 'Idioma',
+    theme: 'Aspeto',
+    themes: ["Como o sistema", "Claro", "Escuro"],
+    copy: 'Copiar o comando',
+    copied: 'Copiado',
+    brewLabel: 'Ou com o Homebrew',
     download: 'Transferir',
     kicker: 'Gratuito · código aberto · para Mac com Apple silicon',
     tagline: 'O seu gerador local de imagens com IA, com elevada privacidade',
@@ -423,7 +451,7 @@ const T = {
     bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
     galEyebrow: "Galeria",
     galTitle: "Feito num Mac. Não na nuvem.",
-    galLead: "Cada imagem foi criada com o VulKara num MacBook Pro M2 com o Z-Image Turbo, a partir de uma única frase, em menos de um minuto por imagem.",
+    galLead: "Cada imagem foi criada com o VulKara num MacBook Pro M2 com o Z-Image Turbo, a partir de uma única frase, em cerca de cinco minutos por imagem.",
     galCaps: {"greenhouse": "Uma estufa de vidro flutua sobre uma floresta com nevoeiro", "silver_gown": "Um vestido de prata líquida", "snow_leopard": "Leopardo-das-neves com borboletas morfo", "cat_astronaut": "Gato laranja entre medusas luminosas", "crystal_cat": "Gato preto sobre livros de cristal", "sky_koi": "Carpas a nadar por uma cidade de néon", "gold_freckles": "Sardas, folha de ouro e flores brancas", "fox_mushroom": "Uma raposa a dormir sob um cogumelo luminoso", "hummingbird": "Um colibri de vitral", "kitten_cloud": "Um gatinho branco a dormir numa chávena sobre uma nuvem"},
     featEyebrow: 'Funcionalidades',
     featTitle: 'Uma app, um estúdio completo',
@@ -524,7 +552,7 @@ function page(lang) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>${esc(t.title)}</title>
   <meta name="description" content="${esc(t.desc)}">
@@ -537,6 +565,7 @@ ${alternates}
   <link rel="icon" href="${up}assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="${up}assets/icon.png">
   <link rel="stylesheet" href="${up}style.css?v=${CSS_V}">
+  <script src="${up}theme.js?v=${JS_V}"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VulKara">
   <meta property="og:title" content="${esc(t.title)}">
@@ -573,6 +602,9 @@ ${ogAlts}
 ${langItems}
         </ul>
       </details>
+      <div class="theme" role="group" aria-label="${t.theme}">
+${[['system', 'sun-moon'], ['light', 'sun'], ['dark', 'moon']].map(([v, ic], i) => `        <button type="button" data-set-theme="${v}" aria-pressed="${v === 'system'}" aria-label="${t.theme}: ${t.themes[i]}">${icon(up, ic)}</button>`).join('\n')}
+      </div>
       ${ext('https://github.com/revil-O/VulKara/releases/latest', t.download, 'btn primary small')}
     </div>
   </header>
@@ -593,7 +625,11 @@ ${t.chips.map((c) => `          <li>${c}</li>`).join('\n')}
           ${ext(GH, t.github, 'btn big ghost')}
         </div>
         <p class="note">${t.note}</p>
-        <p class="note brew">${t.brew}</p>
+        <div class="cmd">
+          <span class="cmd-label">${t.brewLabel}</span>
+          <code><span class="prompt" aria-hidden="true">$</span> ${BREW}</code>
+          <button type="button" class="copy" data-copy="${BREW}" data-done="${t.copied}" aria-label="${t.copy}">${icon(up, 'copy')}${icon(up, 'check', 'ico done')}</button>
+        </div>
         <p class="note inspired">${t.inspired}</p>
         <a class="pill-next" href="#next"><span class="dot"></span>${t.nextPill}<span aria-hidden="true">→</span></a>
         <figure class="banner">
@@ -853,10 +889,11 @@ for (const [slug, p] of Object.entries(LEGAL)) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
   <title>${p.title} – VulKara</title>
   <link rel="canonical" href="${BASE}${slug}/">
   <link rel="stylesheet" href="../style.css?v=${CSS_V}">
+  <script src="../theme.js?v=${JS_V}"></script>
 </head>
 <body>
   <main class="legal-page">

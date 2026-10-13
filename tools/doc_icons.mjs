@@ -14,6 +14,10 @@ const COLOUR = '#d65a12'  // --accent of the light theme
 
 // file name in lucide -> what it stands for in the documents (the app's page or control with this icon)
 export const DOC_ICONS = {
+  'sun': 'website: light appearance',
+  'moon': 'website: dark appearance',
+  'sun-moon': 'website: appearance like the system',
+  'copy': 'website: copy a command',
   'monitor': 'everything on the Mac',
   'boxes': 'Models',
   'cpu': 'engines, Hardware',

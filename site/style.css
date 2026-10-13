@@ -13,6 +13,8 @@
   --on-accent: #ffffff;
   /* filled buttons: white text needs 4.5:1, the bright accent has 3.9:1 (#b44a0c has 7.7:1) */
   --accent-fill: #b44a0c;
+  --fill-from: #c2510d;
+  --fill-to: #9a3d07;
   --accent-tint: rgba(214, 90, 18, 0.10);
   --glow: rgba(255, 138, 61, 0.22);
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.06), 0 8px 28px rgba(20, 20, 30, 0.08);
@@ -24,8 +26,30 @@
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+/* dark: chosen in the header (data-theme, theme.js), or like the system when nothing is chosen */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1014;
+  --bg-soft: #13161b;
+  --card: #171a20;
+  --line: #272b33;
+  --text: #f1efeb;
+  --muted: #a7abb3;
+  --accent: #ff8a3d;
+  --accent-text: #ff9a55;
+  --on-accent: #1b1006;
+  --accent-fill: #ff8a3d;
+  --accent-tint: rgba(255, 138, 61, 0.12);
+  --glow: rgba(255, 138, 61, 0.16);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.45), 0 24px 60px rgba(0, 0, 0, 0.5);
+  --header: rgba(14, 16, 20, 0.78);
+  --fill-from: #ffa45e;
+  --fill-to: #ff7b2c;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #0e1014;
     --bg-soft: #13161b;
     --card: #171a20;
@@ -41,8 +65,11 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.35);
     --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.45), 0 24px 60px rgba(0, 0, 0, 0.5);
     --header: rgba(14, 16, 20, 0.78);
+    --fill-from: #ffa45e;
+    --fill-to: #ff7b2c;
   }
 }
+:root[data-theme="light"] { color-scheme: light; }
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -120,7 +147,12 @@ p { margin: 0; }
 }
 .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
 .btn .ico { width: 20px; height: 20px; }
-.btn.primary { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--on-accent); }
+.btn.primary {
+  background: linear-gradient(135deg, var(--fill-from), var(--fill-to)); border-color: transparent; color: var(--on-accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 6px 18px var(--glow);
+}
+.btn.primary:hover { filter: saturate(1.1) brightness(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 28px var(--glow); }
+.btn.ghost { background: color-mix(in srgb, var(--card) 70%, transparent); backdrop-filter: blur(8px); }
 .btn.small { padding: 7px 14px; border-radius: 10px; font-size: 0.9rem; }
 .btn.big { padding: 17px 30px; font-size: 1.15rem; border-radius: 16px; box-shadow: 0 10px 30px var(--glow); }
 .btn.big .ico { width: 22px; height: 22px; }
@@ -277,8 +309,6 @@ footer .legal a { color: inherit; display: inline-block; padding: 5px 2px; }
 @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, 1fr); } .gallery figure.wide { aspect-ratio: 1200 / 686; } }
 @media (max-width: 520px) { .gallery { grid-template-columns: 1fr; } .gallery figure.wide { grid-column: auto; } }
 @media (prefers-reduced-motion: reduce) { .gallery img, .gallery figcaption { transition: none; } }
-.note.brew { margin-top: 6px; }
-.note.brew code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; padding: 2px 6px; border-radius: 6px; background: var(--card); border: 1px solid var(--line); color: var(--text); user-select: all; overflow-wrap: anywhere; }
 .note.inspired { margin-top: 6px; font-style: italic; }
 
 
@@ -366,3 +396,33 @@ footer .legal a { color: inherit; display: inline-block; padding: 5px 2px; }
     @keyframes rise { from { opacity: 0; translate: 0 28px; scale: 0.98; } to { opacity: 1; translate: none; scale: none; } }
   }
 }
+
+/* ---- appearance switch in the header: like the system, light, dark */
+.theme { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); }
+.theme button {
+  display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 999px; padding: 0;
+  background: transparent; color: var(--muted); cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease;
+}
+.theme button .ico { width: 16px; height: 16px; color: inherit; }
+.theme button:hover { color: var(--text); }
+.theme button[aria-pressed="true"] { background: var(--accent-tint); color: var(--accent-text); }
+@media (max-width: 860px) { .theme button { width: 34px; height: 34px; } }
+
+/* ---- the Homebrew command: a small terminal line with a copy button */
+.cmd {
+  display: inline-flex; align-items: center; gap: 10px; max-width: 100%; margin-top: 14px; padding: 6px 6px 6px 14px;
+  border-radius: 14px; background: #15171c; color: #e9e6e1; border: 1px solid #2a2e36; box-shadow: var(--shadow);
+}
+.cmd-label { font-size: 0.82rem; color: #a5a9b1; white-space: nowrap; }
+.cmd code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88rem; user-select: all; overflow-wrap: anywhere; text-align: left; }
+.cmd .prompt { color: #ff9a55; user-select: none; }
+.cmd .copy {
+  position: relative; display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 10px;
+  border: 1px solid #343843; background: #1f2229; color: #e9e6e1; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.cmd .copy:hover { background: #2a2e36; border-color: #4a4f5b; }
+.cmd .copy .ico { width: 16px; height: 16px; color: inherit; transition: opacity 0.2s ease, transform 0.2s ease; }
+.cmd .copy .done { position: absolute; opacity: 0; transform: scale(0.6); color: #7ee2a8; }
+.cmd .copy.done .ico:not(.done) { opacity: 0; transform: scale(0.6); }
+.cmd .copy.done .done { opacity: 1; transform: none; }
+@media (max-width: 560px) { .cmd { flex-wrap: wrap; justify-content: center; padding: 10px; } .cmd-label { width: 100%; text-align: center; } }

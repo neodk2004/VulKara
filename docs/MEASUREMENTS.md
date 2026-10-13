@@ -312,6 +312,20 @@ the internal SSD.
 - Status bar and Hardware page: measuring every 2 s (`ps`, `vm_stat`, `os.cpus`) is not visible in the CPU figure;
   the streaming caches are measured every 30 s. On the M2 the caches took 61 GB with 13 GB left on the USB SSD.
 
+## 7d. Z-Image Turbo on the M2: MLX or Diffusers (2026-10-13, M2, 24 GB)
+
+The gallery pictures of the landing page again: 1024 × 1024, 9 steps, guidance 0, a freshly started app. A virtual
+machine (6.6 GB) and other programs (5 GB) were open as on the day the gallery was made.
+
+| Runtime | Per picture | Per step |
+| --- | --- | --- |
+| MLX, 8 bit | 321 s (with loading), 314 s, 315 s | ≈ 33 s |
+| Diffusers (Apple GPU) | 366 s for the picture, 501 s with loading the model (about 2 min) | ≈ 40 s |
+
+MLX stays the faster runtime for Z-Image Turbo. The landing page said "under a minute per picture"; it now says
+"about five minutes per picture". A first Diffusers run with three pictures in a row ended without a picture: the
+engine restarted twice and the window of the test instance went away; one picture at a time went through.
+
 ## 8. Earlier references (from the user guide and the changelog)
 
 - Training on the M2 (2025–26): SDXL about 2.5 s per step at 768 px, FLUX.2 [klein] 4B about 15 s, 9B about 30 s,
