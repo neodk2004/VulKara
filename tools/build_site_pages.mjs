@@ -62,7 +62,7 @@ const T = {
     note: 'Free · macOS on Apple silicon · signed and notarized by Apple',
     brew: 'Or with Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspired by DiffusionBee &amp; ComfyUI',
-    stream: {"eyebrow": "Model streaming", "title": "Big models. Small Mac.", "lead": "VulKara streams a model from the SSD – internal or external – block by block while the picture is computed. Only the part that is working sits in memory, so models that need 24 GB run on a Mac with 16 GB, at full 16-bit quality.", "points": [["hard-drive", "Internal or external SSD", "Keep models and the streaming cache on the Mac’s SSD or on an external drive over USB or Thunderbolt. The faster the drive, the faster the picture."], ["sparkles", "Full quality", "No squeezing into 4 bits: the model keeps its 16-bit weights. As much as fits stays in memory, the rest is read ahead while the GPU works."], ["memory-stick", "Automatic", "The memory plan decides for each model: in memory when it fits, streamed when it does not. Nothing to set up – but you can force it or switch it off."]], "fine": "Tested on a Mac mini M4 with 16 GB: FLUX.1 [dev], Krea 2 and Qwen-Image 2.1 run. Streaming trades speed for size – big models take minutes per picture."},
+    stream: {"eyebrow": "Model streaming", "title": "Big models. Small Mac.", "lead": "VulKara streams a model from the SSD – internal or external – block by block while the picture is computed. Only the part that is working sits in memory, so models that need 24 GB run on a Mac with 16 GB, at full 16-bit quality.", "points": [["hard-drive", "Internal or external SSD", "Keep models and the streaming cache on the Mac’s SSD or on an external drive over USB or Thunderbolt. The faster the drive, the faster the picture."], ["sparkles", "Full quality", "No squeezing into 4 bits: the model keeps its 16-bit weights. As much as fits stays in memory, the rest is read ahead while the GPU works."], ["memory-stick", "Automatic", "The memory plan decides for each model: it runs in RAM when it fits, and is streamed from the SSD (internal/external) when it does not. SSD streaming can also be switched off by hand!"]], "fine": "Tested on a Mac mini M4 with 16 GB: FLUX.1 [dev], Krea 2 and Qwen-Image 2.1 run. Streaming trades speed for size – big models take minutes per picture."},
     bannerAlt: 'Five pictures made with VulKara: a lighthouse on a rocky coast, a fox in a snowy forest, a neon city street at night, an astronaut in a greenhouse dome and a cabin by a lake in autumn',
     bannerCap: 'Made with VulKara on an M2: Juggernaut XL v7, styles Cinematic, Digital Art, Neon Punk, Fantasy Art and Analog Film.',
     galEyebrow: "Gallery",
@@ -113,26 +113,34 @@ const T = {
       models_recommended: ['Recommended models', 'with the memory and download size for your Mac'],
     },
     respTitle: 'Developed responsibly',
-    resp: 'Every prompt and every result is checked before it is shown. The protection of minors is always on. Before real photos are edited, we ask for consent. Every picture also gets an AI note in its metadata, and the visible “AI GENERATED” label can be switched on with one click.',
+    resp: [
+      'every prompt and every result is checked before it is shown',
+      'the protection of minors is always on',
+      'before real photos are edited, we ask for consent',
+      'every picture gets an AI note in its metadata',
+      'the visible “AI GENERATED” label can be switched on with one click',
+    ],
     linksEyebrow: 'Learn more',
     linksTitle: 'Guides, news and code',
     links: [
       ['lightbulb', 'User guide', 'every page and setting', `${BLOB}/docs/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'guides and help', `${GH}/wiki`],
-      ['file-clock', 'Changelog', 'what is new', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'Translate VulKara', 'bring it to your language', `${BLOB}/docs/TRANSLATING.md`],
+      ['file-clock', 'Changelog', 'what is new?', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'Translate VulKara', 'add your language (if it is missing 🙂)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Licence', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'Made in spare time. Kept going by coffee.',
-    support: 'VulKara is free for everyone. If it is useful to you, a coffee pays for new models, fixes and features.',
+    support: 'VulKara is free for everyone. If it is useful to you, buy me a coffee for further development: adding new models, fixes and more.',
     coffee: 'Buy me a coffee',
-    next: ["Coming next", "Your own characters", "Create a character once – face, hair, outfit, style – and put them into any scene: comic panels, anime shots, a whole story. The same character in every picture. Made and kept on your Mac, like everything else.", "Planned, no date yet. A coffee helps it along."],
-    nextPill: 'Coming next: your own characters',
+    pose3d: {"title": "Pose editor in 3D", "alt": "An OpenPose skeleton turning in space: the camera walks around the pose", "cap": "Animated sketch of the idea, not the finished editor.", "lead": "Turn a pose freely in space and look at your figure from any angle: from the front, the side, above or a worm’s-eye view. The result goes into Text to image as a pose, as before.", "points": [["rotate-3d", "Turn freely", "Drag the figure to move the camera around it, up and down. Fixed views with one click: from the front, from the side, from behind, from above."], ["bone", "Joints like a body", "Dragging a point turns its joint, and the bones keep their length. Head, shoulders, hips, knees and fingers stay within natural limits – switch them off for acrobatics."], ["bookmark", "Save your poses", "Keep a pose and its viewpoint as a template, load it again, rename it or pass it on as a file."], ["users", "For your characters", "A saved pose goes straight into a character scene, together with its viewpoint."]]},
+    next: ["Next planned features", "Your own characters", "Create a character once – face, hair, outfit, style – and put them into any scene as a reference: comic panels, anime shots, a whole story. The same character in every picture. Made and kept on your Mac, like everything else.", "Planned, but no date yet. That takes a lot of coffee ;)"],
+    nextPill: 'Planned new features',
     nextCap: "One character, seven pictures: the reference and six scenes, made with VulKara today (FLUX.2 klein with the reference picture on the Image page). The feature will make it a few clicks.",
     nextAlts: {"mira": "Mira, the reference", "cafe": "Sketching in a café", "rooftop": "On a rooftop at sunset", "neon": "Neon street in the rain", "mountain": "Hiking at dawn", "anime": "As an anime character", "comic": "As a comic panel"},
     footAi: 'The pictures made with VulKara on this page carry the EU icon AI GENERATED.',
-    foot: '© 2026 Oliver Schmidt · VulKara is free software under the AGPL-3.0. This page sets no cookies and loads nothing from other servers.',
+    foot: '© 2026 Oliver Schmidt<br>VulKara is free software under the AGPL-3.0. This page sets no cookies and loads nothing from other servers.',
     legal: ['Legal notice (Impressum)', 'Privacy'],
+    footPrivate: 'VulKara is a purely private project and is not associated or affiliated with any outside company.',
     footTm: 'Apple, Mac and macOS are trademarks of Apple Inc. VulKara is not affiliated with Apple.',
   },
 
@@ -158,7 +166,7 @@ const T = {
     note: 'Kostenlos · macOS auf Apple-Chip · signiert und von Apple notarisiert',
     brew: 'Oder mit Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspiriert von DiffusionBee &amp; ComfyUI',
-    stream: {"eyebrow": "Modell-Streaming", "title": "Große Modelle. Kleiner Mac.", "lead": "VulKara streamt ein Modell von der SSD – intern oder extern – Block für Block, während das Bild entsteht. Nur der Teil, der gerade rechnet, liegt im Arbeitsspeicher. So laufen Modelle, die 24 GB brauchen, auf einem Mac mit 16 GB, in voller 16-Bit-Qualität.", "points": [["hard-drive", "Interne oder externe SSD", "Leg Modelle und den Streaming-Cache auf die SSD des Macs oder auf ein externes Laufwerk an USB oder Thunderbolt. Je schneller das Laufwerk, desto schneller das Bild."], ["sparkles", "Volle Qualität", "Kein Zusammenquetschen auf 4 Bit: Das Modell behält seine 16-Bit-Gewichte. Was passt, bleibt im Speicher, der Rest wird vorausgelesen, während die GPU rechnet."], ["memory-stick", "Automatisch", "Der Speicherplan entscheidet für jedes Modell: im Speicher, wenn es passt, gestreamt, wenn nicht. Nichts einzurichten – du kannst es aber erzwingen oder ausschalten."]], "fine": "Getestet auf einem Mac mini M4 mit 16 GB: FLUX.1 [dev], Krea 2 und Qwen-Image 2.1 laufen. Streaming tauscht Tempo gegen Größe – große Modelle brauchen Minuten pro Bild."},
+    stream: {"eyebrow": "Modell-Streaming", "title": "Große Modelle. Kleiner Mac.", "lead": "VulKara streamt ein Modell von der SSD – intern oder extern – Block für Block, während das Bild entsteht. Nur der Teil, der gerade rechnet, liegt im Arbeitsspeicher. So laufen Modelle, die 24 GB brauchen, auf einem Mac mit 16 GB, in voller 16-Bit-Qualität.", "points": [["hard-drive", "Interne oder externe SSD", "Leg Modelle und den Streaming-Cache auf die SSD des Macs oder auf ein externes Laufwerk an USB oder Thunderbolt. Je schneller das Laufwerk, desto schneller das Bild."], ["sparkles", "Volle Qualität", "Kein Zusammenquetschen auf 4 Bit: Das Modell behält seine 16-Bit-Gewichte. Was passt, bleibt im Speicher, der Rest wird vorausgelesen, während die GPU rechnet."], ["memory-stick", "Automatisch", "Der Speicherplan entscheidet für jedes Modell: läuft im RAM, wenn es hineinpasst, wird von SSD (intern/extern) gestreamt, wenn nicht. SSD-Streaming kann auch manuell abgeschaltet werden!"]], "fine": "Getestet auf einem Mac mini M4 mit 16 GB: FLUX.1 [dev], Krea 2 und Qwen-Image 2.1 laufen. Streaming tauscht Tempo gegen Größe – große Modelle brauchen Minuten pro Bild."},
     bannerAlt: 'Fünf mit VulKara erstellte Bilder: ein Leuchtturm an einer Felsküste, ein Fuchs im verschneiten Wald, eine Neon-Straße bei Nacht, ein Astronaut in einer Gewächshauskuppel und eine Hütte am See im Herbst',
     bannerCap: 'Mit VulKara auf einem M2 erstellt: Juggernaut XL v7, Stile Cinematic, Digital Art, Neon Punk, Fantasy Art und Analog Film.',
     galEyebrow: "Galerie",
@@ -209,26 +217,34 @@ const T = {
       models_recommended: ['Empfohlene Modelle', 'mit Speicherbedarf und Downloadgröße für deinen Mac'],
     },
     respTitle: 'Verantwortungsvoll entwickelt',
-    resp: 'Jeder Prompt und jedes Ergebnis wird geprüft, bevor es angezeigt wird. Der Schutz Minderjähriger ist immer aktiv. Bevor echte Fotos bearbeitet werden, fragen wir nach der Einwilligung. Jedes Bild erhält außerdem einen KI-Hinweis in seinen Metadaten, und das sichtbare Kennzeichen „AI GENERATED“ lässt sich mit einem Klick zuschalten.',
+    resp: [
+      'jeder Prompt und jedes Ergebnis wird geprüft, bevor es angezeigt wird',
+      'der Schutz Minderjähriger ist immer aktiv',
+      'bevor echte Fotos bearbeitet werden, fragen wir nach der Einwilligung',
+      'jedes Bild erhält einen KI-Hinweis in seinen Metadaten',
+      'das sichtbare Kennzeichen „AI GENERATED“ lässt sich mit einem Klick zuschalten',
+    ],
     linksEyebrow: 'Mehr erfahren',
     linksTitle: 'Handbuch, Neuigkeiten und Code',
     links: [
       ['lightbulb', 'Benutzerhandbuch', 'jede Seite, jede Einstellung', `${BLOB}/docs/de/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'Anleitungen und Hilfe', `${GH}/wiki`],
-      ['file-clock', 'Änderungen', 'was neu ist (Englisch)', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'VulKara übersetzen', 'in deine Sprache bringen (Englisch)', `${BLOB}/docs/TRANSLATING.md`],
+      ['file-clock', 'Änderungen', 'was ist neu?', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'VulKara übersetzen', 'deine Sprache hinzufügen (wenn nicht vorhanden 🙂)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Lizenz', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'In der Freizeit gebaut. Mit Kaffee am Laufen gehalten.',
-    support: 'VulKara ist für alle kostenlos. Wenn es dir nützt, bezahlt ein Kaffee neue Modelle, Fehlerbehebungen und Funktionen.',
+    support: 'VulKara ist für alle kostenlos. Wenn es dir nützt, spendier ’nen Kaffee für die Weiterentwicklung, für Einbindung neuer Modelle, Fehlerbehebungen etc.',
     coffee: 'Spendier mir einen Kaffee',
-    next: ["Als Nächstes", "Deine eigenen Charaktere", "Erschaffe einen Charakter einmal – Gesicht, Haare, Outfit, Stil – und setz ihn in jede Szene: Comic-Panels, Anime-Shots, eine ganze Geschichte. Derselbe Charakter auf jedem Bild. Erstellt und gespeichert auf deinem Mac, wie alles andere.", "Geplant, noch ohne Termin. Ein Kaffee bringt es voran."],
-    nextPill: 'Als Nächstes: deine eigenen Charaktere',
+    pose3d: {"title": "Pose-Editor in 3D", "alt": "Ein OpenPose-Skelett dreht sich im Raum: die Kamera geht um die Pose herum", "cap": "Animierte Skizze der Idee, nicht der fertige Editor.", "lead": "Dreh eine Pose frei im Raum und schau aus jedem Winkel auf deine Figur: von vorn, von der Seite, von oben oder aus der Froschperspektive. Das Ergebnis geht wie gewohnt als Pose in Text zu Bild.", "points": [["rotate-3d", "Frei drehen", "An der Figur ziehen dreht die Kamera rundherum, nach oben und unten. Feste Ansichten mit einem Klick: von vorn, von der Seite, von hinten, von oben."], ["bone", "Gelenke wie beim Menschen", "Ein gezogener Punkt dreht sein Gelenk, die Knochen behalten ihre Länge. Kopf, Schultern, Hüfte, Knie und Finger bleiben in natürlichen Grenzen – für Akrobatik abschaltbar."], ["bookmark", "Eigene Posen speichern", "Pose und Blickwinkel als Vorlage sichern, wieder laden, umbenennen oder als Datei weitergeben."], ["users", "Für deine Charaktere", "Eine gespeicherte Pose geht samt Blickwinkel direkt in eine Charakter-Szene."]]},
+    next: ["Nächste geplante Features", "Deine eigenen Charaktere", "Erschaffe einen Charakter einmal – Gesicht, Haare, Outfit, Stil – und setze ihn als Referenz in jede Szene: Comic-Panels, Anime-Shots, eine ganze Geschichte. Derselbe Charakter auf jedem Bild. Erstellt und gespeichert auf deinem Mac, wie alles andere.", "Geplant, aber noch ohne Termin. Dafür braucht’s ’ne Menge Kaffee ;)"],
+    nextPill: 'Geplante neue Features',
     nextCap: "Ein Charakter, sieben Bilder: die Vorlage und sechs Szenen, heute schon mit VulKara gemacht (FLUX.2 klein mit dem Vorlagebild auf der Seite Bild). Das Feature macht daraus ein paar Klicks.",
     nextAlts: {"mira": "Mira, die Vorlage", "cafe": "Zeichnen im Café", "rooftop": "Auf dem Dach bei Sonnenuntergang", "neon": "Neon-Straße im Regen", "mountain": "Wandern im Morgenlicht", "anime": "Als Anime-Figur", "comic": "Als Comic-Panel"},
     footAi: 'Die mit VulKara erstellten Bilder auf dieser Seite tragen das EU-Symbol AI GENERATED.',
-    foot: '© 2026 Oliver Schmidt · VulKara ist freie Software unter der AGPL-3.0. Diese Seite setzt keine Cookies und lädt nichts von anderen Servern.',
+    foot: '© 2026 Oliver Schmidt<br>VulKara ist freie Software unter der AGPL-3.0. Diese Seite setzt keine Cookies und lädt nichts von anderen Servern.',
     legal: ['Impressum', 'Datenschutz'],
+    footPrivate: 'VulKara ist ein rein privates Projekt und mit keiner außenstehenden Firma verbunden oder assoziiert.',
     footTm: 'Apple, Mac und macOS sind Marken der Apple Inc. VulKara steht in keiner Verbindung zu Apple.',
   },
 
@@ -254,7 +270,7 @@ const T = {
     note: 'Gratis · macOS en Apple silicon · firmada y notarizada por Apple',
     brew: 'O con Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspirada en DiffusionBee y ComfyUI',
-    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeño.", "lead": "VulKara transmite el modelo desde el SSD – interno o externo – bloque a bloque mientras se calcula la imagen. Solo la parte que está trabajando ocupa la memoria, así que modelos que necesitan 24 GB funcionan en un Mac con 16 GB, con toda su calidad de 16 bits.", "points": [["hard-drive", "SSD interno o externo", "Guarda los modelos y la caché de streaming en el SSD del Mac o en un disco externo por USB o Thunderbolt. Cuanto más rápido el disco, más rápida la imagen."], ["sparkles", "Calidad completa", "Nada de comprimir a 4 bits: el modelo conserva sus pesos de 16 bits. Lo que cabe se queda en memoria; el resto se lee por adelantado mientras trabaja la GPU."], ["memory-stick", "Automático", "El plan de memoria decide para cada modelo: en memoria si cabe, por streaming si no. No hay nada que configurar, aunque puedes forzarlo o desactivarlo."]], "fine": "Probado en un Mac mini M4 con 16 GB: funcionan FLUX.1 [dev], Krea 2 y Qwen-Image 2.1. El streaming cambia velocidad por tamaño: los modelos grandes tardan minutos por imagen."},
+    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeño.", "lead": "VulKara transmite el modelo desde el SSD – interno o externo – bloque a bloque mientras se calcula la imagen. Solo la parte que está trabajando ocupa la memoria, así que modelos que necesitan 24 GB funcionan en un Mac con 16 GB, con toda su calidad de 16 bits.", "points": [["hard-drive", "SSD interno o externo", "Guarda los modelos y la caché de streaming en el SSD del Mac o en un disco externo por USB o Thunderbolt. Cuanto más rápido el disco, más rápida la imagen."], ["sparkles", "Calidad completa", "Nada de comprimir a 4 bits: el modelo conserva sus pesos de 16 bits. Lo que cabe se queda en memoria; el resto se lee por adelantado mientras trabaja la GPU."], ["memory-stick", "Automático", "El plan de memoria decide para cada modelo: se ejecuta en la RAM si cabe y se transmite desde el SSD (interno/externo) si no. ¡El streaming desde el SSD también se puede desactivar a mano!"]], "fine": "Probado en un Mac mini M4 con 16 GB: funcionan FLUX.1 [dev], Krea 2 y Qwen-Image 2.1. El streaming cambia velocidad por tamaño: los modelos grandes tardan minutos por imagen."},
     bannerAlt: 'Cinco imágenes creadas con VulKara: un faro en una costa rocosa, un zorro en un bosque nevado, una calle de neón de noche, un astronauta en una cúpula invernadero y una cabaña junto a un lago en otoño',
     bannerCap: 'Creadas con VulKara en un M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art y Analog Film.',
     galEyebrow: "Galería",
@@ -305,26 +321,34 @@ const T = {
       models_recommended: ['Modelos recomendados', 'con la memoria y el tamaño de descarga para tu Mac'],
     },
     respTitle: 'Desarrollado con responsabilidad',
-    resp: 'Cada prompt y cada resultado se comprueban antes de mostrarse. La protección de menores está siempre activa. Antes de editar fotos reales, pedimos el consentimiento. Además, cada imagen recibe una nota de IA en sus metadatos, y la etiqueta visible «AI GENERATED» se activa con un clic.',
+    resp: [
+      'cada prompt y cada resultado se comprueban antes de mostrarse',
+      'la protección de menores está siempre activa',
+      'antes de editar fotos reales, pedimos el consentimiento',
+      'cada imagen recibe una nota de IA en sus metadatos',
+      'la etiqueta visible «AI GENERATED» se activa con un clic',
+    ],
     linksEyebrow: 'Más información',
     linksTitle: 'Guía, novedades y código',
     links: [
       ['lightbulb', 'Guía de usuario', 'cada página y cada ajuste', `${BLOB}/docs/es/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'guías y ayuda', `${GH}/wiki`],
-      ['file-clock', 'Cambios', 'lo nuevo (en inglés)', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'Traduce VulKara', 'llévala a tu idioma (en inglés)', `${BLOB}/docs/TRANSLATING.md`],
+      ['file-clock', 'Cambios', '¿qué hay de nuevo?', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'Traduce VulKara', 'añade tu idioma (si aún no está 🙂)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Licencia', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'Hecha en el tiempo libre. Impulsada por café.',
-    support: 'VulKara es gratis para todos. Si te resulta útil, un café paga nuevos modelos, correcciones y funciones.',
+    support: 'VulKara es gratis para todos. Si te resulta útil, invítame a un café para seguir desarrollándola: integrar nuevos modelos, correcciones, etc.',
     coffee: 'Invítame a un café',
-    next: ["Lo próximo", "Tus propios personajes", "Crea un personaje una vez – cara, pelo, ropa, estilo – y ponlo en cualquier escena: viñetas de cómic, planos de anime, una historia entera. El mismo personaje en cada imagen. Creado y guardado en tu Mac, como todo lo demás.", "Planeado, todavía sin fecha. Un café ayuda a que llegue."],
-    nextPill: 'Lo próximo: tus propios personajes',
+    pose3d: {"title": "Editor de poses en 3D", "alt": "Un esqueleto OpenPose girando en el espacio: la cámara rodea la pose", "cap": "Boceto animado de la idea, no el editor terminado.", "lead": "Gira una pose libremente en el espacio y mira tu figura desde cualquier ángulo: de frente, de lado, desde arriba o en contrapicado. El resultado va como siempre a Texto a imagen como pose.", "points": [["rotate-3d", "Gira libremente", "Arrastra la figura para mover la cámara a su alrededor, arriba y abajo. Vistas fijas con un clic: de frente, de lado, de espaldas, desde arriba."], ["bone", "Articulaciones como un cuerpo", "Al arrastrar un punto gira su articulación y los huesos conservan su longitud. Cabeza, hombros, caderas, rodillas y dedos se quedan en límites naturales; se pueden desactivar para acrobacias."], ["bookmark", "Guarda tus poses", "Guarda una pose con su punto de vista como plantilla, vuelve a cargarla, cámbiale el nombre o compártela como archivo."], ["users", "Para tus personajes", "Una pose guardada pasa directamente a una escena de personaje, junto con su punto de vista."]]},
+    next: ["Próximas funciones planeadas", "Tus propios personajes", "Crea un personaje una vez – cara, pelo, ropa, estilo – y ponlo como referencia en cualquier escena: viñetas de cómic, planos de anime, una historia entera. El mismo personaje en cada imagen. Creado y guardado en tu Mac, como todo lo demás.", "Planeado, pero todavía sin fecha. Para eso hace falta mucho café ;)"],
+    nextPill: 'Nuevas funciones planeadas',
     nextCap: "Un personaje, siete imágenes: la referencia y seis escenas, hechas hoy ya con VulKara (FLUX.2 klein con la imagen de referencia en la página Imagen). La función lo convertirá en unos pocos clics.",
     nextAlts: {"mira": "Mira, la referencia", "cafe": "Dibujando en un café", "rooftop": "En una azotea al atardecer", "neon": "Calle de neón bajo la lluvia", "mountain": "De excursión al amanecer", "anime": "Como personaje de anime", "comic": "Como viñeta de cómic"},
     footAi: 'Las imágenes creadas con VulKara en esta página llevan el icono de la UE AI GENERATED.',
-    foot: '© 2026 Oliver Schmidt · VulKara es software libre bajo la AGPL-3.0. Esta página no usa cookies y no carga nada de otros servidores.',
+    foot: '© 2026 Oliver Schmidt<br>VulKara es software libre bajo la AGPL-3.0. Esta página no usa cookies y no carga nada de otros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidad'],
+    footPrivate: 'VulKara es un proyecto puramente privado y no está asociado ni vinculado a ninguna empresa externa.',
     footTm: 'Apple, Mac y macOS son marcas comerciales de Apple Inc. VulKara no está afiliada a Apple.',
   },
 
@@ -350,7 +374,7 @@ const T = {
     note: 'Grátis · macOS em Apple silicon · assinado e notarizado pela Apple',
     brew: 'Ou com Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspirado no DiffusionBee e no ComfyUI',
-    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeno.", "lead": "O VulKara transmite o modelo do SSD – interno ou externo – bloco a bloco enquanto a imagem é calculada. Só a parte que está trabalhando ocupa a memória, então modelos que precisam de 24 GB rodam num Mac com 16 GB, com qualidade total de 16 bits.", "points": [["hard-drive", "SSD interno ou externo", "Guarde os modelos e o cache de streaming no SSD do Mac ou num disco externo via USB ou Thunderbolt. Quanto mais rápido o disco, mais rápida a imagem."], ["sparkles", "Qualidade total", "Nada de espremer em 4 bits: o modelo mantém os pesos de 16 bits. O que cabe fica na memória, o resto é lido antes enquanto a GPU trabalha."], ["memory-stick", "Automático", "O plano de memória decide para cada modelo: na memória se couber, por streaming se não. Nada para configurar, mas você pode forçar ou desligar."]], "fine": "Testado num Mac mini M4 com 16 GB: rodam o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1. O streaming troca velocidade por tamanho: modelos grandes levam minutos por imagem."},
+    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeno.", "lead": "O VulKara transmite o modelo do SSD – interno ou externo – bloco a bloco enquanto a imagem é calculada. Só a parte que está trabalhando ocupa a memória, então modelos que precisam de 24 GB rodam num Mac com 16 GB, com qualidade total de 16 bits.", "points": [["hard-drive", "SSD interno ou externo", "Guarde os modelos e o cache de streaming no SSD do Mac ou num disco externo via USB ou Thunderbolt. Quanto mais rápido o disco, mais rápida a imagem."], ["sparkles", "Qualidade total", "Nada de espremer em 4 bits: o modelo mantém os pesos de 16 bits. O que cabe fica na memória, o resto é lido antes enquanto a GPU trabalha."], ["memory-stick", "Automático", "O plano de memória decide para cada modelo: roda na RAM se couber e é transmitido do SSD (interno/externo) se não couber. O streaming do SSD também pode ser desligado manualmente!"]], "fine": "Testado num Mac mini M4 com 16 GB: rodam o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1. O streaming troca velocidade por tamanho: modelos grandes levam minutos por imagem."},
     bannerAlt: 'Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua neon à noite, um astronauta numa estufa em cúpula e uma cabana à beira de um lago no outono',
     bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
     galEyebrow: "Galeria",
@@ -401,26 +425,34 @@ const T = {
       models_recommended: ['Modelos recomendados', 'com a memória e o tamanho do download para o seu Mac'],
     },
     respTitle: 'Desenvolvido com responsabilidade',
-    resp: 'Cada prompt e cada resultado são verificados antes de serem exibidos. A proteção de menores está sempre ativa. Antes de editar fotos reais, pedimos o consentimento. Além disso, cada imagem recebe uma nota de IA nos metadados, e o selo visível “AI GENERATED” pode ser ativado com um clique.',
+    resp: [
+      'cada prompt e cada resultado são verificados antes de serem exibidos',
+      'a proteção de menores está sempre ativa',
+      'antes de editar fotos reais, pedimos o consentimento',
+      'cada imagem recebe uma nota de IA nos metadados',
+      'o selo visível “AI GENERATED” pode ser ativado com um clique',
+    ],
     linksEyebrow: 'Saiba mais',
     linksTitle: 'Guia, novidades e código',
     links: [
       ['lightbulb', 'Guia do usuário', 'cada página e cada ajuste', `${BLOB}/docs/pt-BR/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'guias e ajuda', `${GH}/wiki`],
-      ['file-clock', 'Novidades', 'o que mudou (em inglês)', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'Traduza o VulKara', 'leve-o para o seu idioma (em inglês)', `${BLOB}/docs/TRANSLATING.md`],
+      ['file-clock', 'Novidades', 'o que há de novo?', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'Traduza o VulKara', 'adicione o seu idioma (se ainda não existir 🙂)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Licença', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'Feito no tempo livre. Movido a café.',
-    support: 'O VulKara é grátis para todos. Se ele for útil para você, um café paga novos modelos, correções e recursos.',
+    support: 'O VulKara é grátis para todos. Se ele for útil para você, me pague um café para o desenvolvimento continuar: integração de novos modelos, correções etc.',
     coffee: 'Me pague um café',
-    next: ["Próximo passo", "Seus próprios personagens", "Crie um personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-o em qualquer cena: quadrinhos, cenas de anime, uma história inteira. O mesmo personagem em todas as imagens. Criado e guardado no seu Mac, como todo o resto.", "Planejado, ainda sem data. Um café ajuda a chegar lá."],
-    nextPill: 'Próximo passo: seus próprios personagens',
+    pose3d: {"title": "Editor de pose em 3D", "alt": "Um esqueleto OpenPose girando no espaço: a câmera dá a volta na pose", "cap": "Esboço animado da ideia, não o editor pronto.", "lead": "Gire uma pose livremente no espaço e veja a sua figura de qualquer ângulo: de frente, de lado, de cima ou de baixo para cima. O resultado vai, como sempre, para Texto para imagem como pose.", "points": [["rotate-3d", "Gire livremente", "Arraste a figura para mover a câmera ao redor dela, para cima e para baixo. Vistas fixas com um clique: de frente, de lado, de costas, de cima."], ["bone", "Articulações como um corpo", "Arrastar um ponto gira a articulação, e os ossos mantêm o comprimento. Cabeça, ombros, quadris, joelhos e dedos ficam dentro de limites naturais – dá para desligar para acrobacias."], ["bookmark", "Salve suas poses", "Guarde uma pose com o ponto de vista como modelo, carregue de novo, renomeie ou compartilhe como arquivo."], ["users", "Para seus personagens", "Uma pose salva vai direto para uma cena de personagem, junto com o ponto de vista."]]},
+    next: ["Próximos recursos planejados", "Seus próprios personagens", "Crie um personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-o como referência em qualquer cena: quadrinhos, cenas de anime, uma história inteira. O mesmo personagem em todas as imagens. Criado e guardado no seu Mac, como todo o resto.", "Planejado, mas ainda sem data. Para isso, é preciso muito café ;)"],
+    nextPill: 'Novos recursos planejados',
     nextCap: "Um personagem, sete imagens: a referência e seis cenas, feitas hoje mesmo com o VulKara (FLUX.2 klein com a imagem de referência na página Imagem). O recurso vai transformar isso em poucos cliques.",
     nextAlts: {"mira": "Mira, a referência", "cafe": "Desenhando num café", "rooftop": "Num terraço ao pôr do sol", "neon": "Rua de neon na chuva", "mountain": "Trilha ao amanhecer", "anime": "Como personagem de anime", "comic": "Como quadrinho"},
     footAi: 'As imagens criadas com o VulKara nesta página levam o ícone da UE AI GENERATED.',
-    foot: '© 2026 Oliver Schmidt · O VulKara é software livre sob a AGPL-3.0. Esta página não usa cookies e não carrega nada de outros servidores.',
+    foot: '© 2026 Oliver Schmidt<br>O VulKara é software livre sob a AGPL-3.0. Esta página não usa cookies e não carrega nada de outros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidade'],
+    footPrivate: 'O VulKara é um projeto puramente pessoal e não está associado nem vinculado a nenhuma empresa externa.',
     footTm: 'Apple, Mac e macOS são marcas registradas da Apple Inc. O VulKara não tem vínculo com a Apple.',
   },
 
@@ -446,7 +478,7 @@ const T = {
     note: 'Gratuito · macOS em Apple silicon · assinado e notarizado pela Apple',
     brew: 'Ou com o Homebrew: <code>brew install --cask revil-O/tap/vulkara</code>',
     inspired: 'Inspirada no DiffusionBee e no ComfyUI',
-    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeno.", "lead": "O VulKara transmite o modelo a partir do SSD – interno ou externo – bloco a bloco enquanto a imagem é calculada. Só a parte que está a trabalhar ocupa a memória, pelo que modelos que precisam de 24 GB funcionam num Mac com 16 GB, com a qualidade total de 16 bits.", "points": [["hard-drive", "SSD interno ou externo", "Guarde os modelos e a cache de streaming no SSD do Mac ou num disco externo por USB ou Thunderbolt. Quanto mais rápido o disco, mais rápida a imagem."], ["sparkles", "Qualidade total", "Nada de comprimir para 4 bits: o modelo mantém os pesos de 16 bits. O que cabe fica na memória; o resto é lido antecipadamente enquanto a GPU trabalha."], ["memory-stick", "Automático", "O plano de memória decide para cada modelo: na memória se couber, por streaming se não. Nada a configurar, mas pode forçá-lo ou desligá-lo."]], "fine": "Testado num Mac mini M4 com 16 GB: o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1 funcionam. O streaming troca velocidade por tamanho: os modelos grandes demoram minutos por imagem."},
+    stream: {"eyebrow": "Streaming de modelos", "title": "Modelos grandes. Mac pequeno.", "lead": "O VulKara transmite o modelo a partir do SSD – interno ou externo – bloco a bloco enquanto a imagem é calculada. Só a parte que está a trabalhar ocupa a memória, pelo que modelos que precisam de 24 GB funcionam num Mac com 16 GB, com a qualidade total de 16 bits.", "points": [["hard-drive", "SSD interno ou externo", "Guarde os modelos e a cache de streaming no SSD do Mac ou num disco externo por USB ou Thunderbolt. Quanto mais rápido o disco, mais rápida a imagem."], ["sparkles", "Qualidade total", "Nada de comprimir para 4 bits: o modelo mantém os pesos de 16 bits. O que cabe fica na memória; o resto é lido antecipadamente enquanto a GPU trabalha."], ["memory-stick", "Automático", "O plano de memória decide para cada modelo: corre na RAM se couber e é transmitido a partir do SSD (interno/externo) se não couber. O streaming do SSD também pode ser desligado manualmente!"]], "fine": "Testado num Mac mini M4 com 16 GB: o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1 funcionam. O streaming troca velocidade por tamanho: os modelos grandes demoram minutos por imagem."},
     bannerAlt: 'Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua em néon à noite, um astronauta numa estufa em cúpula e uma cabana junto a um lago no outono',
     bannerCap: 'Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.',
     galEyebrow: "Galeria",
@@ -497,26 +529,34 @@ const T = {
       models_recommended: ['Modelos recomendados', 'com a memória e o tamanho da transferência para o Mac'],
     },
     respTitle: 'Desenvolvido com responsabilidade',
-    resp: 'Cada prompt e cada resultado são verificados antes de serem apresentados. A proteção de menores está sempre ativa. Antes de editar fotografias reais, pedimos o consentimento. Além disso, cada imagem recebe uma nota de IA nos metadados, e o selo visível «AI GENERATED» pode ser ativado com um clique.',
+    resp: [
+      'cada prompt e cada resultado são verificados antes de serem apresentados',
+      'a proteção de menores está sempre ativa',
+      'antes de editar fotografias reais, pedimos o consentimento',
+      'cada imagem recebe uma nota de IA nos metadados',
+      'o selo visível «AI GENERATED» pode ser ativado com um clique',
+    ],
     linksEyebrow: 'Saber mais',
     linksTitle: 'Guia, novidades e código',
     links: [
       ['lightbulb', 'Guia do utilizador', 'cada página e cada definição', `${BLOB}/docs/pt-PT/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'guias e ajuda', `${GH}/wiki`],
-      ['file-clock', 'Novidades', 'o que mudou (em inglês)', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'Traduzir o VulKara', 'para o seu idioma (em inglês)', `${BLOB}/docs/TRANSLATING.md`],
+      ['file-clock', 'Novidades', 'o que há de novo?', `${BLOB}/CHANGELOG.md`],
+      ['languages', 'Traduzir o VulKara', 'adicione o seu idioma (se ainda não existir 🙂)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Licença', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'Feito nos tempos livres. Alimentado a café.',
-    support: 'O VulKara é gratuito para todos. Se lhe for útil, um café paga novos modelos, correções e funcionalidades.',
+    support: 'O VulKara é gratuito para todos. Se lhe for útil, ofereça-me um café para o desenvolvimento continuar: integração de novos modelos, correções, etc.',
     coffee: 'Ofereça-me um café',
-    next: ["Próximo passo", "As suas próprias personagens", "Crie uma personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-a em qualquer cena: banda desenhada, cenas de anime, uma história inteira. A mesma personagem em todas as imagens. Criada e guardada no seu Mac, como tudo o resto.", "Planeado, ainda sem data. Um café ajuda a lá chegar."],
-    nextPill: 'Próximo passo: as suas próprias personagens',
+    pose3d: {"title": "Editor de pose em 3D", "alt": "Um esqueleto OpenPose a rodar no espaço: a câmara dá a volta à pose", "cap": "Esboço animado da ideia, não o editor acabado.", "lead": "Rode uma pose livremente no espaço e veja a sua figura de qualquer ângulo: de frente, de lado, de cima ou de baixo para cima. O resultado vai, como sempre, para Texto para imagem como pose.", "points": [["rotate-3d", "Rodar livremente", "Arraste a figura para mover a câmara à volta dela, para cima e para baixo. Vistas fixas com um clique: de frente, de lado, de costas, de cima."], ["bone", "Articulações como um corpo", "Arrastar um ponto roda a articulação, e os ossos mantêm o comprimento. Cabeça, ombros, ancas, joelhos e dedos ficam dentro de limites naturais – pode desligá-los para acrobacias."], ["bookmark", "Guarde as suas poses", "Guarde uma pose com o ponto de vista como modelo, volte a carregá-la, mude-lhe o nome ou partilhe-a como ficheiro."], ["users", "Para as suas personagens", "Uma pose guardada vai diretamente para uma cena de personagem, juntamente com o ponto de vista."]]},
+    next: ["Próximas funcionalidades planeadas", "As suas próprias personagens", "Crie uma personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-a como referência em qualquer cena: banda desenhada, cenas de anime, uma história inteira. A mesma personagem em todas as imagens. Criada e guardada no seu Mac, como tudo o resto.", "Planeado, mas ainda sem data. Para isso, é preciso muito café ;)"],
+    nextPill: 'Novas funcionalidades planeadas',
     nextCap: "Uma personagem, sete imagens: a referência e seis cenas, feitas hoje mesmo com o VulKara (FLUX.2 klein com a imagem de referência na página Imagem). A funcionalidade vai transformar isto em poucos cliques.",
     nextAlts: {"mira": "Mira, a referência", "cafe": "A desenhar num café", "rooftop": "Num terraço ao pôr do sol", "neon": "Rua de néon à chuva", "mountain": "A caminhar ao amanhecer", "anime": "Como personagem de anime", "comic": "Como banda desenhada"},
     footAi: 'As imagens criadas com o VulKara nesta página têm o ícone da UE AI GENERATED.',
-    foot: '© 2026 Oliver Schmidt · O VulKara é software livre ao abrigo da AGPL-3.0. Esta página não utiliza cookies e não carrega nada de outros servidores.',
+    foot: '© 2026 Oliver Schmidt<br>O VulKara é software livre ao abrigo da AGPL-3.0. Esta página não utiliza cookies e não carrega nada de outros servidores.',
     legal: ['Aviso legal (Impressum)', 'Privacidade'],
+    footPrivate: 'O VulKara é um projeto puramente pessoal e não está associado nem ligado a nenhuma empresa externa.',
     footTm: 'Apple, Mac e macOS são marcas comerciais da Apple Inc. O VulKara não está associado à Apple.',
   },
 }
@@ -673,6 +713,24 @@ ${['mira', 'cafe', 'rooftop', 'neon', 'mountain', 'anime', 'comic'].map((f) => `
           </figure>`).join('\n')}
         </div>
         <p class="spot-cap">${t.nextCap}</p>
+        <div class="spot-head spot-second">
+          <h2 id="pose3d-title">${t.pose3d.title}</h2>
+          <p class="spot-lead">${t.pose3d.lead}</p>
+        </div>
+        <figure class="pose-teaser">
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcset="${up}assets/pose3d/teaser_still.svg">
+            <img src="${up}assets/pose3d/teaser.svg" width="640" height="400" alt="${esc(t.pose3d.alt)}" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>${t.pose3d.cap}</figcaption>
+        </figure>
+        <div class="spot-points">
+${t.pose3d.points.map(([ic, h, p]) => `          <article>
+            <div class="tile">${icon(up, ic)}</div>
+            <h3>${h}</h3>
+            <p>${p}</p>
+          </article>`).join('\n')}
+        </div>
         <p class="spot-fine">${icon(up, 'coffee')}${t.next[3]}</p>
       </div>
     </section>
@@ -766,7 +824,7 @@ ${SHOTS.map(([name, h]) => {
           ${icon(up, 'shield-check')}
           <div>
             <h2 id="responsible-title">${t.respTitle}</h2>
-            <p>${t.resp}</p>
+            <ul class="resp-list">${t.resp.map((x) => `<li>${x}</li>`).join('')}</ul>
           </div>
         </div>
       </div>
@@ -794,6 +852,7 @@ ${t.links.map(([ic, h, s, href]) => `          <li>${ext(href, `${icon(up, ic)}<
     <div class="wrap">
       <p class="ai">${t.footAi}</p>
       <p>${t.foot}</p>
+      <p>${t.footPrivate}</p>
       <p>${t.footTm}</p>
       <p class="legal"><a href="${up}impressum/">${t.legal[0]}</a> · <a href="${up}datenschutz/">${t.legal[1]}</a></p>
     </div>

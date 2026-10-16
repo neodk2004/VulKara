@@ -19,7 +19,7 @@
   <meta name="theme-color" content="#0e1014" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/icon.png">
-  <link rel="stylesheet" href="../style.css?v=019919ff22">
+  <link rel="stylesheet" href="../style.css?v=86c4fc68d3">
   <script src="../theme.js?v=f6f9ebd191"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VulKara">
@@ -99,7 +99,7 @@
           <button type="button" class="copy" data-copy="brew install --cask revil-O/tap/vulkara" data-done="Copiado" aria-label="Copiar o comando"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><svg class="ico done" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg></button>
         </div>
         <p class="note inspired">Inspirado no DiffusionBee e no ComfyUI</p>
-        <a class="pill-next" href="#next"><span class="dot"></span>Próximo passo: seus próprios personagens<span aria-hidden="true">→</span></a>
+        <a class="pill-next" href="#next"><span class="dot"></span>Novos recursos planejados<span aria-hidden="true">→</span></a>
         <figure class="banner">
           <img src="../assets/banner.jpg" width="1712" height="420" alt="Cinco imagens criadas com o VulKara: um farol numa costa rochosa, uma raposa numa floresta com neve, uma rua neon à noite, um astronauta numa estufa em cúpula e uma cabana à beira de um lago no outono" fetchpriority="high">
           <figcaption>Criadas com o VulKara num M2: Juggernaut XL v7, estilos Cinematic, Digital Art, Neon Punk, Fantasy Art e Analog Film.</figcaption>
@@ -129,7 +129,7 @@
             <article>
               <div class="tile"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 12v-2"/><path d="M12 18v-2"/><path d="M16 12v-2"/><path d="M16 18v-2"/><path d="M2 11h1.5"/><path d="M20 18v-2"/><path d="M20.5 11H22"/><path d="M4 18v-2"/><path d="M8 12v-2"/><path d="M8 18v-2"/><rect x="2" y="6" width="20" height="10" rx="2"/></svg></div>
               <h3>Automático</h3>
-              <p>O plano de memória decide para cada modelo: na memória se couber, por streaming se não. Nada para configurar, mas você pode forçar ou desligar.</p>
+              <p>O plano de memória decide para cada modelo: roda na RAM se couber e é transmitido do SSD (interno/externo) se não couber. O streaming do SSD também pode ser desligado manualmente!</p>
             </article>
           </div>
           <p class="fine">Testado num Mac mini M4 com 16 GB: rodam o FLUX.1 [dev], o Krea 2 e o Qwen-Image 2.1. O streaming troca velocidade por tamanho: modelos grandes levam minutos por imagem.</p>
@@ -140,9 +140,9 @@
     <section id="next" class="spotlight" aria-labelledby="next-title">
       <div class="wrap">
         <div class="spot-head">
-          <span class="badge"><span class="dot"></span>Próximo passo</span>
+          <span class="badge"><span class="dot"></span>Próximos recursos planejados</span>
           <h2 id="next-title">Seus próprios personagens</h2>
-          <p class="spot-lead">Crie um personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-o em qualquer cena: quadrinhos, cenas de anime, uma história inteira. O mesmo personagem em todas as imagens. Criado e guardado no seu Mac, como todo o resto.</p>
+          <p class="spot-lead">Crie um personagem uma vez – rosto, cabelo, roupa, estilo – e coloque-o como referência em qualquer cena: quadrinhos, cenas de anime, uma história inteira. O mesmo personagem em todas as imagens. Criado e guardado no seu Mac, como todo o resto.</p>
         </div>
         <div class="mosaic">
           <figure class="ref">
@@ -175,7 +175,40 @@
           </figure>
         </div>
         <p class="spot-cap">Um personagem, sete imagens: a referência e seis cenas, feitas hoje mesmo com o VulKara (FLUX.2 klein com a imagem de referência na página Imagem). O recurso vai transformar isso em poucos cliques.</p>
-        <p class="spot-fine"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>Planejado, ainda sem data. Um café ajuda a chegar lá.</p>
+        <div class="spot-head spot-second">
+          <h2 id="pose3d-title">Editor de pose em 3D</h2>
+          <p class="spot-lead">Gire uma pose livremente no espaço e veja a sua figura de qualquer ângulo: de frente, de lado, de cima ou de baixo para cima. O resultado vai, como sempre, para Texto para imagem como pose.</p>
+        </div>
+        <figure class="pose-teaser">
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcset="../assets/pose3d/teaser_still.svg">
+            <img src="../assets/pose3d/teaser.svg" width="640" height="400" alt="Um esqueleto OpenPose girando no espaço: a câmera dá a volta na pose" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>Esboço animado da ideia, não o editor pronto.</figcaption>
+        </figure>
+        <div class="spot-points">
+          <article>
+            <div class="tile"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16.466 7.5C15.643 4.237 13.952 2 12 2 9.239 2 7 6.477 7 12s2.239 10 5 10c.342 0 .677-.069 1-.2"/><path d="m15.194 13.707 3.814 1.86-1.86 3.814"/><path d="M19 15.57c-1.804.885-4.274 1.43-7 1.43-5.523 0-10-2.239-10-5s4.477-5 10-5c4.838 0 8.873 1.718 9.8 4"/></svg></div>
+            <h3>Gire livremente</h3>
+            <p>Arraste a figura para mover a câmera ao redor dela, para cima e para baixo. Vistas fixas com um clique: de frente, de lado, de costas, de cima.</p>
+          </article>
+          <article>
+            <div class="tile"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/></svg></div>
+            <h3>Articulações como um corpo</h3>
+            <p>Arrastar um ponto gira a articulação, e os ossos mantêm o comprimento. Cabeça, ombros, quadris, joelhos e dedos ficam dentro de limites naturais – dá para desligar para acrobacias.</p>
+          </article>
+          <article>
+            <div class="tile"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"/></svg></div>
+            <h3>Salve suas poses</h3>
+            <p>Guarde uma pose com o ponto de vista como modelo, carregue de novo, renomeie ou compartilhe como arquivo.</p>
+          </article>
+          <article>
+            <div class="tile"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <h3>Para seus personagens</h3>
+            <p>Uma pose salva vai direto para uma cena de personagem, junto com o ponto de vista.</p>
+          </article>
+        </div>
+        <p class="spot-fine"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>Planejado, mas ainda sem data. Para isso, é preciso muito café ;)</p>
       </div>
     </section>
 
@@ -398,7 +431,7 @@
           <svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
           <div>
             <h2 id="responsible-title">Desenvolvido com responsabilidade</h2>
-            <p>Cada prompt e cada resultado são verificados antes de serem exibidos. A proteção de menores está sempre ativa. Antes de editar fotos reais, pedimos o consentimento. Além disso, cada imagem recebe uma nota de IA nos metadados, e o selo visível “AI GENERATED” pode ser ativado com um clique.</p>
+            <ul class="resp-list"><li>cada prompt e cada resultado são verificados antes de serem exibidos</li><li>a proteção de menores está sempre ativa</li><li>antes de editar fotos reais, pedimos o consentimento</li><li>cada imagem recebe uma nota de IA nos metadados</li><li>o selo visível “AI GENERATED” pode ser ativado com um clique</li></ul>
           </div>
         </div>
       </div>
@@ -413,13 +446,13 @@
         <ul class="links">
           <li><a href="https://github.com/revil-O/VulKara/blob/main/docs/pt-BR/USER_GUIDE.md" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg><span>Guia do usuário<small>cada página e cada ajuste</small></span></a></li>
           <li><a href="https://github.com/revil-O/VulKara/wiki" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg><span>Wiki<small>guias e ajuda</small></span></a></li>
-          <li><a href="https://github.com/revil-O/VulKara/blob/main/CHANGELOG.md" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 22h2a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v2.85"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M8 14v2.2l1.6 1"/><circle cx="8" cy="16" r="6"/></svg><span>Novidades<small>o que mudou (em inglês)</small></span></a></li>
-          <li><a href="https://github.com/revil-O/VulKara/blob/main/docs/TRANSLATING.md" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg><span>Traduza o VulKara<small>leve-o para o seu idioma (em inglês)</small></span></a></li>
+          <li><a href="https://github.com/revil-O/VulKara/blob/main/CHANGELOG.md" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 22h2a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v2.85"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M8 14v2.2l1.6 1"/><circle cx="8" cy="16" r="6"/></svg><span>Novidades<small>o que há de novo?</small></span></a></li>
+          <li><a href="https://github.com/revil-O/VulKara/blob/main/docs/TRANSLATING.md" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg><span>Traduza o VulKara<small>adicione o seu idioma (se ainda não existir 🙂)</small></span></a></li>
           <li><a href="https://github.com/revil-O/VulKara/blob/main/LICENSE" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg><span>Licença<small>AGPL-3.0</small></span></a></li>
         </ul>
         <div class="support">
           <h2>Feito no tempo livre. Movido a café.</h2>
-          <p>O VulKara é grátis para todos. Se ele for útil para você, um café paga novos modelos, correções e recursos.</p>
+          <p>O VulKara é grátis para todos. Se ele for útil para você, me pague um café para o desenvolvimento continuar: integração de novos modelos, correções etc.</p>
           <a class="btn primary big" href="https://buymeacoffee.com/revil.0" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>Me pague um café</a>
         </div>
       </div>
@@ -429,7 +462,8 @@
   <footer>
     <div class="wrap">
       <p class="ai">As imagens criadas com o VulKara nesta página levam o ícone da UE AI GENERATED.</p>
-      <p>© 2026 Oliver Schmidt · O VulKara é software livre sob a AGPL-3.0. Esta página não usa cookies e não carrega nada de outros servidores.</p>
+      <p>© 2026 Oliver Schmidt<br>O VulKara é software livre sob a AGPL-3.0. Esta página não usa cookies e não carrega nada de outros servidores.</p>
+      <p>O VulKara é um projeto puramente pessoal e não está associado nem vinculado a nenhuma empresa externa.</p>
       <p>Apple, Mac e macOS são marcas registradas da Apple Inc. O VulKara não tem vínculo com a Apple.</p>
       <p class="legal"><a href="../impressum/">Aviso legal (Impressum)</a> · <a href="../datenschutz/">Privacidade</a></p>
     </div>

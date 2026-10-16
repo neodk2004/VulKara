@@ -21,6 +21,8 @@ function source(path) {
   if (m) return join(ROOT, 'docs', 'images', 'gallery', m[1])
   m = path.match(/^characters\/([a-z0-9_]+\.jpg)$/)
   if (m) return join(ROOT, 'docs', 'images', 'characters', m[1])
+  m = path.match(/^pose3d\/([a-z0-9_]+\.svg)$/)
+  if (m) return join(ROOT, 'docs', 'images', 'pose3d', m[1])
   m = path.match(/^icons\/([a-z0-9-]+\.svg)$/)
   if (m) return join(ROOT, 'docs', 'icons', m[1])
   m = path.match(/^screenshots\/([A-Za-z-]+)\/([a-z0-9_]+\.(?:jpg|png))$/)

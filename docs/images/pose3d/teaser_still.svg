@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400">
+  <rect width="640" height="400" rx="18" fill="#0d0d10"/>
+  <polygon points="380.5,295.2 388.2,300.6 393.8,306.8 396.9,313.5 397,320.5 394.1,327.7 387.8,334.6 378.3,340.9 365.8,346.2 350.8,350.2 334,352.6 316.5,353.1 299.1,351.8 283,348.8 268.9,344.2 257.5,338.5 249.3,331.9 244.4,324.9 242.7,317.7 244,310.8 248.1,304.2 254.6,298.4 263.1,293.2 273.2,289 284.5,285.7 296.8,283.4 309.6,282.1 322.6,281.8 335.6,282.5 348.2,284.2 360.1,286.9 371,290.6" fill="#ffb27d" fill-opacity="0.07" stroke="#ffb27d" stroke-opacity="0.35" stroke-width="1.5"></polygon>
+  <line x1="320" y1="108.2" x2="294.6" y2="113.8" stroke-opacity="0.81" stroke-width="6.8" stroke="rgb(255,0,0)" stroke-linecap="round"></line>
+  <line x1="320" y1="108.2" x2="343.9" y2="111.8" stroke-opacity="0.73" stroke-width="6.6" stroke="rgb(255,85,0)" stroke-linecap="round"></line>
+  <line x1="294.6" y1="113.8" x2="264.7" y2="92.2" stroke-opacity="0.92" stroke-width="7.1" stroke="rgb(255,170,0)" stroke-linecap="round"></line>
+  <line x1="264.7" y1="92.2" x2="256.1" y2="46.1" stroke-opacity="1" stroke-width="7.5" stroke="rgb(255,255,0)" stroke-linecap="round"></line>
+  <line x1="343.9" y1="111.8" x2="362.1" y2="152.8" stroke-opacity="0.7" stroke-width="6.5" stroke="rgb(170,255,0)" stroke-linecap="round"></line>
+  <line x1="362.1" y1="152.8" x2="365.3" y2="185.6" stroke-opacity="0.75" stroke-width="6.6" stroke="rgb(85,255,0)" stroke-linecap="round"></line>
+  <line x1="320" y1="108.2" x2="307.2" y2="184.4" stroke-opacity="0.75" stroke-width="6.6" stroke="rgb(0,255,0)" stroke-linecap="round"></line>
+  <line x1="307.2" y1="184.4" x2="308.2" y2="248.9" stroke-opacity="0.72" stroke-width="6.6" stroke="rgb(0,255,85)" stroke-linecap="round"></line>
+  <line x1="308.2" y1="248.9" x2="300.2" y2="304.2" stroke-opacity="0.64" stroke-width="6.4" stroke="rgb(0,255,170)" stroke-linecap="round"></line>
+  <line x1="320" y1="108.2" x2="332.4" y2="181.3" stroke-opacity="0.71" stroke-width="6.5" stroke="rgb(0,255,255)" stroke-linecap="round"></line>
+  <line x1="332.4" y1="181.3" x2="357.9" y2="241.3" stroke-opacity="0.66" stroke-width="6.4" stroke="rgb(0,170,255)" stroke-linecap="round"></line>
+  <line x1="357.9" y1="241.3" x2="354.3" y2="296.2" stroke-opacity="0.62" stroke-width="6.3" stroke="rgb(0,85,255)" stroke-linecap="round"></line>
+  <line x1="320" y1="108.2" x2="326.6" y2="85" stroke-opacity="0.82" stroke-width="6.8" stroke="rgb(0,0,255)" stroke-linecap="round"></line>
+  <line x1="326.6" y1="85" x2="321.1" y2="78.5" stroke-opacity="0.86" stroke-width="6.9" stroke="rgb(85,0,255)" stroke-linecap="round"></line>
+  <line x1="321.1" y1="78.5" x2="308.6" y2="81.7" stroke-opacity="0.85" stroke-width="6.9" stroke="rgb(170,0,255)" stroke-linecap="round"></line>
+  <line x1="326.6" y1="85" x2="330.4" y2="78.5" stroke-opacity="0.85" stroke-width="6.9" stroke="rgb(255,0,255)" stroke-linecap="round"></line>
+  <line x1="330.4" y1="78.5" x2="329.6" y2="81.6" stroke-opacity="0.8" stroke-width="6.8" stroke="rgb(255,0,170)" stroke-linecap="round"></line>
+  <circle r="4.5" cx="326.6" cy="85" fill-opacity="0.86" fill="rgb(255,0,0)"></circle>
+  <circle r="4.5" cx="320" cy="108.2" fill-opacity="0.78" fill="rgb(255,85,0)"></circle>
+  <circle r="4.5" cx="294.6" cy="113.8" fill-opacity="0.85" fill="rgb(255,170,0)"></circle>
+  <circle r="4.5" cx="264.7" cy="92.2" fill-opacity="1" fill="rgb(255,255,0)"></circle>
+  <circle r="4.5" cx="256.1" cy="46.1" fill-opacity="1" fill="rgb(170,255,0)"></circle>
+  <circle r="4.5" cx="343.9" cy="111.8" fill-opacity="0.69" fill="rgb(85,255,0)"></circle>
+  <circle r="4.5" cx="362.1" cy="152.8" fill-opacity="0.7" fill="rgb(0,255,0)"></circle>
+  <circle r="4.5" cx="365.3" cy="185.6" fill-opacity="0.8" fill="rgb(0,255,85)"></circle>
+  <circle r="4.5" cx="307.2" cy="184.4" fill-opacity="0.73" fill="rgb(0,255,170)"></circle>
+  <circle r="4.5" cx="308.2" cy="248.9" fill-opacity="0.71" fill="rgb(0,255,255)"></circle>
+  <circle r="4.5" cx="300.2" cy="304.2" fill-opacity="0.57" fill="rgb(0,170,255)"></circle>
+  <circle r="4.5" cx="332.4" cy="181.3" fill-opacity="0.65" fill="rgb(0,85,255)"></circle>
+  <circle r="4.5" cx="357.9" cy="241.3" fill-opacity="0.68" fill="rgb(0,0,255)"></circle>
+  <circle r="4.5" cx="354.3" cy="296.2" fill-opacity="0.56" fill="rgb(85,0,255)"></circle>
+  <circle r="4.5" cx="321.1" cy="78.5" fill-opacity="0.87" fill="rgb(170,0,255)"></circle>
+  <circle r="4.5" cx="330.4" cy="78.5" fill-opacity="0.84" fill="rgb(255,0,255)"></circle>
+  <circle r="4.5" cx="308.6" cy="81.7" fill-opacity="0.83" fill="rgb(255,0,170)"></circle>
+  <circle r="4.5" cx="329.6" cy="81.6" fill-opacity="0.77" fill="rgb(255,0,85)"></circle>
+</svg>

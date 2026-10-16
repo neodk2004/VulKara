@@ -48,6 +48,10 @@ export const DOC_ICONS = {
   'heart': 'Favorites',
   'coffee': 'support the project',
   'scroll-text': 'Logs, wiki',
+  'rotate-3d': 'website: turn a pose in 3D',
+  'bone': 'website: joints of a pose',
+  'bookmark': 'website: saved poses',
+  'users': 'website: characters',
 }
 
 const attrs = (o) => Object.entries(o).filter(([k]) => k !== 'key').map(([k, v]) => `${k}="${v}"`).join(' ')
