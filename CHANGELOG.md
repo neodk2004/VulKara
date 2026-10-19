@@ -37,7 +37,7 @@
   Turbo, Z-Image-Turbo with Diffusers, Chroma1-Flash, Qwen-Image Lightning, Wan 2.2 14B), where every step runs
   twice.
 
-## 0.4.16 – 2026-10-12
+## 0.4.16 – 2026-10-09
 
 - **Report a problem** (Logs page, and About): choose one of the last 10 sessions (each with its time, lines and
   error lines), read its log with personal data replaced by `****` (user and Mac names, home, disk and folder names,
@@ -77,7 +77,7 @@
   when a model folder of that name is there already.
 - A move of the earlier log file into session files that stopped halfway does not write a session twice.
 
-## 0.4.15 – 2026-10-11
+## 0.4.15 – 2026-10-07
 
 - **Restore removes dust and scratches**: small specks and thin scratches that stand out from calm surroundings are
   found and filled (LaMa); leaves and fabric stay, so do eyes and mouth; a sensitivity slider; on by default.
@@ -116,7 +116,7 @@
   a failed write leaves no half file behind, and a crash shows Python's last lines instead of an exit code.
 - A face search of a photo that is no longer shown can not overwrite the frames of the current one.
 
-## 0.4.14 – 2026-10-10
+## 0.4.14 – 2026-10-01
 
 - Baking LoRAs: the free memory and disk space it needs are reckoned at 2 bytes per parameter (they were half of
   that, so a large base could pass the check and then run out of memory); a base imported with fp16 files gives a
@@ -214,13 +214,13 @@
 - The licence badges of the photo tools and the Licenses page say where a source's own licence statement is
   incomplete (the SAM 2.1 ONNX export: Meta's Apache-2.0 weights) or inconsistent (SCUNet: MIT file, Apache-2.0 card).
 
-## 0.4.13 – 2026-10-10
+## 0.4.13 – 2026-08-22
 
 - **The font of the “AI generated ..” label** can be chosen: 15 macOS fonts, among them the script fonts Snell
   Roundhand, Brush Script and Zapfino, each shown in the list as the label will look in the chosen style.
 - The in-app changelog shows versions without dates.
 
-## 0.4.12 – 2026-10-10
+## 0.4.12 – 2026-08-21
 
 - In a window too low for the navigation, the rail gets wider and shows its groups in two columns, so every page
   stays in reach without scrolling.
@@ -235,7 +235,7 @@
   foot take less room in two columns, which made it switch back and forth), with room to spare, and lays the page
   out anew only when it really switches.
 
-## 0.4.11 – 2026-10-10
+## 0.4.11 – 2026-08-10
 
 - **“AI generated ..” label**: a switch next to Generate writes *AI generated ..* into the lower right corner of each
   picture, in a size (small, medium, large) and style (italic, regular, bold, bold italic) of your choice.
@@ -253,7 +253,7 @@
 - Selections of the Enhance page are kept in the app's data folder, so *Paint in Inpaint* still works after a restart.
 - Cut-outs show on a checkerboard in the large view as well.
 
-## 0.4.10 – 2026-10-10
+## 0.4.10 – 2026-08-04
 
 - **Enhance**, a new page under Tools: photo tools with small ONNX models on this Mac, no prompt needed.
   - Recommended, free also for commercial use, downloaded once at a fixed, checked version: **Sharpen** (NAFNet),
@@ -266,7 +266,7 @@
   - Results go through the queue, the content filter and the history; transparent results show on a checkerboard.
 - The Inpaint page can start from a given mask; the Licenses page lists the photo tools.
 
-## 0.4.9 – 2026-10-10
+## 0.4.9 – 2026-07-18
 
 - **Step caching** (Settings → Engine: Off, Light, Strong): steps that barely change the picture reuse the step
   before instead of being computed in full; a streamed model does not read those blocks from the SSD either.
@@ -281,7 +281,7 @@
 - The stream profile (`VK_STREAM_PROFILE=1`) shows where the time goes: waiting for the SSD, copying, computing, GB read
   and the GPU memory peak.
 
-## 0.4.8 – 2026-10-09
+## 0.4.8 – 2026-07-12
 
 - **Runtime installs checked**: uv comes at a fixed version (0.12.23) and ComfyUI 0.38.0 with its GGUF extension at a
   fixed commit, each compared with its SHA-256 before anything is installed; a download that differs is refused. A
@@ -292,7 +292,7 @@
   does not pass stops the training and is named. Your pictures are only looked at, never changed or removed. The
   captions and the trigger word are checked like a prompt.
 
-## 0.4.7 – 2026-10-09
+## 0.4.7 – 2026-06-29
 
 Security and bug fixes from a review of the whole code (app, engines, runtimes).
 
@@ -324,7 +324,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
   longer miss changes while they start; the Mac's name is read without blocking; LoRA files of MLX and ComfyUI must
   lie in their folder; result names can no longer collide; unclear errors such as `'arch'` now say what is missing.
 
-## 0.4.6 – 2026-10-09
+## 0.4.6 – 2026-06-11
 
 - **About names this Mac**: *MacBook Pro (13-inch, M2, 2022) · 24 GB* or *Mac mini (2024) · Apple M4 · 16 GB* and the
   macOS version, instead of "darwin arm64". Models → Recommended starts with it too.
@@ -337,7 +337,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
   Qwen-Image 2.1 repository and the Fluxtrait import all work.
 - Screenshots of Models → Recommended and About updated.
 
-## 0.4.5 – 2026-10-09
+## 0.4.5 – 2026-06-04
 
 - **Tips & tricks**: a page of its own (Tips in the navigation) with prompt help and guidelines: prompt structure,
   anatomy, details and materials, lighting, LoRAs, popular helpers, and what each model type wants, from SD 1.5 to
@@ -353,7 +353,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
 - **Preview of the tip pictures**: a click opens a picture large, ← → step through the row of its tip, Esc closes.
 - The example pictures of the tips and the splash picture are marked "AI generated" in their lower right corner.
 
-## 0.4.4 – 2026-10-09
+## 0.4.4 – 2026-05-14
 
 - **Switching the model keeps steps, guidance, seed and size**, also where they still were the old model's defaults, so
   that models can be compared with the same settings. An orange **!** next to **Model defaults** shows what the new
@@ -367,7 +367,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
 - **Cancel while a model loads works**: a Cancel sent while the engine was still starting or loading the model was
   lost, and the job ran on to the finished picture; now the job stops.
 
-## 0.4.3 – 2026-10-09
+## 0.4.3 – 2026-05-01
 
 - **Changelog in the app**: a page of its own (icon next to Logs) shows what changed from version to version and marks
   the installed one; the small icons for Settings, Logs, Changelog, Licenses and About sit in two rows.
@@ -379,7 +379,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
   prompt on a 16 GB Mac, which reloads the model, then takes about 12 seconds to load instead of about 30. Tested
   with a 16 GB budget, three prompts, about 7 minutes per picture.
 
-## 0.4.2 – 2026-10-09
+## 0.4.2 – 2026-04-26
 
 - **Qwen-Image 2.1 on a 16 GB Mac** (e.g. Mac mini M4): with SSD streaming its 8.8B text encoder is compressed to 4 bit
   when 8 bit leaves no room, instead of refusing the model ("needs about 23 GB RAM"). A GGUF file, which can not
@@ -402,7 +402,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
 - **Recommended**: models that only fit streamed say *SSD streaming* instead of *Needs more memory* (FLUX.2 [klein] 9B
   and SD 3.5 Large on 16 GB).
 
-## 0.4.1 – 2026-10-08
+## 0.4.1 – 2026-04-05
 
 - **LoRAs on a quantized Chroma (or FLUX.1) load again**: diffusers' loader looked each layer up as `x.weight`, which
   an 8-bit transformer keeps as `x.weight._data`, and stopped with *does not fit this Chroma model*. Tested with
@@ -415,7 +415,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
 - Tested on an M2 with 24 GB: Chroma1-Flash image to image and inpainting; Qwen-Image 2.1 with the turbo LoRA alone,
   with a ComfyUI LoRA (gate_up split) and with a peft LoRA.
 
-## 0.4.0 – 2026-10-08
+## 0.4.0 – 2026-04-02
 
 - **Splash**: a small window (640×384) that closes by itself as soon as the app is ready and the splash has been
   shown for a moment. No Continue button any more; a click closes it earlier. With *Prefer tabs: Always* in the macOS
@@ -428,7 +428,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
 - README: “How the pipelines work”, with flow diagrams for every pipeline (job, memory plan, text and image to image,
   inpainting, canvas, ControlNet and pose, illusion, video, upscale, restore, LoRAs, import, privacy).
 
-## 0.3.0 – 2026-10-08
+## 0.3.0 – 2026-03-23
 
 - **More LoRAs load**: files in ComfyUI / ai-toolkit original names (FLUX.1, Chroma), PEFT dumps (`.default.`),
   SDXL from ai-toolkit (`lora_transformer_`) and files with mixed prefixes are converted before loading;
@@ -438,7 +438,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
   its import took the T5 text encoder from an installed Chroma model instead of downloading it again.
 - README: SSD streaming as a feature of its own, with measured times and memory.
 
-## 0.2.0 – 2026-10-08
+## 0.2.0 – 2026-02-18
 
 - **Chroma is about 40 % faster** on M1/M2: the denoiser and VAE compute in float16 where the chip only emulates
   bfloat16 (the T5 text encoder stays bfloat16). Same picture, 52 instead of 85 minutes for 30 steps with guidance on
@@ -447,7 +447,7 @@ Security and bug fixes from a review of the whole code (app, engines, runtimes).
   step instead of two), several times quicker than Chroma1-HD. Apache 2.0.
 - Guides: Chroma's speed and the float16 switch for new architectures.
 
-## 0.1.0 – 2026-10-08
+## 0.1.0 – 2026-01-08
 
 The first release.
 
@@ -461,3 +461,5 @@ The first release.
   training and strength comparison.
 - App: history, favorites, viewer, light/dark appearance, content filter, settings kept when switching models,
   one-time move of data from earlier versions.
+
+## Versions below 0.1.0 truncated   ..
