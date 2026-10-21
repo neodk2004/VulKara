@@ -24,6 +24,9 @@ TEXT = re.compile(r"\.(js|ts|vue|py|json|css|scss|html|md|txt|sh|yml|yaml|plist|
 FORBIDDEN = ["diffusionbee", "diffusion bee", "divamgupta", "tdict", "sdbk", "b2py", "py2b", "arthub",
              "db_model", "db_lora", "dbfile", r"\.diffusionbee", "app_data_2", "modifiers\\.json"]
 FORBIDDEN_RE = re.compile(r"(?<![a-z0-9])(%s)(?![a-z0-9])" % "|".join(FORBIDDEN), re.I)
+# the one allowed mention: the inspiration credit that names DiffusionBee next to ComfyUI (README and the site, every
+# language: "Inspired by …", "Inspirada en …", "Inspirado no …"). Only the DiffusionBee name is excused, nothing else.
+CREDIT_RE = re.compile(r"ComfyUI", re.I)
 
 with open(os.path.join(ROOT, "tools", "original_fingerprints.json")) as f:
     PRINTS = json.load(f)
@@ -61,7 +64,7 @@ def check():
         text = data.decode("utf-8", "replace")
         for no, line in enumerate(text.splitlines(), 1):
             m = FORBIDDEN_RE.search(line)
-            if m:
+            if m and not (m.group(0).lower().startswith("diffusion") and CREDIT_RE.search(line)):
                 findings.append("%s:%d: name of the earlier app: %r" % (rel, no, m.group(0)))
         numbered = [(no, n) for no, n in ((no, normalise(l)) for no, l in enumerate(text.splitlines(), 1)) if len(n) >= 12]
         reported = -1

@@ -5,6 +5,7 @@
 
 import { app, net } from 'electron'
 import { spawn } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { enginesDir } from './paths'
@@ -98,6 +99,29 @@ export const runtimeDir = (id: RuntimeId): string => join(runtimesDir(), id)
 export function runtimePython(id: RuntimeId): string | undefined {
   const p = join(runtimeDir(id), 'venv', 'bin', 'python')
   return existsSync(p) && existsSync(join(runtimeDir(id), 'runtime.json')) ? p : undefined
+}
+
+/** What a runtime of this app version is made of: its package lock and the pinned ComfyUI with its extensions.
+ *  Kept in runtime.json at install; when the app brings another one, the runtime is brought to it at the next start. */
+function lockOf(rt: Runtime): string {
+  const lock = join(enginesDir(), rt.engine, 'constraints.txt')
+  if (!existsSync(lock)) return ''
+  const comfy = [rt.comfyRelease ?? '', ...(rt.extensions ?? []).map((e) => e.commit)].join(',')
+  return createHash('sha256').update(readFileSync(lock)).update(comfy).digest('hex')
+}
+
+/** Installed runtimes whose packages are not (or not known to be) the set this app version was tested with: installed
+ *  by an earlier version, or reached by a broken release of some package before the lock existed (Pillow 13). */
+export function staleRuntimes(): RuntimeId[] {
+  return offered().filter((rt) => {
+    const want = lockOf(rt)
+    if (!want || !runtimePython(rt.id)) return false
+    try {
+      return JSON.parse(readFileSync(join(runtimeDir(rt.id), 'runtime.json'), 'utf8')).lock !== want
+    } catch {
+      return true
+    }
+  }).map((rt) => rt.id)
 }
 
 function dirSize(dir: string): number {
@@ -288,10 +312,15 @@ async function installNow(id: RuntimeId, progress: Progress): Promise<{ version:
     requirements.unshift('-r', join(comfy, 'requirements.txt'))
   }
   progress(t('main.runtimes.installingPackages'), -1)
-  // the key packages move to the newest version their requirements allow (an Update); the rest only as needed
+  // the tested set and nothing else: every package at its locked version, also the ones that only come in through
+  // other packages and ComfyUI's own. A sync also takes out what is not in it, so a runtime an untested release had
+  // reached (Pillow 13) is whole again without deleting it; unchanged packages stay, the rest comes from the cache.
+  const lock = join(src, 'constraints.txt')
+  // the key packages move to the newest version their requirements allow (only without a lock)
   const upgrade = (rt.versions ?? []).flatMap((s) => (s.kind === 'pypi' ? ['--upgrade-package', s.package] : []))
+  const packages = existsSync(lock) ? ['sync', lock] : ['install', ...upgrade, ...requirements]
   // ready-built wheels only: compiling a package would need Apple's command line tools, which a Mac may not have
-  await run(uv, ['pip', 'install', '--python', join(venv, 'bin', 'python'), '--only-binary', ':all:', ...upgrade, ...requirements],
+  await run(uv, ['pip', packages[0], '--python', join(venv, 'bin', 'python'), '--only-binary', ':all:', ...packages.slice(1)],
     (line) => { if (/^(Downloading|Downloaded|Installed|Prepared|Resolved)/.test(line)) progress(line.slice(0, 80), -1) }, uvEnv)
     .catch((err: Error) => { throw new Error(packageInstallError(err.message)) })
 
@@ -302,7 +331,7 @@ async function installNow(id: RuntimeId, progress: Progress): Promise<{ version:
       (line) => { out = line })
     version = out
   }
-  writeFileSync(join(dir, 'runtime.json'), JSON.stringify({ id, version, installedAt: Date.now() }))
+  writeFileSync(join(dir, 'runtime.json'), JSON.stringify({ id, version, installedAt: Date.now(), lock: lockOf(rt) }))
   return { version }
 }
 

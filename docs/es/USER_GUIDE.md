@@ -886,7 +886,10 @@ lugar de en un espacio de pantalla completa propio sin barra de título), así q
 | **ComfyUI** | ~1,5 GB | opcional: Anima, vídeo Wan, ampliación |
 
 Cada runtime es un entorno de Python independiente en la carpeta de los runtimes. **Actualizar** lo vuelve a instalar
-con los paquetes actuales. **Eliminar** borra el runtime; los modelos se quedan donde están.
+con los paquetes con los que se probó esta versión de VulKara: cada paquete en una versión fija, así que una nueva
+versión de alguno no puede romperlo; también repara un runtime que recibió un paquete defectuoso. Tras una
+actualización de la app, VulKara lo hace por sí sola en el primer inicio si la nueva versión trae otro conjunto.
+**Eliminar** borra el runtime; los modelos se quedan donde están.
 
 #### Búsqueda de actualizaciones
 
@@ -898,9 +901,9 @@ resultado se guarda y se muestra al abrir la página.
 - *Actualización disponible: diffusers 0.41.0 → 0.42.1*: **Actualizar** instala esa versión. Un pequeño punto en el
   icono de Ajustes indica que hay una.
 - *Actualizado (…)*: no hay nada que hacer.
-- Una actualización solo llega hasta donde permite el intervalo de versiones de esta versión de VulKara (por ejemplo,
-  diffusers por debajo de 1.0). Una versión más reciente fuera de él se menciona (*Ya se ha publicado …; esta versión de
-  VulKara usa …*) y llega con una actualización de la app.
+- Una actualización solo llega hasta las versiones con las que se probó esta versión de VulKara. Una versión más
+  reciente se menciona (*Ya se ha publicado …; esta versión de VulKara usa …*) y llega con una actualización de la
+  app, una vez probada.
 - *no se pudo comprobar*: no hay conexión o el servidor no respondió; al runtime no le pasa nada.
 
 No se envía ningún token ni nada sobre tus archivos; solo se leen las listas públicas de versiones.

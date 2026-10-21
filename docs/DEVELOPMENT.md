@@ -96,6 +96,10 @@ VulKara has to work on a Mac mini M4 with 16 GB, not only on the 24 GB developme
 - Version in `package.json`, the dated `CHANGELOG.md` section, `tools/release.mjs`, the tag `vX.Y.Z` pushed, and the
   release on GitHub (and on the Gitea mirror) with the DMG and its SHA-256 in the notes.
 - Without the notarytool profile the DMG is signed but not notarized; the release notes say so.
+- The runtimes' Python packages are locked: every engine requirement is pinned (`==`) and every package of a runtime,
+  also the ones that only come in through others and ComfyUI's own, is fixed in `engines/<engine>/constraints.txt`.
+  A new version reaches users only through an accepted [dependency update](#dependency-updates) before the release
+  build; `tools/release.mjs` refuses to build otherwise (Pillow 13 broke mflux on a fresh install, 0.5.1_hf_1).
 
 ### Testing on the development Mac
 
@@ -719,6 +723,9 @@ node tools/release.mjs
 
 The script runs these steps in order:
 
+0. `tools/check_pins.py`: every runtime package locked, and the lock is exactly what the runtimes on this Mac hold
+   (the ones the tests and test pictures ran on). Runs also with `--skip-checks`; see
+   [Dependency updates](#dependency-updates).
 1. Type check, tests and `tools/check_clean.py` (`--skip-checks` leaves them out).
 2. The notices of the bundled packages, `electron-vite build`, then electron-builder (an unsigned app bundle). Old
    release output in `dist/` is removed first, except `dist/dev`, the bundle of `npm run start:app`.
@@ -742,6 +749,37 @@ Gatekeeper judges a build.
 
 After adding models to `src/shared/data/curated_models.json`, run `npm run licenses` to update the licence data. After
 changing dependencies, run `npm run notices` to update the package licences.
+
+## Dependency updates
+
+The runtimes install a locked set: `engines/<engine>/requirements.txt` pins the direct packages, and
+`engines/<engine>/constraints.txt` every package of the runtime (`uv pip install -c`, also for ComfyUI's own
+`requirements.txt` and for **Update** in Settings → Runtimes). A fresh install today gets the same packages as one a
+month ago, and a new release of any package — direct or not — can not reach a user before it was accepted.
+
+Installing and **Update** sync a runtime to its lock (`uv pip sync`): packages that are not in it are removed, so a
+runtime an untested release had reached is whole again without deleting it. `runtime.json` keeps a fingerprint of the
+lock (and of the pinned ComfyUI); at every start `repairRuntimes()` syncs an installed runtime whose fingerprint is
+missing or another (installed by an earlier version) before a job can use it.
+
+A dependency changes only like this, before the release build:
+
+1. Raise the pin in `requirements.txt` (or add the package), then **Update** the runtime on the development Mac
+   (Settings → Runtimes), so it resolves the new set.
+2. Accept it: the engine tests (`python -m pytest` in `engines/diffusers`), and per changed runtime at least one
+   picture or video with a model of each family it runs, on the 16 GB plan too where streaming is involved.
+3. Lock it: `python3 tools/lock_runtimes.py <runtime>` freezes the accepted runtime into `constraints.txt` and the
+   pins. Review the diff (what moved, which majors), note the change in `CHANGELOG.md`, commit.
+
+`tools/check_pins.py` (step 0 of the release, and `src/main/runtime_lock.test.ts` in every `npm test`) fails when a
+requirement is not pinned, when the pins and the lock disagree, or when an installed runtime holds anything other
+than the lock — a lock edited by hand without installing and testing it does not get through. What newer versions
+exist for a runtime (candidates for the next accepted update):
+
+```bash
+~/Library/Application\ Support/VulKara/runtimes/bin/uv pip list --outdated \
+  --python ~/Library/Application\ Support/VulKara/runtimes/mlx/venv/bin/python
+```
 
 ## Landing page and release automation
 

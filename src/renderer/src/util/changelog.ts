@@ -36,8 +36,9 @@ export function parseChangelog(text: string): ChangelogVersion[] {
     const heading = /^## (.+?)(?:\s+[–-]\s+(.+))?$/.exec(line)
     if (heading) {
       flush()
-      current = { version: heading[1].trim(), date: (heading[2] ?? '').trim(), intro: [], items: [] }
-      versions.push(current)
+      // a heading that names no version (the note at the end of the file) ends the versions and is not one
+      current = /^\d/.test(heading[1]) ? { version: heading[1].trim(), date: (heading[2] ?? '').trim(), intro: [], items: [] } : undefined
+      if (current) versions.push(current)
     } else if (!current || line.startsWith('# ')) {
       continue  // the title of the file
     } else if (line.startsWith('- ')) {

@@ -908,8 +908,11 @@ einem eigenen Vollbild-Space ohne Titelleiste), so verdeckt sie die App nie uner
 | **MLX** | ~1 GB | FLUX-Modelle und Z-Image (als Repository, Text zu Bild), meist schneller und sparsamer; Krea 2 und Ideogram 4 |
 | **ComfyUI** | ~1,5 GB | optional: Anima, Wan-Video, Vergrößern |
 
-Jede Runtime ist eine eigene Python-Umgebung im Runtimes-Ordner. **Aktualisieren** installiert sie mit aktuellen
-Paketen neu. **Entfernen** löscht die Runtime; die Modelle bleiben, wo sie sind.
+Jede Runtime ist eine eigene Python-Umgebung im Runtimes-Ordner. **Aktualisieren** installiert sie neu mit den
+Paketen, mit denen diese VulKara-Version getestet wurde – jedes Paket in einer festen Version, sodass ein neues
+Release eines davon sie nicht kaputtmachen kann; das repariert auch eine Runtime, die ein defektes Paket bekommen
+hat. Nach einem App-Update macht VulKara das beim ersten Start von selbst, wenn die neue Version einen anderen Satz
+mitbringt. **Entfernen** löscht die Runtime; die Modelle bleiben, wo sie sind.
 
 #### Update-Prüfung
 
@@ -921,9 +924,8 @@ und beim Öffnen der Seite gezeigt.
 - *Update verfügbar: diffusers 0.41.0 → 0.42.1*: **Aktualisieren** installiert diese Version. Ein kleiner Punkt am
   Symbol der Einstellungen zeigt an, dass es eines gibt.
 - *Aktuell (…)*: nichts zu tun.
-- Ein Update geht nur so weit, wie der Versionsbereich dieser VulKara-Version erlaubt (zum Beispiel diffusers unter
-  1.0). Ein neueres Release außerhalb davon wird erwähnt (*… ist erschienen; diese VulKara-Version nutzt …*) und kommt
-  mit einem App-Update.
+- Ein Update geht nur bis zu den Versionen, mit denen diese VulKara-Version getestet wurde. Ein neueres Release wird
+  erwähnt (*… ist erschienen; diese VulKara-Version nutzt …*) und kommt mit einem App-Update, sobald es getestet ist.
 - *konnte nicht geprüft werden*: keine Verbindung, oder der Server hat nicht geantwortet; mit der Runtime ist alles in
   Ordnung.
 

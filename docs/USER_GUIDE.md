@@ -852,8 +852,11 @@ its own without a title bar), so it never hides the app out of reach.
 | **MLX** | ~1 GB | FLUX models and Z-Image (as a repository, text to image), usually faster and leaner; Krea 2 and Ideogram 4 |
 | **ComfyUI** | ~1.5 GB | optional: Anima, Wan video, upscaling |
 
-Each runtime is a separate Python environment in the runtimes folder. **Update** installs it again with current
-packages. **Remove** deletes the runtime; the models stay where they are.
+Each runtime is a separate Python environment in the runtimes folder. **Update** installs it again with the packages
+this VulKara version was tested with — every package at a fixed version, so a new release of one of them can not
+break it; this also mends a runtime that got a broken package. After an app update, VulKara does this by itself at
+the first start when the new version brings another set. **Remove** deletes the runtime; the models stay where they
+are.
 
 #### Update check
 
@@ -864,9 +867,8 @@ MLX, ComfyUI itself for ComfyUI. **Check now** asks at once; the last result is 
 - *Update available: diffusers 0.41.0 → 0.42.1*: **Update** installs that version. A small dot on the Settings
   icon says that there is one.
 - *Up to date (…)*: nothing to do.
-- An update only goes as far as the version range this VulKara version allows (for example diffusers below 1.0).
-  A newer release outside it is mentioned (*… is released; this VulKara version uses …*) and comes with an app
-  update.
+- An update only goes as far as the versions this VulKara version was tested with. A newer release is mentioned (*…
+  is released; this VulKara version uses …*) and comes with an app update, once it has been tested.
 - *could not check*: no connection or the server did not answer; nothing is wrong with the runtime.
 
 No token is sent and nothing about your files; only the public version lists are read.

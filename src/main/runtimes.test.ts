@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from 'vitest'
 const dir = mkdtempSync(`${tmpdir()}/vk-runtimes-`)
 vi.mock('electron', () => ({ app: { getPath: () => dir, isPackaged: false, getAppPath: () => resolve('.') }, net: {} }))
 
-const { checkDownload, packageInstallError, updateTargets } = await import('./runtimes')
+const { checkDownload, packageInstallError, updateTargets, staleRuntimes, runtimeDir } = await import('./runtimes')
 
 describe('the runtimes in the update check', () => {
   it('every runtime declares what identifies its version, with the range from its requirements', () => {
@@ -19,7 +19,8 @@ describe('the runtimes in the update check', () => {
       expect(rt.targets.length, rt.id).toBeGreaterThan(0)
     }
     const byId = Object.fromEntries(targets.map((t) => [t.id, t.targets]))
-    expect(byId.diffusers[0]).toMatchObject({ key: 'pypi:diffusers', spec: expect.stringContaining('<1.0') })
+    // locked: an update offers nothing beyond the accepted version (tools/lock_runtimes.py)
+    expect(byId.diffusers[0]).toMatchObject({ key: 'pypi:diffusers', spec: expect.stringMatching(/^==/) })
     expect(byId.mlx[0]).toMatchObject({ key: 'pypi:mflux', spec: expect.stringMatching(/^==/) })
     if (byId.comfyui) expect(byId.comfyui[0]).toMatchObject({ kind: 'github', name: 'ComfyUI', pinned: expect.stringMatching(/^\d+\.\d+/) })
   })
@@ -42,5 +43,24 @@ describe('packages are never compiled', () => {
     const uv = 'Because antlr4-python3-runtime==4.9.3 has no usable wheels and you require antlr4-python3-runtime==4.9.3, we can conclude that your requirements are unsatisfiable.'
     expect(packageInstallError(uv)).toMatch(/^antlr4-python3-runtime is not available ready-built for this Mac/)
     expect(packageInstallError('error: Failed to fetch: https://pypi.org/simple/torch/')).toBe('error: Failed to fetch: https://pypi.org/simple/torch/')
+  })
+})
+
+describe('runtimes from an earlier version', () => {
+  it('are brought to the tested set when their lock is missing or another, and left alone when it matches', async () => {
+    const { mkdirSync, readFileSync } = await import('node:fs')
+    const { createHash } = await import('node:crypto')
+    const { join } = await import('node:path')
+    const rt = runtimeDir('mlx')
+    mkdirSync(join(rt, 'venv', 'bin'), { recursive: true })
+    writeFileSync(join(rt, 'venv', 'bin', 'python'), '')
+    // installed before the lock existed (0.5.1 and earlier): no lock in runtime.json
+    writeFileSync(join(rt, 'runtime.json'), JSON.stringify({ id: 'mlx', version: '0.20.0', installedAt: 1 }))
+    expect(staleRuntimes()).toEqual(['mlx'])
+    writeFileSync(join(rt, 'runtime.json'), JSON.stringify({ id: 'mlx', version: '0.20.0', installedAt: 1, lock: 'older' }))
+    expect(staleRuntimes()).toEqual(['mlx'])
+    const lock = createHash('sha256').update(readFileSync(resolve('engines/mlx/constraints.txt'))).update('').digest('hex')
+    writeFileSync(join(rt, 'runtime.json'), JSON.stringify({ id: 'mlx', version: '0.20.0', installedAt: 1, lock }))
+    expect(staleRuntimes()).toEqual([])
   })
 })

@@ -5,7 +5,7 @@
 import { app, BrowserWindow, nativeTheme, screen, systemPreferences, session, shell, type Rectangle } from 'electron'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { bindWindow, fileAccess, registerIpc, shutdown } from './ipc'
+import { bindWindow, fileAccess, registerIpc, repairRuntimes, shutdown } from './ipc'
 import { logTo } from './log'
 import { PAGE_URL, PRELOAD, RENDERER_DIR } from './pages'
 import { engineEnv, getSettings, onSettingChanged } from './settings'
@@ -111,6 +111,8 @@ if (!app.requestSingleInstanceLock()) {
     void warmMacModel()
     logTo(join(app.getPath('userData'), 'logs'))
     registerIpc()
+    // runtimes from an earlier version (or broken by an untested package) are brought to this version's tested set
+    const repaired = repairRuntimes()
     applyTheme()
     onSettingChanged((key) => { if (key === 'theme') applyTheme() })
     applyLanguage()
@@ -129,10 +131,11 @@ if (!app.requestSingleInstanceLock()) {
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow(false)
     })
-    // once, in the background: installed LoRAs and models checked with the current detection; the pages reload the list
-    void recheckLibrary(engineCommand('diffusers', ['recheck_loras']), engineEnv(), app.getPath('userData'), () => {
+    // once, in the background (after the runtimes are whole): installed LoRAs and models checked with the current
+    // detection; the pages reload the list
+    void repaired.then(() => recheckLibrary(engineCommand('diffusers', ['recheck_loras']), engineEnv(), app.getPath('userData'), () => {
       for (const w of BrowserWindow.getAllWindows()) if (!w.isDestroyed()) w.webContents.send('assets:change')
-    })
+    }))
   })
 
   // jobs belong to the window: closing it ends the app and its engines

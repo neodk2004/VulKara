@@ -33,7 +33,7 @@ import { detectPose, findFaces } from './pose'
 import { Trainer, folderImages } from './training'
 import { JobQueue } from './queue'
 import { runTool } from './tool_process'
-import { engineCommand, installRuntime, listRuntimes, removeRuntime, updateTargets, type RuntimeId } from './runtimes'
+import { engineCommand, installRuntime, listRuntimes, removeRuntime, staleRuntimes, updateTargets, type RuntimeId } from './runtimes'
 import { AUTO_INTERVAL, UpdateChecker } from './runtime_updates'
 import { getToken, hasToken, setToken, type TokenService } from './secrets'
 import { closeViewers, isViewer, openViewer, viewerPayload } from './viewer'
@@ -185,10 +185,51 @@ const trainer = new Trainer({
 const busy = (): boolean => queue.busy || imports.busy || trainer.running
 
 const installing = new Set<RuntimeId>()
-// a model being written as one file (assets:exportSingle): it holds the memory, so no job starts meanwhile
-let exporting: ChildProcess | undefined
 const lastStage: Partial<Record<RuntimeId, string>> = {}
 const installError: Partial<Record<RuntimeId, string>> = {}
+
+/** Install or update a runtime (Settings → Runtimes, and the repair at the start), with its progress on the pages. */
+async function runInstall(id: RuntimeId): Promise<{ version: string }> {
+  if (installing.has(id)) throw new Error(t('main.runtimes.installingAlready'))
+  installing.add(id)
+  delete installError[id]
+  delete lastStage[id]
+  try {
+    if (busy()) throw new Error(t('main.runtimes.busyInstall'))
+    stopEngines()
+    selector.stop()
+    forgetMlxRefusals()
+    const res = await installRuntime(id, (stage, percent) => {
+      if (stage !== lastStage[id]) log(`[runtime ${id}] ${stage}`)
+      lastStage[id] = stage
+      send('runtimes:progress', id, stage, percent)
+    })
+    send('queue:change', snapshot())
+    return res
+  } catch (err) {
+    installError[id] = (err as Error).message
+    throw err
+  } finally {
+    installing.delete(id)
+    send('runtimes:progress', id, '', 100)  // over: the pages read the list again
+    send('runtimes:updatesChanged', runtimeUpdates().status())
+  }
+}
+
+/** At the start: every installed runtime that is not the tested set of this app version (installed by an earlier one,
+ *  or broken by an untested package release) is brought to it, before a job can use it. Usually seconds (cache). */
+export async function repairRuntimes(): Promise<void> {
+  for (const id of staleRuntimes()) {
+    log(`[runtime ${id}] not the tested package set of this version: brought to it`)
+    try {
+      await runInstall(id)
+    } catch (err) {
+      log(`[runtime ${id}] repair failed: ${(err as Error).message}`)  // shown in Settings → Runtimes; Update tries again
+    }
+  }
+}
+// a model being written as one file (assets:exportSingle): it holds the memory, so no job starts meanwhile
+let exporting: ChildProcess | undefined
 
 // newer versions of the runtimes' key packages: public PyPI and GitHub lists, no token is sent
 let updateChecker: UpdateChecker | undefined
@@ -280,32 +321,7 @@ export function registerIpc(): void {
   handle('runtimes:list', () => listRuntimes().map((r) => ({
     ...r, installing: installing.has(r.id) ? lastStage[r.id] ?? t('main.status.starting') : undefined, error: installError[r.id],
   })))
-  handle('runtimes:install', async (id: RuntimeId) => {
-    if (installing.has(id)) throw new Error(t('main.runtimes.installingAlready'))
-    installing.add(id)
-    delete installError[id]
-    delete lastStage[id]
-    try {
-      if (busy()) throw new Error(t('main.runtimes.busyInstall'))
-      stopEngines()
-      selector.stop()
-      forgetMlxRefusals()
-      const res = await installRuntime(id, (stage, percent) => {
-        if (stage !== lastStage[id]) log(`[runtime ${id}] ${stage}`)
-        lastStage[id] = stage
-        send('runtimes:progress', id, stage, percent)
-      })
-      send('queue:change', snapshot())
-      return res
-    } catch (err) {
-      installError[id] = (err as Error).message
-      throw err
-    } finally {
-      installing.delete(id)
-      send('runtimes:progress', id, '', 100)  // over: the pages read the list again
-      send('runtimes:updatesChanged', runtimeUpdates().status())
-    }
-  })
+  handle('runtimes:install', (id: RuntimeId) => runInstall(id))
   handle('runtimes:remove', (id: RuntimeId) => {
     if (installing.has(id)) throw new Error(t('main.runtimes.beingInstalled'))
     if (busy()) throw new Error(t('main.runtimes.busyRemove'))

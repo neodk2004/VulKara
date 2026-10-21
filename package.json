@@ -1,7 +1,7 @@
 {
   "name": "vulkara",
   "productName": "VulKara",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Local image and video generation for Apple Silicon Macs",
   "private": true,
   "license": "AGPL-3.0-or-later",

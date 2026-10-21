@@ -4,6 +4,8 @@
 //
 //   node tools/release.mjs [--skip-checks]
 //
+// 0. the runtimes' Python packages are locked and the lock is the set tested on this Mac (tools/check_pins.py);
+//    runs also with --skip-checks
 // 1. type check, unit tests and the check that nothing of the earlier app is contained (tools/check_clean.py)
 // 2. the app (electron-vite), the notices of the bundled packages, the app bundle (electron-builder)
 // 3. signed with the "Developer ID Application" certificate (hardened runtime, build/entitlements.mac.plist)
@@ -51,6 +53,8 @@ function hasProfile() {
   }
 }
 
+// not skippable: no runtime package reaches a user before its version was accepted (docs/DEVELOPMENT.md)
+step('runtime packages locked and accepted', 'python3', ['tools/check_pins.py'])
 if (!skipChecks) {
   step('type check', 'npm', ['run', 'typecheck'])
   step('unit tests', 'npm', ['test'])

@@ -37,6 +37,12 @@ The first release.
     expect(v.every((x) => x.items.length > 0)).toBe(true)
   })
 
+  it('skips a heading that names no version, and what follows it', () => {
+    const v = parseChangelog('# Changelog\n\n## 0.1.0 – 2026-01-08\n\n- First.\n\n## Versions below 0.1.0 truncated ..\n\nolder text\n')
+    expect(v.map((x) => x.version)).toEqual(['0.1.0'])
+    expect(v[0].intro).toEqual([])
+  })
+
   it('leaves stars inside code spans alone', () => {
     expect(inline('`a*b*c` and *d*')).toBe('<code>a*b*c</code> and <em>d</em>')
   })

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.2 – 2026-10-21
+
+- **Every package of the runtimes is locked to a tested version** — the direct requirements, everything they bring
+  in, and ComfyUI's own packages. A fresh install or **Update** gets exactly the set VulKara was tested with, so a new
+  release of any package can no longer reach a runtime unchecked (a fresh ComfyUI runtime would otherwise have got
+  Pillow 13 and huggingface-hub 2). Newer versions come with an app update after they were tested.
+- Pillow stays at 12.3.0 in all three runtimes, so the start crash of the MLX runtime with Pillow 13 (0.5.1_hf_1) can
+  not come back, also not through ComfyUI. At its first start, 0.5.2 brings every installed runtime to this
+  set by itself, in seconds: a runtime that got Pillow 13 or another untested package is repaired, nothing is deleted.
+- 0.5.2 replaces 0.5.1_hf_1: its download had been built from a development state by mistake and held changes that
+  were not released yet. 0.5.2 is 0.5.1 with these fixes only.
+- The Changelog page no longer lists the note at the end of the changelog as a version of its own.
+
 ## 0.5.1_hf_1 – 2026-10-21
 
 - A crash on start with the MLX runtime is fixed: Pillow 13.0.0 broke an import inside mflux (its private
