@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1_hf_1 – 2026-10-21
+
+- A crash on start with the MLX runtime is fixed: Pillow 13.0.0 broke an import inside mflux (its private
+  `PIL._typing` runs `from numbers import _IntegralLike`, a name Python 3.11 does not have), so VulKara now
+  installs Pillow 12.x (`pillow<13`). If the MLX runtime already crashed, mend it with Settings → Runtimes → Update.
+
 ## 0.5.1 – 2026-10-12
 
 - The Hardware page shows a folder in your home folder as `~/…`, also in **Copy info**: your user name stays out

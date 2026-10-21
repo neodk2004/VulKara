@@ -11,7 +11,7 @@ optimum-quanto>=0.2.7
 sentencepiece
 protobuf
 psutil
-pillow
+pillow<13
 numpy
 ninja  # optimum-quanto builds its kernels at first use
 peft>=0.17  # LoRA adapters
