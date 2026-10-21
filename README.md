@@ -14,6 +14,7 @@ Text to image · Image to image · Inpainting · AI Canvas · Image to video · 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
 ![Runs locally](https://img.shields.io/badge/runs-100%25%20local-c2662d)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
+[![Discord](https://img.shields.io/badge/community-Discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/SDnSHZfQY)
 
 <img src="docs/images/banner.jpg" alt="Pictures made with VulKara">
 
@@ -24,7 +25,7 @@ new models, fixes and features — free, local and private for everyone.
 
 <a href="https://buymeacoffee.com/revil.0"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
 
-[Website](https://www.vulkara.net) · [Coming next](#coming-next-your-own-characters) · [Download](https://github.com/revil-O/VulKara/releases/latest) · [User guide](docs/USER_GUIDE.md) · [How the pipelines work](docs/PIPELINES.md) · [Developer guide](docs/DEVELOPMENT.md) · [Measurements](docs/MEASUREMENTS.md) · [Licence](LICENSE)
+[Website](https://www.vulkara.net) · [Discord](https://discord.gg/SDnSHZfQY) · [Coming next](#coming-next-your-own-characters) · [Download](https://github.com/revil-O/VulKara/releases/latest) · [User guide](docs/USER_GUIDE.md) · [How the pipelines work](docs/PIPELINES.md) · [Developer guide](docs/DEVELOPMENT.md) · [Measurements](docs/MEASUREMENTS.md) · [Licence](LICENSE)
 
 The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) · [Español](docs/es/USER_GUIDE.md) · [Português (Brasil)](docs/pt-BR/USER_GUIDE.md) · [Português (Portugal)](docs/pt-PT/USER_GUIDE.md) · [Translate it](docs/TRANSLATING.md)
 

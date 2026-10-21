@@ -17,6 +17,7 @@ const CSS_V = createHash('sha256').update(readFileSync(join(SITE, 'style.css')))
 const BASE = 'https://www.vulkara.net/'
 const GH = 'https://github.com/revil-O/VulKara'
 const BLOB = `${GH}/blob/main`
+const DISCORD = 'https://discord.gg/SDnSHZfQY'
 
 const LANGS = [
   { code: 'en', dir: '', name: 'English', og: 'en_US' },
@@ -125,8 +126,9 @@ const T = {
     links: [
       ['lightbulb', 'User guide', 'every page and setting', `${BLOB}/docs/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'guides and help', `${GH}/wiki`],
+      ['messages-square', 'Discord', 'community and help', DISCORD],
       ['file-clock', 'Changelog', 'what is new?', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'Translate VulKara', 'add your language (if it is missing 🙂)', `${BLOB}/docs/TRANSLATING.md`],
+      ['languages', 'Translate VulKara', 'add your language (if it is missing)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Licence', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'Made in spare time. Kept going by coffee.',
@@ -229,8 +231,9 @@ const T = {
     links: [
       ['lightbulb', 'Benutzerhandbuch', 'jede Seite, jede Einstellung', `${BLOB}/docs/de/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'Anleitungen und Hilfe', `${GH}/wiki`],
+      ['messages-square', 'Discord', 'Community und Hilfe', DISCORD],
       ['file-clock', 'Änderungen', 'was ist neu?', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'VulKara übersetzen', 'deine Sprache hinzufügen (wenn nicht vorhanden 🙂)', `${BLOB}/docs/TRANSLATING.md`],
+      ['languages', 'VulKara übersetzen', 'deine Sprache hinzufügen (wenn nicht vorhanden)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Lizenz', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'In der Freizeit gebaut. Mit Kaffee am Laufen gehalten.',
@@ -333,8 +336,9 @@ const T = {
     links: [
       ['lightbulb', 'Guía de usuario', 'cada página y cada ajuste', `${BLOB}/docs/es/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'guías y ayuda', `${GH}/wiki`],
+      ['messages-square', 'Discord', 'comunidad y ayuda', DISCORD],
       ['file-clock', 'Cambios', '¿qué hay de nuevo?', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'Traduce VulKara', 'añade tu idioma (si aún no está 🙂)', `${BLOB}/docs/TRANSLATING.md`],
+      ['languages', 'Traduce VulKara', 'añade tu idioma (si aún no está)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Licencia', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'Hecha en el tiempo libre. Impulsada por café.',
@@ -437,8 +441,9 @@ const T = {
     links: [
       ['lightbulb', 'Guia do usuário', 'cada página e cada ajuste', `${BLOB}/docs/pt-BR/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'guias e ajuda', `${GH}/wiki`],
+      ['messages-square', 'Discord', 'comunidade e ajuda', DISCORD],
       ['file-clock', 'Novidades', 'o que há de novo?', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'Traduza o VulKara', 'adicione o seu idioma (se ainda não existir 🙂)', `${BLOB}/docs/TRANSLATING.md`],
+      ['languages', 'Traduza o VulKara', 'adicione o seu idioma (se ainda não existir)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Licença', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'Feito no tempo livre. Movido a café.',
@@ -541,8 +546,9 @@ const T = {
     links: [
       ['lightbulb', 'Guia do utilizador', 'cada página e cada definição', `${BLOB}/docs/pt-PT/USER_GUIDE.md`],
       ['scroll-text', 'Wiki', 'guias e ajuda', `${GH}/wiki`],
+      ['messages-square', 'Discord', 'comunidade e ajuda', DISCORD],
       ['file-clock', 'Novidades', 'o que há de novo?', `${BLOB}/CHANGELOG.md`],
-      ['languages', 'Traduzir o VulKara', 'adicione o seu idioma (se ainda não existir 🙂)', `${BLOB}/docs/TRANSLATING.md`],
+      ['languages', 'Traduzir o VulKara', 'adicione o seu idioma (se ainda não existir)', `${BLOB}/docs/TRANSLATING.md`],
       ['scale', 'Licença', 'AGPL-3.0', `${BLOB}/LICENSE`],
     ],
     supportTitle: 'Feito nos tempos livres. Alimentado a café.',
