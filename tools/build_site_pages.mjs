@@ -648,6 +648,7 @@ ${ogAlts}
 ${langItems}
         </ul>
       </details>
+      <a class="community" href="${DISCORD}" rel="noopener" aria-label="Discord">${icon(up, 'messages-square')}<span>Discord</span></a>
       <div class="theme" role="group" aria-label="${t.theme}">
 ${[['system', 'sun-moon'], ['light', 'sun'], ['dark', 'moon']].map(([v, ic], i) => `        <button type="button" data-set-theme="${v}" aria-pressed="${v === 'system'}" aria-label="${t.theme}: ${t.themes[i]}">${icon(up, ic)}</button>`).join('\n')}
       </div>
@@ -860,7 +861,7 @@ ${t.links.map(([ic, h, s, href]) => `          <li>${ext(href, `${icon(up, ic)}<
       <p>${t.foot}</p>
       <p>${t.footPrivate}</p>
       <p>${t.footTm}</p>
-      <p class="legal"><a href="${up}impressum/">${t.legal[0]}</a> · <a href="${up}datenschutz/">${t.legal[1]}</a></p>
+      <p class="legal"><a href="${up}impressum/">${t.legal[0]}</a> · <a href="${up}datenschutz/">${t.legal[1]}</a> · <a href="${DISCORD}" rel="noopener">Discord</a></p>
     </div>
   </footer>
 </body>
