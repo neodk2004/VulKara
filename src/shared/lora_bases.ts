@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The base models LoRAs are made for, as Civitai names them ("baseModel") and as Hugging Face links them
 // (base_model:adapter:<repository>), and which base an installed model needs its LoRAs for.

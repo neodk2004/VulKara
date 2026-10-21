@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Pins of the helper models the engines download on first use (ControlNets, pose and depth detection, the upscaling
 model): the repository's current commit and the SHA-256 of every weight file, written to

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The interface between the pages and the main process (preload: window.vk).
 
@@ -579,10 +579,16 @@ export interface VulkaraApi {
     choose(kind: 'image' | 'folder' | 'model'): Promise<string | undefined>
     saveAs(path: string, suggestedName: string): Promise<boolean>
     reveal(path: string): Promise<void>
+    /** macOS's share menu for a result (Mail, Messages, AirDrop, apps that offer themselves); false: not allowed */
+    share(path: string): Promise<boolean>
+    /** the picture on the clipboard; false for a video or a file the app may not hand out */
+    copyImage(path: string): Promise<boolean>
     /** the path of a file dropped onto the page */
     pathOf(file: File): string
     /** stores a picture the page made (a mask, a drawing) as PNG and returns its path */
     writeImage(dataUrl: string): Promise<string>
+    /** stores a skeleton of the pose editor as PNG (it counts as showing no person) and returns its path */
+    writePose(dataUrl: string): Promise<string>
   }
   app: {
     /** mac: model, chip (where the name does not say it) and memory; os: e.g. "macOS 26.0" */
@@ -590,6 +596,10 @@ export interface VulkaraApi {
     openExternal(url: string): Promise<void>
     logs(): Promise<LogLine[]>
     onLog(fn: (line: LogLine) => void): () => void
+  }
+  remote: {
+    /** whether the remote web UI is serving, the addresses it can be reached at on this Mac, and whether over HTTPS */
+    info(): Promise<{ running: boolean; addresses: string[]; https: boolean }>
   }
   report: {
     /** the kept session logs, newest first */

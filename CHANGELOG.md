@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.6.0 – 2026-10-22
+
+- **Share** and **Copy picture** in the history and the large view: macOS's share menu (Mail, Messages, AirDrop,
+  WhatsApp, Telegram and every app that offers itself there) and the picture on the clipboard, to paste into Signal,
+  Threema or any other app. In the remote web UI they open the phone's own share sheet and clipboard, when the page
+  is loaded over HTTPS.
+- The LoRA page keeps its family chips and the search at the top while the cards scroll under them, as the Models
+  page does.
+- **Remote access: VulKara in a browser on your local network.** Settings → Remote access serves the generating and
+  watching pages — Text, Image, Video, Illusion, Inpaint, Pose, LoRA, History (view, favourite, delete), Favorites,
+  Tips, Changelog — to a phone, tablet or second computer, behind a random access token shown as a link and a QR code
+  (**Renew token** replaces it; the port defaults to 8787, the next free one if it is taken). Only this Mac computes
+  and only the local network is used: a browser cannot change settings, install models or runtimes, or reach any file
+  on the Mac other than the pictures it is shown. The pages are responsive, the status bar wraps to two lines on a
+  narrow screen, and each device keeps its own language. Off by default; the connection is HTTPS with a certificate
+  authority of this Mac's own (its certificate is installed once per device from a link in the settings; plain HTTP
+  can be chosen instead), and macOS may need an incoming-connections allowance (System Settings → Network → Firewall).
+- The sound after a finished queue is labelled *Play a sound when the queue is finished* (it plays once the whole
+  queue is done, not after each job).
+- **New licence: PolyForm Noncommercial License 1.0.0.** From this version on, VulKara may be used, studied, shared
+  and changed for any noncommercial purpose (private use, research, teaching, nonprofit organisations); commercial use
+  is not allowed. Versions up to 0.5.1 were released under the GNU Affero General Public License v3.0 or later and
+  stay under it. Every source file names the new licence (SPDX), and CONTRIBUTING.md says on which terms contributions
+  are taken.
+- **A model brings the settings its maker recommends.** When a model card names them (the Hugging Face README, the
+  Civitai description), the steps, guidance, sampler, sigma schedule and negative prompt of its maker are read while
+  the model is imported and become the model's own defaults. The hint above the sliders names the sampler as well
+  (*Its maker recommends the sampler DPM++ SDE Karras.*), and **Model defaults** sets all of it. A model whose card
+  says nothing keeps the values VulKara holds for its family. For models already installed,
+  `python main.py maker_settings` reads the cards again (`--dry` prints what would change); the look-up by the file's
+  SHA256 only runs when hash look-ups are switched on in Settings.
+- A job that names no sampler runs with the one its model's maker recommends instead of the pipeline's own.
+- **SD 1.5 and SD 2 above 512×512** compute attention in slices: a 768×768 picture needs under 7.5 GB instead of
+  16 GB, so a Mac with 16 GB no longer swaps (4.2 s a step instead of 20 s).
+- Three Pose templates drew a limb where a body can not have one: in *Kneeling upright, hands in hair* a shin ended
+  between the knees (a third lower leg in every picture), in two *Lying on the back* poses the raised knee lay across
+  the other leg. A test now keeps every template free of both.
+- The Pose editor brings the person inside the canvas when a template is applied or the canvas is resized; lying
+  poses had reached out over the edge. Its hand and face rows use icon buttons and shorter names, so the choices stay
+  readable in every language.
+- The job bar keeps a minimum width for the job's name and cuts its text: a long name had shrunk the name to nothing
+  and run over the progress bar and the status.
+- A **Discord** button at the top right of every page opens the VulKara community (questions, ideas, pictures);
+  *About VulKara* links it as well.
+
 ## 0.5.2 – 2026-10-21
 
 - **Every package of the runtimes is locked to a tested version** — the direct requirements, everything they bring

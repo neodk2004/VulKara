@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Photo tools (photo_tools.py) with tiny ONNX models (tests/fixtures/onnx, made by make_onnx_fixtures.py)."""
 import json

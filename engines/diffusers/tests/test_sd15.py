@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """SD 1.x / 2.x on the diffusers engine: detection, LoRA family, .ckpt, memory."""
 import json

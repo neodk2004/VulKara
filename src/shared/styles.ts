@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Styles: a style puts the prompt into a template and adds what the picture should not show. Models without
 // a negative prompt (FLUX) use the template only. The job keeps the prompt as written and the name of the style.

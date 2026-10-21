@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Everything that was generated, newest first. The grid loads page by page while scrolling. Entries are
 // selected like files in the Finder (click, ⌘-click, ⇧-click); the panel on the right always has the same
@@ -6,7 +6,7 @@
 // marked with the heart, in the same way.
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Download, FolderSearch, Heart, ImageOff, Play, Repeat, Search, Trash2, X } from 'lucide-vue-next'
+import { Check, Copy, Download, FolderSearch, Heart, ImageOff, Play, Repeat, Search, Share, Trash2, X } from 'lucide-vue-next'
 import PageFrame from '../components/PageFrame.vue'
 import { useAssetsStore } from '../stores/assets'
 import { useHandoffStore } from '../stores/handoff'
@@ -14,6 +14,7 @@ import { cleanError } from '../stores/runtimes'
 import { pageName } from '../util/format'
 import { formPage } from '../util/job_form'
 import { dateLocale, t, type PlainKey } from '../i18n'
+import { canCopyImage, canShare, copyPicture, sharePicture } from '../share'
 import { styleLabel, jobLabel } from '../util/labels'
 import type { HistoryEntry } from '@shared/types'
 
@@ -229,6 +230,17 @@ function view(e: HistoryEntry): void {
 
 const reveal = (path: string): Promise<void> => window.vk.files.reveal(path)
 const saveAs = (path: string): Promise<boolean> => window.vk.files.saveAs(path, path.split('/').pop() ?? 'picture.png')
+// in the app: macOS's share menu and clipboard; in a browser only where the device offers them (HTTPS)
+const shareable = canShare()
+const copyable = canCopyImage()
+const share = (path: string): Promise<void> => sharePicture(path)
+/** the picture just copied (its button says so for a moment) */
+const copiedFile = ref('')
+async function copyImage(path: string): Promise<void> {
+  if (!(await copyPicture(path))) return
+  copiedFile.value = path
+  setTimeout(() => { if (copiedFile.value === path) copiedFile.value = '' }, 1500)
+}
 </script>
 
 <template>
@@ -273,6 +285,10 @@ const saveAs = (path: string): Promise<boolean> => window.vk.files.saveAs(path, 
             </button>
             <button class="btn small" @click="saveAs(f)"><Download :size="12" /> {{ t('library.saveAs') }}</button>
             <button class="btn small" @click="reveal(f)"><FolderSearch :size="12" /> {{ t('library.showInFinder') }}</button>
+            <button v-if="shareable" class="btn small" @click="share(f)"><Share :size="12" /> {{ t('common.share') }}</button>
+            <button v-if="copyable && selected.kind !== 'video'" class="btn small" @click="copyImage(f)">
+              <component :is="copiedFile === f ? Check : Copy" :size="12" /> {{ copiedFile === f ? t('common.copied') : t('common.copyImage') }}
+            </button>
           </div>
         </template>
         <p class="prompt selectable">{{ selected.job.prompt || t('library.noPrompt') }}</p>

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Update check of the runtimes: which version of a runtime's key package is installed, and whether a newer one is
 // published that the runtime may use. Data-driven: a runtime definition lists its version sources

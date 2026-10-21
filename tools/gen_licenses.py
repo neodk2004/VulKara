@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Generates the data of the Licenses page: src/shared/data/licenses.json, the models the app can download
 (licence, link, commercial use) and the software it contains or installs.

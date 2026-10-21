@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Painting the part of a picture that is to change. The strokes are kept as a list, so undo is exact and the
 // mask can be exported in the picture's own resolution: white where it changes, black elsewhere. A mask made

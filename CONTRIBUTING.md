@@ -1,7 +1,13 @@
 # Contributing to VulKara
 
-Thank you for helping. VulKara is free software under the GNU Affero General Public License v3.0 or later; by
-contributing you agree that your contribution is licensed the same way.
+Thank you for helping. VulKara is released under the [PolyForm Noncommercial License 1.0.0](LICENSE). By
+contributing (code, translations, documents, pictures) you agree that:
+
+- the contribution is your own work, or you have the right to give it under these terms;
+- it is licensed under the PolyForm Noncommercial License 1.0.0, like the rest of VulKara;
+- Oliver Schmidt may also publish it under other licence terms, in later versions of VulKara as well.
+
+Say so in the pull request if you do not agree; the contribution can then not be taken.
 
 ## Before you start
 

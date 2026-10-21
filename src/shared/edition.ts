@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
-// What a build of the app offers. VulKara is published free under the AGPL, so there is one edition with everything;
+// What a build of the app offers. VulKara is published free of charge, so there is one edition with everything;
 // the switches stay so that a restricted build (no ComfyUI, nudity always filtered, only commercially usable models
 // recommended) remains possible without touching the pages.
 

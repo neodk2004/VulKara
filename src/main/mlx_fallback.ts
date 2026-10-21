@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // MLX can not stream a model from the SSD, Diffusers can: a job MLX refuses for the Mac's memory goes on with Diffusers
 // instead of failing (engines.ts). Kept apart from the engine processes so that it can be tested on its own.

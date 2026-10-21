@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Writes THIRD_PARTY_NOTICES.txt: the licence texts of every package that is part of the app (the libraries
 // bundled into its pages and Electron), and a note on what the app downloads later and does not ship.
@@ -43,7 +43,7 @@ function licenceText(dir) {
 const parts = [
   'VulKara – third-party notices',
   '',
-  'VulKara contains the following open-source packages. Their licences are reproduced below.',
+  'VulKara contains the following third-party packages. Their licences are reproduced below.',
   'Electron includes Chromium and Node.js; their notices are in the file LICENSES.chromium.html inside the app.',
   '',
   'Not part of the app: the Python runtimes (PyTorch, diffusers, MLX, ComfyUI and their dependencies) and all',

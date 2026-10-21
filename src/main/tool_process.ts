@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The output of the Python processes, read line by line. A one-off tool of an engine ("main.py detect_pose",
 // "main.py export_single" …) reports on stdout in lines "__tag__ {json}" and ends with its exit code; the

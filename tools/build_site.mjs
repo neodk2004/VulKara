@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The pictures of the landing page (site/, published with GitHub Pages): copies every file the pages reference under
 // assets/ from build/ and docs/ into site/assets/, plus the social preview to site/social_preview.png (the absolute

@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 export default {
+  menu: 'Menu',
   start: 'Start',
   text: 'Text',
   image: 'Image',
@@ -25,5 +26,6 @@ export default {
   licenses: 'Licenses',
   about: 'About',
   runtimeUpdate: '{page}: a runtime update is available',
+  discord: 'Discord: the VulKara community',
   coming: 'This page is not part of this build yet.',
 } as const

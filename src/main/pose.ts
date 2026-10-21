@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Finding the people in a photo: body, hands and face of everyone for the pose editor ("main.py detect_pose"), and
 // the faces Restore will restore ("main.py find_faces"), by the Diffusers engine (the detection models are downloaded

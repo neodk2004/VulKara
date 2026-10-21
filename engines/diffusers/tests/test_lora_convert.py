@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """LoRA files in namings diffusers' readers do not take (lora_convert.py): converted before loading, so that their
 layers land on the model's. Checked with the headers of real LoRAs (tests/fixtures/lora_headers.json.gz, shapes only):

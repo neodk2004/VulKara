@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """LoRAs baked into a new model (merge.py), with a tiny SD 1.5 pipeline of random weights and a tiny LoRA."""
 import json

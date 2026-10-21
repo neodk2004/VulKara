@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Pins of the runtime installs (src/main/runtimes.ts): the SHA-256 of the uv archives (compared with the ones
 published with the release) and the content hashes of the ComfyUI and ComfyUI-GGUF archives.

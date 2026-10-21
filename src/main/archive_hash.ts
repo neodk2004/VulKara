@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Checksums of what the runtime installs download. GitHub builds its source ZIPs on request, so the bytes of a ZIP
 // may change while its files stay the same: unpacked archives are compared by their content instead.

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Which Mac this is, as people know it: "MacBook Pro (13-inch, M2, 2022)" or "Mac mini (2024)", with its chip and
 // memory. Apple silicon Macs carry the marketing name in the device tree; older ones give the model identifier.

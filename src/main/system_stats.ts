@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // What the Mac is doing: the CPU, the memory VulKara and its engines hold, the memory the system uses, and the
 // room the SSD streaming caches take (status bar, Hardware page). Read with the system's own tools (os, ps, vm_stat,

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Imports a model from Hugging Face, a local file or a local diffusers folder.
 
@@ -836,6 +836,8 @@ def import_civitai(ref, name, quant="auto", dry_run=False, force=False, token=No
         else:
             if c["trigger_words"]:
                 source_meta["trigger_words"] = c["trigger_words"]  # shown with the model in the picker
+            import maker_settings
+            source_meta["maker_settings"] = {"settings": maker_settings.parse(c.get("card") or ""), "source": "civitai description"}
             result = run_import("file", local, name, quant=quant, force=force, token=token, root=root,
                                 meta_override=source_meta, companions=companions)
     except registry.UnsupportedModel as e:
@@ -997,6 +999,20 @@ def run_import(source, ref, name, file=None, quant="auto", dry_run=False, force=
             "imported_at": int(time.time()), "imported_on": imported_on(),
         })
         manifest.update(meta_override or {})
+        # the maker's recommended settings (model card, Civitai description) over the guessed defaults
+        import maker_settings
+        given = manifest.pop("maker_settings", None)
+        if given is None and source == "hf":
+            given = {"settings": maker_settings.from_hf(ref, token=token), "source": "hf model card"}
+        elif given is None and manifest.get("sha256"):
+            # a file from disk: its Civitai page, when the user allows the lookup (_civitai_lookup)
+            v = _civitai_lookup(manifest["sha256"])
+            if v and v.get("model_id"):
+                ref_c = "https://civitai.com/models/%s?modelVersionId=%s" % (v["model_id"], v["version_id"])
+                given = {"settings": maker_settings.from_civitai({"ref": ref_c}, os.environ.get("CIVITAI_TOKEN") or None),
+                         "source": "civitai description (found by the file's SHA256)"}
+        if given:
+            maker_settings.apply(manifest, given.get("settings") or {}, given.get("source") or "")
         variant = registry.model_variant(manifest)
         if variant:
             manifest["sub_base"] = variant  # the sub-base its LoRAs must match (FLUX.2 [klein] 4B / 9B / [dev], Wan)

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Recomputes the memory figures of the recommended models (src/shared/data/curated_models.json) with the current
 memory planner: min_ram_gb (Diffusers, in memory), min_ram_gb_mlx (MLX, 4 bit) and min_ram_gb_streamed (Diffusers with

@@ -1,13 +1,15 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { SHOWN as PAGES, type PageEntry } from '../router'
+import { shownPages, type PageEntry } from '../router'
+import { isRemote } from '../remote_vk'
 import { useRuntimesStore } from '../stores/runtimes'
 import { t } from '../i18n'
 
 const runtimes = useRuntimesStore()
 
 // what a page is for, top to bottom: start, make something new, change a picture, tools around it, the collection
+const PAGES = shownPages(isRemote())
 const GROUPS: PageEntry['group'][] = ['start', 'create', 'edit', 'tools', 'library']
 const groups = GROUPS.map((g) => ({ id: g, pages: PAGES.filter((p) => p.group === g) }))
 const appPages = PAGES.filter((p) => p.group === 'app')
@@ -207,5 +209,51 @@ onBeforeUnmount(() => {
   border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 0 0 1.5px var(--surface);
+}
+
+/* phones and narrow tablets: a drawer sliding in from the left (App.vue has the button and the backdrop) */
+@media (max-width: 860px) {
+  .rail {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 35;
+    width: 190px;
+    max-width: 82vw;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: 2px 0 14px rgba(0, 0, 0, 0.28);
+  }
+  .rail.open {
+    transform: translateX(0);
+  }
+  .drag {
+    display: none;
+  }
+  .scroll {
+    padding-top: 10px;
+  }
+  /* always one column in the drawer, even when the app's own logic asked for two */
+  .scroll.two .group {
+    display: flex;
+    flex-direction: column;
+  }
+  /* a wide, tappable row: icon and label side by side */
+  .item {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+  .bottom {
+    flex-direction: row;
+  }
+  .item.compact {
+    width: 34px;
+    padding: 9px 0;
+  }
 }
 </style>

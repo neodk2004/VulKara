@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The landing page's only script: the appearance chosen in the header (like the system, light, dark), kept in this
 // browser's local storage, and the copy button of the Homebrew command. Loaded in <head> so the page never flashes in

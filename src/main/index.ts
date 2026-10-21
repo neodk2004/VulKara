@@ -1,11 +1,12 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // VulKara, main process: one window, the engines and the job queue behind it.
 
 import { app, BrowserWindow, nativeTheme, screen, systemPreferences, session, shell, type Rectangle } from 'electron'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { bindWindow, fileAccess, registerIpc, repairRuntimes, shutdown } from './ipc'
+import { bindWindow, fileAccess, registerIpc, repairRuntimes, sendToRemote, shutdown } from './ipc'
+import { startRemote, stopRemote } from './remote'
 import { logTo } from './log'
 import { PAGE_URL, PRELOAD, RENDERER_DIR } from './pages'
 import { engineEnv, getSettings, onSettingChanged } from './settings'
@@ -113,6 +114,7 @@ if (!app.requestSingleInstanceLock()) {
     registerIpc()
     // runtimes from an earlier version (or broken by an untested package) are brought to this version's tested set
     const repaired = repairRuntimes()
+    startRemote()
     applyTheme()
     onSettingChanged((key) => { if (key === 'theme') applyTheme() })
     applyLanguage()
@@ -135,10 +137,14 @@ if (!app.requestSingleInstanceLock()) {
     // detection; the pages reload the list
     void repaired.then(() => recheckLibrary(engineCommand('diffusers', ['recheck_loras']), engineEnv(), app.getPath('userData'), () => {
       for (const w of BrowserWindow.getAllWindows()) if (!w.isDestroyed()) w.webContents.send('assets:change')
+      sendToRemote('assets:change')
     }))
   })
 
   // jobs belong to the window: closing it ends the app and its engines
   app.on('window-all-closed', () => app.quit())
-  app.on('will-quit', shutdown)
+  app.on('will-quit', () => {
+    void stopRemote()
+    shutdown()
+  })
 }

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Qwen-Image (20B MMDiT) and Qwen-Image 2.1 (7B): detection, GGUF headers, RAM plans, the import of single
 files from a Hugging Face repo and the prompt encoding. No network: the Hub is replaced by fakes."""

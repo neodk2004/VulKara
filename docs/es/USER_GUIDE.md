@@ -109,7 +109,7 @@ lienzo o una pose. Cada página de generación recuerda además sus ajustes tras
 - En el panel de la cola, **Cancelar** detiene la tarea en curso y **Eliminar** saca de la lista una tarea en espera o
   terminada. **Quitar terminadas** vacía la lista de tareas terminadas.
 - Cuando termina la última tarea en espera, el Mac reproduce un sonido corto. Puedes desactivarlo en Ajustes →
-  Contenido → *Sonido al terminar una tarea*.
+  Contenido → *Reproducir un sonido cuando la cola esté terminada*.
 - Ninguna tarea empieza mientras se entrena una LoRA.
 
 ## 3. Texto a imagen
@@ -163,6 +163,11 @@ los ajustes, para poder comparar modelos con los mismos:
 - **Pasos, guidance, seed y tamaño** se quedan como están. Si difieren de lo que sugiere el modelo nuevo, aparece una
   **!** naranja sobre los controles deslizantes junto a **Valores del modelo**: el puntero sobre ella muestra la
   sugerencia (*Este modelo sugiere 4 pasos y guidance 0, 1024×1024*), y el botón la aplica.
+- **De dónde viene la sugerencia**: si la ficha del modelo los nombra, los pasos, la guidance, el sampler, el
+  recorrido de sigmas y el prompt negativo de su creador se leen al importarlo y pasan a ser los valores propios del
+  modelo; el aviso nombra entonces también el sampler (*Su creador recomienda el sampler DPM++ SDE Karras.*), y
+  **Valores del modelo** lo aplica con el resto. Un modelo cuya ficha no dice nada conserva los valores que VulKara
+  tiene para su familia.
 - **Los valores para los que el modelo no está hecho** reciben una **!** naranja junto a *Pasos* o *Guidance*, con un
   botón que aplica el valor propio del modelo: más del doble de los pasos para los que está hecho un modelo destilado
   (*Hecho para 4 pasos: más pasos tardan más sin dar una imagen mejor.*), guidance en un modelo que no tiene
@@ -810,13 +815,17 @@ Todas las tareas terminadas, de la más reciente a la más antigua, con todos su
 - **Abrir**: doble clic, ↩ o Espacio abre la vista grande.
 - **⌫** traslada las entradas seleccionadas **a la Papelera**, con sus archivos, tras una confirmación.
 
-El panel de una entrada muestra la imagen con **Guardar como** y **Mostrar en el Finder**, el prompt y todos los
-ajustes. Tiene tres botones:
+El panel de una entrada muestra la imagen con **Guardar como**, **Mostrar en el Finder**, **Compartir** y **Copiar
+imagen**, el prompt y todos los ajustes. Tiene tres botones:
 
 - **Usar estos ajustes** devuelve el prompt, el modelo, el estilo, el tamaño, la seed, las LoRAs y todos los demás
   ajustes a la página de la que vino la tarea. El modelo se vuelve a encontrar aunque su carpeta se haya movido.
 - **Quitar entrada** saca la entrada del historial; los archivos se quedan.
 - **Trasladar a la Papelera** quita la entrada y traslada sus archivos a la Papelera de macOS.
+
+**Compartir** abre el menú de compartir de macOS: Mail, Mensajes, AirDrop y cada app que se ofrece ahí, como WhatsApp
+o Telegram. **Copiar imagen** pone la imagen en el portapapeles para pegarla en cualquier app, también en Signal o
+Threema.
 
 El historial se guarda en su propia carpeta, que puede cambiarse en Ajustes.
 
@@ -868,7 +877,8 @@ lugar de en un espacio de pantalla completa propio sin barra de título), así q
 - La **×** de la esquina superior derecha, o **Esc**, cierra la ventana; tiene su propio botón de cierre porque una
   ventana sobre una app en pantalla completa no tiene barra de título.
 - El panel lateral muestra el prompt, el modelo, el tamaño, los pasos, la seed y el estilo.
-- **Guardar como**, **Mostrar en el Finder**.
+- **Guardar como**, **Mostrar en el Finder**, **Compartir** (el menú de compartir de macOS) y **Copiar imagen** (al
+  portapapeles).
 - **Usar estos ajustes**: devuelve el prompt, los ajustes y la seed al formulario.
 - **Imagen a imagen**, **Inpainting**, **Imagen a vídeo** y **Ampliar** envían la imagen a esa página de la ventana
   principal.
@@ -964,7 +974,52 @@ Los números usan el separador decimal del idioma; con *Sistema*, las fechas sig
 - **Permitir desnudos en los resultados**: desactivado por defecto. Desactivado, los resultados que muestran desnudos
   no se muestran, y las LoRAs y las imágenes de vista previa para adultos se omiten de las listas. Con independencia de
   este interruptor, el contenido sexual con menores se rechaza siempre. Consulta [Normas de contenido](#21-normas-de-contenido).
-- **Sonido al terminar una tarea**: activado por defecto.
+- **Reproducir un sonido cuando la cola esté terminada**: activado por defecto. Suena cuando toda la cola ha
+  terminado, no después de cada tarea.
+
+### Acceso remoto
+
+![Ajustes → Acceso remoto](../screenshots/es/settings_remote.jpg)
+
+Abre VulKara en un navegador de otro dispositivo de tu red doméstica o conectado por VPN —un móvil, una tableta, otro
+ordenador— para ver el estado actual de tus imágenes, introducir e iniciar nuevas ideas cuando estás fuera o ver y
+descargar imágenes terminadas en el historial. Solo este Mac hace el cálculo; nada sale a internet.
+
+- **Permitir acceso remoto**: desactivado por defecto. Activado, el Mac sirve las páginas y la línea de debajo indica
+  *Activo*.
+- **Puerto**: 8787 por defecto. Si está ocupado, se usa el siguiente libre; la dirección muestra el puerto que
+  realmente obtuvo.
+- **Cifrado (HTTPS)**: activado por defecto. VulKara crea una pequeña autoridad de certificación propia de este Mac y
+  con ella el certificado con el que funciona la interfaz web; los enlaces empiezan entonces por https://. Necesario
+  para **Compartir** y **Copiar imagen** en el navegador, y el token ya no cruza la red sin cifrar. Desactivado: HTTP
+  sin cifrar.
+- **Accesible en**: un enlace por cada red en la que está el Mac, con el token de acceso ya incluido. Ábrelo en el
+  otro dispositivo; el token se guarda ahí, así que se introduce una sola vez. El icono de copiar a la derecha de un
+  enlace lo copia (*Copiar enlace* mientras el puntero está encima), y el **código QR** abre el mismo enlace al
+  escanearlo con la cámara de un móvil o una tableta.
+- **Certificado para tus dispositivos**: abre este enlace una vez en cada dispositivo e instala el certificado; a
+  partir de entonces el navegador abre la interfaz web sin aviso. En un iPhone o iPad actívalo después en Ajustes →
+  General → Información → Ajustes de confianza de certificados; en Android instálalo en Ajustes → Seguridad → Cifrado
+  y credenciales → Instalar un certificado → Certificado de CA. Hasta entonces el navegador avisa una vez de que la
+  página no es de confianza. Si el Mac recibe otra dirección, VulKara crea un certificado nuevo de la misma
+  autoridad, así que no hay que instalar nada de nuevo. El certificado solo vale para direcciones de tu red local,
+  nunca para otros sitios web.
+- **Token de acceso**: una clave aleatoria creada la primera vez que se activa el acceso remoto. **Renovar token**
+  crea una nueva al instante: los enlaces antiguos dejan de funcionar y los demás dispositivos necesitan el nuevo
+  enlace.
+
+Un navegador muestra solo las páginas para generar y observar: Texto, Imagen, Vídeo, Ilusión, Inpainting, Pose, LoRA,
+Historial (ver, marcar como favorito, eliminar), Favoritos, Consejos, Cambios. Las páginas que pertenecen al Mac se
+quedan ahí (Ajustes, Modelos, Entrenamiento, Mejorar, Ampliar, Restaurar, Lienzo, Hardware, Registros, Licencias,
+Acerca de): un navegador no puede cambiar ajustes, instalar modelos ni runtimes, ni acceder a ningún archivo del Mac
+aparte de las imágenes que se le muestran. Cada dispositivo conserva su propio idioma, elegido en el navegador; el
+idioma del Mac no se toca. En el navegador, **Compartir** abre el menú de compartir del móvil (WhatsApp, Signal,
+Telegram, Threema, Mail …) y **Copiar imagen** también está disponible, ambos solo por HTTPS; con HTTPS desactivado
+los botones no se muestran.
+
+Con HTTPS desactivado la conexión es HTTP sin cifrar; úsala entonces solo en una red de confianza. Si la URL no se
+puede abrir en el dispositivo remoto, permite conexiones entrantes para VulKara en macOS (Ajustes del Sistema → Red →
+Cortafuegos).
 
 ### Privacidad
 

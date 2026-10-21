@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // LoRAs: an overview of all of them (trigger words, category, what they were trained with, renaming) and a
 // comparison of strengths: the same prompt and seed, one picture per strength and LoRA.
@@ -495,11 +495,18 @@ onActivated(refresh)
 </template>
 
 <style scoped>
+/* the family chips and the search stay at the top while the cards scroll under them, as on the Models page (-24px:
+   the work area's own padding, so that nothing shows above the bar) */
 .filters {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  position: sticky;
+  top: -24px;
+  z-index: 5;
+  margin: -10px 0 4px;
+  padding: 10px 0;
+  background: var(--bg);
 }
 
 .chips,
@@ -509,19 +516,6 @@ onActivated(refresh)
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
-}
-
-.chip {
-  padding: 3px 10px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
-  font-size: 12px;
-}
-
-.chip.on {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .search input {
@@ -612,38 +606,14 @@ onActivated(refresh)
   padding: 12px 12px 10px 14px;
 }
 
-.prompt textarea {
-  width: 100%;
-  resize: vertical;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: inherit;
-  font: 14px/1.5 var(--font);
-  user-select: text;
-}
-
-.send {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .fields {
   display: grid;
   gap: 16px;
 }
 
-.field {
-  display: grid;
-  gap: 6px;
-}
-
 .field > span {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
 }
 
 .field b {
@@ -670,16 +640,7 @@ onActivated(refresh)
 input[type='text'],
 input[type='number'],
 select {
-  height: 30px;
-  min-width: 0;
   width: 100%;
-  padding: 0 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
-  user-select: text;
 }
 
 .add {

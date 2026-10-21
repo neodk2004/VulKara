@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // User settings of the main process and the engines, stored as JSON in the app data folder.
 
@@ -46,6 +46,10 @@ const VALID: { [K in keyof Settings]: (v: unknown) => boolean } = {
   firstPictureMade: (v) => typeof v === 'boolean',
   hashLookups: (v) => typeof v === 'boolean',
   updateChecks: (v) => typeof v === 'boolean',
+  remoteAccess: (v) => typeof v === 'boolean',
+  remotePort: (v) => typeof v === 'number' && Number.isInteger(v) && v >= 1024 && v <= 65535,
+  remoteToken: (v) => typeof v === 'string' && v.length <= 128,
+  remoteHttps: (v) => typeof v === 'boolean',
 }
 
 type Listener = (key: keyof Settings) => void
@@ -96,8 +100,10 @@ export const lorasDir = (): string => getSettings().lorasDir || join(homedir(), 
 export const helpersDir = (): string => getSettings().helpersDir || join(homedir(), 'VulKara')
 export const runtimesDir = (): string => getSettings().runtimesDir || join(dataDir(), 'runtimes')
 
-/** What a page may set itself: everything but a folder, which it can only return to the default. */
+/** What a page may set itself: everything but a folder, which it can only return to the default, and the remote
+ *  token, which it can only clear (remote.ts then makes a new one: a token never comes from a page). */
 export function settableByPage(key: string, value: unknown): boolean {
+  if (key === 'remoteToken') return value === ''
   return !(FOLDER_KEYS as readonly string[]).includes(key) || value === ''
 }
 

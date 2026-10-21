@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Photo tools: small models that sharpen, denoise, enlarge, clean or cut out a photo (engines/diffusers/photo_tools.py):
 // PyTorch weights on the GPU (spandrel) or ONNX files on the CPU. The recommended ones are listed in

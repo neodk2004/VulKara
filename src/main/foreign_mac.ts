@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Models whose folders were copied from another Mac. What an import decides depends on the Mac it runs on (the memory
 // plan, FP8 stored as GGUF, the quantization caches), so a model runs only on the Mac it was imported on; one copied

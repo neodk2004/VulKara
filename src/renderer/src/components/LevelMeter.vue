@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // A level meter of separate segments, like a hardware monitor's: value in percent, lit from the left.
 withDefaults(defineProps<{ value: number; segments?: number; height?: number; width?: number; gap?: number }>(), { segments: 20, height: 10, width: 2, gap: 1 })

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 import { describe, expect, it } from 'vitest'
 import { aiLabelOf, applyDefaults, applyJob, applyModel, buildJob, emptyForm, formPage, formProblem, lorasFor, modelsFor } from './job_form'
@@ -95,6 +95,22 @@ describe('generate form', () => {
     applyModel(form, FLUX, LORAS, SDXL)
     applyDefaults(form, FLUX)
     expect(form).toMatchObject({ steps: 4, guidance: 0, width: 1024, height: 1024 })
+  })
+
+  it("takes the maker's sampler, schedule and negative prompt as the model's defaults", () => {
+    const MAKER = model('rv', { defaults: { num_steps: 5, guidance_scale: 1.5, width: 1024, height: 1024, sampler: 'DPM++ SDE', sigma_schedule: 'Karras', negative_prompt: 'cartoon' } })
+    const form = { ...emptyForm('text') }
+    applyModel(form, MAKER, LORAS)
+    expect(form).toMatchObject({ steps: 5, guidance: 1.5, sampler: 'DPM++ SDE', sigmaSchedule: 'Karras', negativePrompt: 'cartoon' })
+    Object.assign(form, { sampler: 'Euler', sigmaSchedule: 'Default', negativePrompt: '' })
+    applyDefaults(form, SDXL)
+    expect(form).toMatchObject({ sampler: 'Default', sigmaSchedule: 'Default', negativePrompt: '' })
+    applyDefaults(form, MAKER)
+    expect(form).toMatchObject({ sampler: 'DPM++ SDE', sigmaSchedule: 'Karras', negativePrompt: 'cartoon' })
+    // a sampler the model can not take is no default
+    const odd = model('odd', { defaults: { num_steps: 4, guidance_scale: 1, sampler: 'Euler a', sigma_schedule: 'Karras' }, family: 'flux1' })
+    applyDefaults(form, odd)
+    expect(form).toMatchObject({ sampler: 'Default', sigmaSchedule: 'Default' })
   })
 
   it('builds a job', () => {

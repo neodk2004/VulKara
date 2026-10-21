@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The environment of the Python processes (engines, importer, content filter, training, runtime installs).
 // It is the app's own environment without what could change which Python code runs or where downloads come

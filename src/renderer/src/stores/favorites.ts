@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The pictures marked as favourites, as the lists of recent results see them. The marks themselves are kept with
 // the history in the main process; this is a copy that follows every change of the history.

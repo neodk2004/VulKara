@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Runtimes: every engine gets its own Python environment in <app data>/runtimes/<id>/, created with uv (which
 // also downloads a matching Python). The app ships only the engine scripts; models are never part of the app.

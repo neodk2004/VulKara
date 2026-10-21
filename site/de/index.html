@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>VulKara – lokaler KI-Bildgenerator für deinen Mac</title>
-  <meta name="description" content="Kostenlose Open-Source-App für KI-Bilder auf Macs mit Apple-Chip: Text zu Bild, Inpainting, KI-Leinwand, Video, Fotos restaurieren und LoRA-Training. Alles läuft auf deinem Mac.">
+  <meta name="description" content="Kostenlose App mit offenem Quellcode für KI-Bilder auf Macs mit Apple-Chip: Text zu Bild, Inpainting, KI-Leinwand, Video, Fotos restaurieren und LoRA-Training. Alles läuft auf deinem Mac.">
   <link rel="canonical" href="https://www.vulkara.net/de/">
   <link rel="alternate" hreflang="en" href="https://www.vulkara.net/">
   <link rel="alternate" hreflang="de" href="https://www.vulkara.net/de/">
@@ -19,12 +19,12 @@
   <meta name="theme-color" content="#0e1014" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/icon.png">
-  <link rel="stylesheet" href="../style.css?v=7f619c5a0f">
-  <script src="../theme.js?v=f6f9ebd191"></script>
+  <link rel="stylesheet" href="../style.css?v=007c60bcec">
+  <script src="../theme.js?v=a1e4c4c746"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VulKara">
   <meta property="og:title" content="VulKara – lokaler KI-Bildgenerator für deinen Mac">
-  <meta property="og:description" content="Kostenlose Open-Source-App für KI-Bilder auf Macs mit Apple-Chip: Text zu Bild, Inpainting, KI-Leinwand, Video, Fotos restaurieren und LoRA-Training. Alles läuft auf deinem Mac.">
+  <meta property="og:description" content="Kostenlose App mit offenem Quellcode für KI-Bilder auf Macs mit Apple-Chip: Text zu Bild, Inpainting, KI-Leinwand, Video, Fotos restaurieren und LoRA-Training. Alles läuft auf deinem Mac.">
   <meta property="og:url" content="https://www.vulkara.net/de/">
   <meta property="og:image" content="https://www.vulkara.net/social_preview.png">
   <meta property="og:image:width" content="1280">
@@ -37,7 +37,7 @@
   <meta property="og:locale:alternate" content="pt_PT">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="VulKara – lokaler KI-Bildgenerator für deinen Mac">
-  <meta name="twitter:description" content="Kostenlose Open-Source-App für KI-Bilder auf Macs mit Apple-Chip: Text zu Bild, Inpainting, KI-Leinwand, Video, Fotos restaurieren und LoRA-Training. Alles läuft auf deinem Mac.">
+  <meta name="twitter:description" content="Kostenlose App mit offenem Quellcode für KI-Bilder auf Macs mit Apple-Chip: Text zu Bild, Inpainting, KI-Leinwand, Video, Fotos restaurieren und LoRA-Training. Alles läuft auf deinem Mac.">
   <meta name="twitter:image" content="https://www.vulkara.net/social_preview.png">
   <meta name="twitter:image:alt" content="VulKara, dein lokaler KI-Bildgenerator mit hohem Datenschutz">
 </head>
@@ -78,7 +78,7 @@
     <div class="hero">
       <div class="wrap">
         <img class="appicon" src="../assets/icon.svg" width="128" height="128" alt="">
-        <p class="kicker">Kostenlos · Open Source · für Macs mit Apple-Chip</p>
+        <p class="kicker">Kostenlos · Quellcode offen · für Macs mit Apple-Chip</p>
         <h1>VulKara</h1>
         <p class="tagline">Dein lokaler KI-Bildgenerator mit hohem Datenschutz</p>
         <p class="lead">Mach aus Ideen Bilder, aus Skizzen Szenen und aus alten Fotos wieder Lieblingsstücke – direkt auf deinem Mac. Keine Cloud, keine Credits, kein Abo.</p>
@@ -340,9 +340,15 @@
             <p>Bilder, Videos, Restaurierungen und Training laufen auf der Apple-GPU. Deine Prompts und Bilder verlassen den Mac nie – das Internet dient nur zum Herunterladen von Runtimes, Modellen und LoRA-Beschreibungen. Trenne deinen Mac vom Netzwerk und probier es aus – es funktioniert auch komplett offline (wenn alle abhängigen Software-Pakete vorher geladen wurden!)</p>
           </article>
           <article class="card">
+            <div class="tile"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="10" height="14" x="3" y="8" rx="2"/><path d="M5 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-2.4"/><path d="M8 18h.01"/></svg></div>
+            <h3>Vom Handy aus, im eigenen Netz</h3>
+            <p>Öffne VulKara im Browser auf Handy, Tablet oder einem anderen Rechner, im Heimnetzwerk oder via VPN-Verbindung. Sieh den aktuellen Bildstatus, gib neue Ideen schon unterwegs ein und starte sie, und sieh dir fertige Bilder im Verlauf an, lade sie herunter oder teile sie. Gerechnet wird nur auf deinem Mac. Der Zugang ist mit einem Zugangstoken gesichert und über HTTPS verschlüsselt, um auch hier Privatsphäre zu garantieren.</p>
+            <p class="fine">Einmal einschalten, den QR-Code scannen, fertig. Nichts geht dabei ins Internet.</p>
+          </article>
+          <article class="card">
             <div class="tile"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg></div>
             <h3>Kostenlos, ohne Haken</h3>
-            <p>Kein Konto, kein Abo, keine Credits. Open Source unter der AGPL-3.0: Lies den Code, änder ihn, gib ihn weiter.</p>
+            <p>Kein Konto, kein Abo, keine Credits. Der Quellcode ist offen: Lies ihn, änder ihn, gib ihn weiter, für jede nicht kommerzielle Nutzung.</p>
             <p class="fine">Manche Modelle verlangen vor dem Download einen kostenlosen Token von Hugging Face oder Civitai.</p>
           </article>
           <article class="card">
@@ -450,7 +456,7 @@
           <li><a href="https://discord.gg/SDnSHZfQY" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 10a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 14.286V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M20 9a2 2 0 0 1 2 2v10.286a.71.71 0 0 1-1.212.502l-2.202-2.202A2 2 0 0 0 17.172 19H10a2 2 0 0 1-2-2v-1"/></svg><span>Discord<small>Community und Hilfe</small></span></a></li>
           <li><a href="https://github.com/revil-O/VulKara/blob/main/CHANGELOG.md" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 22h2a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v2.85"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M8 14v2.2l1.6 1"/><circle cx="8" cy="16" r="6"/></svg><span>Änderungen<small>was ist neu?</small></span></a></li>
           <li><a href="https://github.com/revil-O/VulKara/blob/main/docs/TRANSLATING.md" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg><span>VulKara übersetzen<small>deine Sprache hinzufügen (wenn nicht vorhanden)</small></span></a></li>
-          <li><a href="https://github.com/revil-O/VulKara/blob/main/LICENSE" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg><span>Lizenz<small>AGPL-3.0</small></span></a></li>
+          <li><a href="https://github.com/revil-O/VulKara/blob/main/LICENSE" rel="noopener"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg><span>Lizenz<small>PolyForm Noncommercial 1.0.0</small></span></a></li>
         </ul>
         <div class="support">
           <h2>In der Freizeit gebaut. Mit Kaffee am Laufen gehalten.</h2>
@@ -464,7 +470,7 @@
   <footer>
     <div class="wrap">
       <p class="ai">Die mit VulKara erstellten Bilder auf dieser Seite tragen das EU-Symbol AI GENERATED.</p>
-      <p>© 2026 Oliver Schmidt<br>VulKara ist freie Software unter der AGPL-3.0. Diese Seite setzt keine Cookies und lädt nichts von anderen Servern.</p>
+      <p>© 2026 Oliver Schmidt<br>VulKara ist für nicht kommerzielle Nutzung frei, unter der PolyForm Noncommercial License 1.0.0. Diese Seite setzt keine Cookies und lädt nichts von anderen Servern.</p>
       <p>VulKara ist ein rein privates Projekt und mit keiner außenstehenden Firma verbunden oder assoziiert.</p>
       <p>Apple, Mac und macOS sind Marken der Apple Inc. VulKara steht in keiner Verbindung zu Apple.</p>
       <p class="legal"><a href="../impressum/">Impressum</a> · <a href="../datenschutz/">Datenschutz</a> · <a href="https://discord.gg/SDnSHZfQY" rel="noopener">Discord</a></p>

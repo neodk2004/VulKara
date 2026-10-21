@@ -1,15 +1,16 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
-import { onActivated, reactive, ref } from 'vue'
-import { ArrowUpCircle, Download, FolderOpen, Info, Monitor, Moon, RefreshCw, Sun, Trash2 } from 'lucide-vue-next'
+import { computed, onActivated, reactive, ref } from 'vue'
+import { ArrowUpCircle, Check, Copy, Download, FolderOpen, Info, Monitor, Moon, RefreshCw, Sun, Trash2 } from 'lucide-vue-next'
 import PageFrame from '../components/PageFrame.vue'
 import LanguageSelect from '../components/LanguageSelect.vue'
 import { useRuntimesStore } from '../stores/runtimes'
 import { useSettingsStore } from '../stores/settings'
 import { useQueueStore } from '../stores/queue'
 import type { RuntimeInfo } from '@shared/api'
-import type { FolderKey } from '@shared/settings'
+import type { FolderKey, Settings } from '@shared/settings'
 import { EDITION } from '@shared/edition'
+import { qrSvg } from '../qr'
 import { dateTime, dec, t, type PlainKey } from '../i18n'
 
 const runtimes = useRuntimesStore()
@@ -25,10 +26,49 @@ const tokenInput = reactive<Record<Service, string>>({ huggingface: '', civitai:
 const tokenStored = reactive<Record<Service, boolean>>({ huggingface: false, civitai: false })
 const about = ref<RuntimeInfo>()
 
+const remote = ref<{ running: boolean; addresses: string[]; https: boolean }>({ running: false, addresses: [], https: false })
+/** the address whose link was just copied (its icon shows a tick for a moment) */
+const copied = ref('')
+
 async function refresh(): Promise<void> {
   await Promise.all([runtimes.refresh(), settings.load()])
   for (const s of SERVICES) tokenStored[s.id] = await window.vk.tokens.has(s.id)
+  remote.value = await window.vk.remote.info()
 }
+
+/** the address a device opens: one on the network, with the token in it */
+const remoteLink = (address: string): string => address + '?t=' + encodeURIComponent(settings.values.remoteToken)
+
+/** a scannable QR of the first link, so a phone or tablet can open the web UI without typing it */
+const remoteQr = computed(() => {
+  const a = remote.value.addresses[0]
+  return a ? qrSvg(remoteLink(a)) : null
+})
+
+async function setRemote<K extends 'remoteAccess' | 'remotePort' | 'remoteHttps'>(key: K, value: Settings[K]): Promise<void> {
+  await settings.set(key, value)
+  remote.value = await window.vk.remote.info()
+}
+
+async function renewToken(): Promise<void> {
+  if (!confirm(t('settings.remote.renewHint'))) return
+  await settings.set('remoteToken', '')
+  remote.value = await window.vk.remote.info()
+}
+
+/** text on the clipboard; key: which copy icon shows the tick for a moment */
+async function copyText(key: string, text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text)
+    copied.value = key
+    setTimeout(() => { copied.value = '' }, 1500)
+  } catch {
+    // no clipboard permission: the field is there to copy by hand
+  }
+}
+const copyLink = (address: string): Promise<void> => copyText(address, remoteLink(address))
+/** where a device installs the Mac's certificate authority (served by the web UI itself) */
+const certLink = computed(() => (remote.value.https && remote.value.addresses[0] ? remote.value.addresses[0] + 'vulkara-ca.crt' : ''))
 onActivated(refresh)
 
 async function saveToken(service: Service, value: string): Promise<void> {
@@ -268,6 +308,81 @@ const THEMES: { id: 'system' | 'light' | 'dark'; title: PlainKey; icon: typeof M
       </section>
 
       <section>
+        <h2>{{ t('settings.remote.title') }}</h2>
+        <p class="dim">{{ t('settings.remote.intro') }}</p>
+        <div class="card list">
+          <label class="row">
+            <div class="grow">
+              <strong>{{ t('settings.remote.enable') }}</strong>
+              <p class="dim">{{ remote.running ? t('settings.remote.running') : t('settings.remote.offline') }}</p>
+            </div>
+            <input type="checkbox" :checked="settings.values.remoteAccess" @change="setRemote('remoteAccess', ($event.target as HTMLInputElement).checked)" />
+          </label>
+          <template v-if="settings.values.remoteAccess">
+            <div class="row">
+              <div class="grow"><strong>{{ t('settings.remote.port') }}</strong></div>
+              <input
+                class="port" type="number" min="1024" max="65535" :value="settings.values.remotePort"
+                @change="setRemote('remotePort', Number(($event.target as HTMLInputElement).value))"
+              />
+            </div>
+            <label class="row">
+              <div class="grow">
+                <strong>{{ t('settings.remote.https') }}</strong>
+                <p class="dim">{{ t('settings.remote.httpsHint') }}</p>
+              </div>
+              <input type="checkbox" :checked="settings.values.remoteHttps" @change="setRemote('remoteHttps', ($event.target as HTMLInputElement).checked)" />
+            </label>
+            <div class="row">
+              <div class="grow">
+                <strong>{{ t('settings.remote.reach') }}</strong>
+                <p v-for="a in remote.addresses" :key="a" class="link-line">
+                  <span class="dim selectable link">{{ remoteLink(a) }}</span>
+                  <!-- the label is a panel of its own: the system tooltip (title) does not show reliably in the app -->
+                  <span class="icon-tip">
+                    <button class="btn small icon" :aria-label="t('settings.remote.copyLink')" @click="copyLink(a)">
+                      <Check v-if="copied === a" :size="13" /><Copy v-else :size="13" />
+                    </button>
+                    <span class="tip" role="tooltip">{{ copied === a ? t('settings.remote.copied') : t('settings.remote.copyLink') }}</span>
+                  </span>
+                </p>
+                <p v-if="!remote.addresses.length" class="dim">—</p>
+                <p class="dim">{{ t('settings.remote.reachHint') }}</p>
+                <p class="dim">{{ t('settings.remote.firewall') }}</p>
+              </div>
+            </div>
+            <div v-if="remoteQr" class="row qr">
+              <!-- eslint-disable-next-line vue/no-v-html -- our own QR, no user input -->
+              <div class="qr-box" v-html="remoteQr"></div>
+              <p class="dim grow">{{ t('settings.remote.scan') }}</p>
+            </div>
+            <div v-if="certLink" class="row">
+              <div class="grow">
+                <strong>{{ t('settings.remote.certificate') }}</strong>
+                <p class="link-line">
+                  <span class="dim selectable link">{{ certLink }}</span>
+                  <span class="icon-tip">
+                    <button class="btn small icon" :aria-label="t('settings.remote.copyLink')" @click="copyText('ca', certLink)">
+                      <Check v-if="copied === 'ca'" :size="13" /><Copy v-else :size="13" />
+                    </button>
+                    <span class="tip" role="tooltip">{{ copied === 'ca' ? t('settings.remote.copied') : t('settings.remote.copyLink') }}</span>
+                  </span>
+                </p>
+                <p class="dim">{{ t('settings.remote.certificateHint') }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="grow">
+                <strong>{{ t('settings.remote.token') }}</strong>
+                <p class="dim selectable">{{ settings.values.remoteToken }}</p>
+              </div>
+              <button class="btn" @click="renewToken"><RefreshCw :size="14" /> {{ t('settings.remote.renew') }}</button>
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <section>
         <h2>{{ t('settings.privacy.title') }}</h2>
         <p class="dim">{{ t('settings.privacy.intro') }}</p>
         <div class="card list">
@@ -395,18 +510,6 @@ section {
   max-width: 320px;
 }
 
-select,
-input[type='number'],
-input[type='password'] {
-  height: 30px;
-  padding: 0 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
-}
-
 input[type='number'] {
   width: 72px;
 }
@@ -430,5 +533,81 @@ input[type='checkbox'] {
   align-items: center;
   gap: 5px;
   height: 26px;
+}
+
+.port {
+  width: 92px;
+}
+
+.link {
+  overflow-wrap: anywhere;
+}
+
+/* a link on the left, its copy icon on the right edge like the other controls of the card */
+.link-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+}
+
+.link-line .link {
+  min-width: 0;  /* a long link wraps instead of pushing the icon out */
+}
+
+/* an empty line between the links and the hints below them */
+.link-line + p:not(.link-line) {
+  margin-top: 1.45em;
+}
+
+.btn.icon {
+  width: 24px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* the icon's label: a small panel below it while the pointer is on it (or it has the focus) */
+.icon-tip {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.tip {
+  display: none;
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.icon-tip:hover .tip,
+.icon-tip:focus-within .tip {
+  display: block;
+}
+
+.row.qr {
+  align-items: center;
+}
+.qr-box {
+  width: 132px;
+  flex: none;
+  padding: 8px;
+  background: #fff;
+  border-radius: 8px;
+}
+.qr-box :deep(svg) {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 </style>

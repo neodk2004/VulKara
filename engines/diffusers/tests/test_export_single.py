@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """A model in diffusers' layout written as one original-layout checkpoint (export_single.py): the key maps of the UNet,
 the VAE and SDXL's second text encoder, and the refusal of models that can not be exported."""

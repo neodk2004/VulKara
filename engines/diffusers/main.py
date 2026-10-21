@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Entry point of the diffusers engine process.
 
@@ -12,6 +12,7 @@
     python main.py previews [<folder> …] preview pictures of imported models / LoRAs from their sources
     python main.py content_check [<file> …]  content filter and AI marking of results (spawned by bridge.js)
     python main.py recheck_loras [--apply]   installed LoRAs / models checked again with the current detection
+    python main.py maker_settings [--dry] <model folder> …  the maker's recommended settings read again from the model card
 """
 import json
 import os
@@ -101,6 +102,9 @@ if __name__ == "__main__":
     elif len(sys.argv) > 1 and sys.argv[1] == "photo_select":
         import photo_tools
         photo_tools.segment_serve()
+    elif len(sys.argv) > 1 and sys.argv[1] == "maker_settings":
+        import maker_settings
+        sys.exit(maker_settings.main(sys.argv[2:]))
     elif len(sys.argv) > 1 and sys.argv[1] == "content_check":
         import content_check
         sys.exit(content_check.main(sys.argv[2:]))

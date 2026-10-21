@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 import type { LangSetting } from './i18n'
 
@@ -57,6 +57,15 @@ export interface Settings {
   hashLookups: boolean
   /** the runtimes' newer versions are looked up once a day (public PyPI and GitHub lists) */
   updateChecks: boolean
+  /** serve the app to a browser on the local network (Generate + monitor), behind a token */
+  remoteAccess: boolean
+  /** the port the remote web UI listens on */
+  remotePort: number
+  /** the access token for the remote web UI; '' until it is switched on (then generated) */
+  remoteToken: string
+  /** the remote web UI over HTTPS, with a certificate of this Mac's own (phones offer sharing and the clipboard only on
+   *  secure pages, and the token does not cross the network in the clear) */
+  remoteHttps: boolean
 }
 
 /** The folder settings. A page can only reset them to the default; a folder is chosen in the main process's dialog. */
@@ -85,4 +94,8 @@ export const DEFAULT_SETTINGS: Settings = {
   firstPictureMade: false,
   hashLookups: false,
   updateChecks: true,
+  remoteAccess: false,
+  remotePort: 8787,
+  remoteToken: '',
+  remoteHttps: true,
 }

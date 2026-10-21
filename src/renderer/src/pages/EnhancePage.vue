@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Photo tools: sharpen, denoise, enlarge, remove JPEG artefacts, remove the background or select objects in a photo,
 // with small models on this Mac (engines/diffusers/photo_tools.py): Denoise, Upscale and the JPEG tool as PyTorch
@@ -251,7 +251,7 @@ function open(q: QueuedJob, file: string): void {
 
 <template>
   <PageFrame :title="t('edit.enhance.title')" :subtitle="t('edit.enhance.subtitle')">
-    <div class="work">
+    <div class="page-grid">
       <ImageInput v-model="input" @size="(w, h) => (size = [w, h])">
         <template v-if="tool?.kind === 'segment'" #default="{ src, loaded }">
           <ZoomPan><div class="pick" :class="{ busy: selecting }">
@@ -365,19 +365,6 @@ function open(q: QueuedJob, file: string): void {
 </template>
 
 <style scoped>
-.work {
-  display: grid;
-  gap: 16px;
-  max-width: 1400px;
-}
-
-.send {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .actions {
   display: flex;
   gap: 8px;
@@ -438,9 +425,6 @@ function open(q: QueuedJob, file: string): void {
   gap: 10px;
 }
 
-.field > span {
-  font-weight: 600;
-}
 
 /* the panel's sections (tool, strength or result, recommended, import) set apart by a full line */
 .fields > .field + .field {

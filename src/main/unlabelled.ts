@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // A result with the EU AI label has its picture without the label next to it, in ".unlabelled" (written by
 // engines/diffusers/content_check.py label). Used as an input again, the unlabelled picture is taken, so a picture made

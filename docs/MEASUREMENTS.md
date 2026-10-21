@@ -326,6 +326,13 @@ MLX stays the faster runtime for Z-Image Turbo. The landing page said "under a m
 "about five minutes per picture". A first Diffusers run with three pictures in a row ended without a picture: the
 engine restarted twice and the window of the test instance went away; one picture at a time went through.
 
+## 7e. Attention in slices for SD 1.5 and SD 2 (2026-10-14, M2 24 GB, test instance)
+
+A SD 1.5 model (epiCPhotoGasm) at 768 × 768 on a Mac kept at the 16 GB budget. Without slicing the step needed about
+16 GB, the Mac swapped and a step took 20 s. `enable_attention_slicing` above 512 × 512 keeps the same picture under
+7.5 GB, and the step takes 4.2 s — about five times faster, with no change to the picture. SDXL only slices above
+1536 × 1536, where the same effect starts; below that slicing costs time without saving memory.
+
 ## 8. Earlier references (from the user guide and the changelog)
 
 - Training on the M2 (2025–26): SDXL about 2.5 s per step at 768 px, FLUX.2 [klein] 4B about 15 s, 9B about 30 s,

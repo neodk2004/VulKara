@@ -210,6 +210,8 @@ section { padding: 84px 0 0; }
 
 .why { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
 .why .card { padding: 28px; }
+/* an odd card at the end takes the whole row instead of leaving a gap beside it */
+.why .card:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .why h3 { font-size: 1.3rem; }
 .why p + p { margin-top: 10px; }
 .why .fine { font-size: 0.86rem; }

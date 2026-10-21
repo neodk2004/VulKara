@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // A short guide for every LoRA: what it is, what it needs and how to get good pictures with it, written from
 // what is known about this LoRA (its family, trigger words, training data). Plain words, short sentences.

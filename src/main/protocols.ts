@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Two schemes of the app:
 //   vk-app://bundle/…                the pages of the packaged app
@@ -64,6 +64,23 @@ function serveVideo(path: string, range: string | null): Response | Promise<Resp
   })
 }
 
+/**
+ * The real path of a picture or video the pages may see, or null: absolute, named like media, and after following
+ * links still media and allowed (a link named like a picture must not lead to another kind of file). Used by
+ * vk-file:// and by the remote web UI's /file.
+ */
+export function allowedMedia(asked: string, access: FileAccess): string | null {
+  const p = normalize(asked)
+  if (!isAbsolute(p) || !isMedia(p)) return null
+  let real: string
+  try {
+    real = realpathSync(p)
+  } catch {
+    return null
+  }
+  return isMedia(real) && access.allows(real) ? real : null
+}
+
 /** After the app is ready. rendererDir: the built pages; access: which pictures the pages may see. */
 export function handleSchemes(rendererDir: string, access: FileAccess): void {
   protocol.handle('vk-app', (request) => {
@@ -74,14 +91,9 @@ export function handleSchemes(rendererDir: string, access: FileAccess): void {
   protocol.handle('vk-file', (request) => {
     const asked = normalize(decodeURIComponent(new URL(request.url).pathname))
     if (!isAbsolute(asked) || !isMedia(asked)) return new Response('forbidden', { status: 403 })
-    // a link named like a picture must not lead to another kind of file
-    let path: string
-    try {
-      path = realpathSync(asked)
-    } catch {
-      return new Response('not found', { status: 404 })
-    }
-    if (!isMedia(path) || !access.allows(path)) return new Response('forbidden', { status: 403 })
+    if (!existsSync(asked)) return new Response('not found', { status: 404 })
+    const path = allowedMedia(asked, access)
+    if (!path) return new Response('forbidden', { status: 403 })
     if (Object.hasOwn(VIDEO_TYPES, extname(path).toLowerCase())) return serveVideo(path, request.headers.get('range'))
     return serveFile(path, CORS)
   })

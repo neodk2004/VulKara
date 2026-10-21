@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Finds English text in the pages that does not go through t() (src/shared/i18n):
 //   templates: text between tags, text attributes (title, placeholder, label, hint, ...) and strings in {{ }} or in
@@ -19,7 +19,7 @@ const SRC = join(ROOT, 'src/renderer/src')
 const ALLOW = new Set([
   'VulKara', 'LoRA', 'LoRAs', 'MLX', 'Diffusers', 'ComfyUI', 'Civitai', 'Hugging Face', 'GitHub', 'PyPI', 'GB', 'MB', 'KB',
   'px', 's', 'ms', 'min', 'h', 'x', '×', '%', 'ControlNet', 'GGUF', 'VAE', 'CFG', 'SDXL', 'FLUX', 'macOS', 'Mac', 'Apple',
-  'OK', 'Buy Me a Coffee', 'AGPL-3.0', 'EU', 'AI GENERATED', 'JSON', 'PNG', 'JPEG', 'WebP', 'MP4', 'Lucide', 'Electron',
+  'OK', 'Buy Me a Coffee', 'EU', 'AI GENERATED', 'JSON', 'PNG', 'JPEG', 'WebP', 'MP4', 'Lucide', 'Electron',
   'Vue', 'Pinia', 'PyTorch', 'safetensors', 'bf16', 'fp16', 'fp8', 'int8', 'int4', 'nvfp4', 'Q8', 'Q4', 'Q6', 'Q5',
   'Seed', 'Sampler', 'Prompt', 'Guidance', 'Inpainting', 'Runtime', 'Streaming', 'Checkpoint',
 ])

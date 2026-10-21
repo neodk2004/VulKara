@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Enlarging a picture to twice or four times its size with an upscaling model. It needs no model of the user:
 // the ComfyUI runtime does it with Real-ESRGAN, which is downloaded on first use.
@@ -66,7 +66,7 @@ function open(q: QueuedJob, file: string): void {
 
 <template>
   <PageFrame :title="t('edit.upscale.title')" :subtitle="t('edit.upscale.subtitle')">
-    <div class="work">
+    <div class="page-grid">
       <ImageInput v-model="input" @size="(w, h) => (size = [w, h])" />
       <div class="send">
         <span v-if="error" class="error selectable">{{ error }}</span>
@@ -96,28 +96,12 @@ function open(q: QueuedJob, file: string): void {
 </template>
 
 <style scoped>
-.work {
-  display: grid;
-  gap: 16px;
-  max-width: 1400px;
-}
-
-.send {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .fields,
 .field {
   display: grid;
   gap: 10px;
 }
 
-.field > span {
-  font-weight: 600;
-}
 
 .two {
   display: grid;

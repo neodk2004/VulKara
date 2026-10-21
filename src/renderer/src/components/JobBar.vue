@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // The strip at the bottom: what is running, how long it takes, and the queue behind it.
 import { jobLabel } from '../util/labels'
@@ -102,35 +102,75 @@ const modelName = (dir: string): string => assets.titleOf(dir)
 .jobbar {
   position: relative;
   display: flex;
+  flex-wrap: wrap; /* when the row runs out of room (a phone or tablet) the chips drop to a second line */
   align-items: center;
   gap: 14px;
-  padding: 0 14px 0 20px;
+  row-gap: 6px;
+  padding: 6px 14px 6px 20px;
   background: var(--surface);
   border-top: 1px solid var(--line);
   min-width: 0;
 }
 
+/* when narrow, the resource chips take a line of their own below the status and the queue (order moves them last) */
+.stats {
+  flex: 1 1 100%;
+  order: 1;
+}
+@media (min-width: 900px) {
+  .stats {
+    flex: 0 0 auto; /* room enough: back on one line, in their place, pushed to the right */
+    order: 0;
+  }
+}
+
+/* the job's name and model, the bar and the progress share the room left of the chips: each keeps a minimum and
+   cuts its text with an ellipsis, so none draws over another (the name had shrunk to nothing and ran over the bar) */
 .now {
   display: flex;
   gap: 8px;
-  min-width: 0;
+  flex: 0 1 auto;
+  min-width: 90px;
+  max-width: 32%;
+  overflow: hidden;
   white-space: nowrap;
 }
 
+.now strong,
 .now span {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* a long job name cuts itself instead of pushing the model's name out of the box */
+.now strong {
+  flex: 0 1 auto;
+  min-width: 60px;
+}
+
+.now span {
+  flex: 0 1 auto;
+  min-width: 40px;
+}
+
 .bar {
-  flex: 1;
-  min-width: 80px;
+  flex: 1 1 80px;
+  min-width: 60px;
   max-width: 360px;
 }
 
 .progress {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.jobbar > .btn,
+.stats {
+  flex-shrink: 0;
 }
 
 .idle {
@@ -140,6 +180,7 @@ const modelName = (dir: string): string => assets.titleOf(dir)
 /* the resource chips: a click opens the Hardware page */
 .stats {
   display: flex;
+  flex-wrap: wrap; /* on a narrow screen the chips wrap instead of running off the right edge */
   gap: 6px;
   margin-left: auto;
   cursor: pointer;
@@ -196,7 +237,7 @@ const modelName = (dir: string): string => assets.titleOf(dir)
 .panel {
   position: absolute;
   right: 12px;
-  bottom: calc(var(--jobbar) + 6px);
+  bottom: calc(100% + 6px);
   width: 440px;
   max-height: min(560px, 70vh);
   display: flex;

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Pictures read as sRGB, whatever profile they carry. The engines work on plain sRGB values; a picture with another
 profile (Display P3, Adobe RGB, or an HDR one like Rec. 2020 PQ that some upscalers and iPhones write) would else be

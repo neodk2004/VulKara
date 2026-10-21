@@ -1,17 +1,17 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // The pose editor: people as OpenPose skeletons (body, hands, face) on a black canvas. The points are dragged;
 // the result is the control picture "Pose" of Text to image. A pose can also be read from a photo.
 import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Download, FlipHorizontal2, ImageUp, Minus, Plus, RotateCcw, RotateCw, Trash2, Type } from 'lucide-vue-next'
+import { Check, Download, FlipHorizontal2, ImageUp, Minus, Plus, RotateCcw, RotateCw, Trash2, Type } from 'lucide-vue-next'
 import PageFrame from '../components/PageFrame.vue'
 import { useHandoffStore } from '../stores/handoff'
 import { cleanError } from '../stores/runtimes'
 import { pickImage } from '../util/pick_image'
 import { t, type PlainKey } from '../i18n'
 import {
-  BODY_COLORS, BODY_MIRROR, BODY_NAMES, BODY_TEMPLATES, FACE_COLOR, FACE_EXPRESSIONS, FACE_MIRROR, HAND_COLORS, HAND_EDGES,
+  BODY_COLORS, BODY_MIRROR, BODY_NAMES, BODY_TEMPLATES, FACE_COLOR, FACE_EXPRESSIONS, FACE_MIRROR, fitInside, HAND_COLORS, HAND_EDGES,
   HAND_NAMES, HAND_POINT_COLOR, HAND_TEMPLATES, LIMBS, placeFace, placeHand, poseLabel, type Point, type Points,
 } from '../util/openpose'
 
@@ -164,7 +164,7 @@ function makePerson(name: string, offsetX: number): Person {
 function addPerson(): void {
   const n = people.value.length
   const offset = n ? (n % 2 ? 1 : -1) * width.value * 0.22 : 0
-  people.value = [...people.value, makePerson(templateName.value, offset)]
+  people.value = [...people.value, fitted(makePerson(templateName.value, offset))]
   select(people.value.length - 1, 'body')
 }
 
@@ -172,13 +172,24 @@ function replacePerson(p: Person): void {
   people.value = people.value.map((old, i) => (i === selected.value ? p : old))
 }
 
+/** the person moved (and only when larger than the canvas, shrunk) so that all its points are inside the canvas */
+function fitted(p: Person): Person {
+  const f = fitInside(PARTS.flatMap((what) => p[what] ?? []), width.value, height.value)
+  if (f.scale === 1 && !f.dx && !f.dy) return p
+  return mapPerson(p, PARTS, (k) => [f.cx + (k[0] - f.cx) * f.scale + f.dx, f.cy + (k[1] - f.cy) * f.scale + f.dy])
+}
+
 function applyTemplate(): void {
   const old = person.value
   if (!old) return
-  const p = makePerson(templateName.value, 0)
-  // the person stays where it was (by the neck)
-  const dx = old.body[1] && p.body[1] ? old.body[1][0] - p.body[1][0] : 0
-  replacePerson(mapPerson(p, PARTS, (k) => [k[0] + dx, k[1]]))
+  const made = makePerson(templateName.value, 0)
+  // the person stays where it was (by the neck), as far as it fits: a lying pose has its neck at one end
+  const dx = old.body[1] && made.body[1] ? old.body[1][0] - made.body[1][0] : 0
+  const p = mapPerson(made, PARTS, (k) => [k[0] + dx, k[1]])
+  // hands and face the person has stay, at the new wrists: a template gives it another pose, not other hands
+  for (const side of SIDES) if (old[side] && !p[side]) p[side] = handFor(p, side, handChoice[side])
+  if (old.face && !p.face) p.face = faceFor(p, faceChoice.value)
+  replacePerson(fitted(p))
   delete hidden.value[selected.value]
   part.value = 'body'
 }
@@ -245,7 +256,9 @@ function scale(f: number): void {
   const p = person.value
   if (!p) return
   const { parts, origin: [cx, cy] } = target(p)
-  replacePerson(mapPerson(p, parts, (k) => [cx + (k[0] - cx) * f, cy + (k[1] - cy) * f]))
+  const next = mapPerson(p, parts, (k) => [cx + (k[0] - cx) * f, cy + (k[1] - cy) * f])
+  // the whole person stays inside the canvas: enlarging had pushed the head out of the picture
+  replacePerson(part.value === 'body' ? fitted(next) : next)
 }
 
 function rotate(degrees: number): void {
@@ -253,10 +266,11 @@ function rotate(degrees: number): void {
   if (!p) return
   const { parts, origin: [cx, cy] } = target(p)
   const [cos, sin] = [Math.cos((degrees * Math.PI) / 180), Math.sin((degrees * Math.PI) / 180)]
-  replacePerson(mapPerson(p, parts, (k) => {
+  const next = mapPerson(p, parts, (k) => {
     const [u, v] = [k[0] - cx, k[1] - cy]
     return [cx + u * cos - v * sin, cy + u * sin + v * cos]
-  }))
+  })
+  replacePerson(part.value === 'body' ? fitted(next) : next)
 }
 
 function mirror(): void {
@@ -449,14 +463,14 @@ function renderPng(): string {
 
 async function useInText(): Promise<void> {
   if (!people.value.length) return
-  const image = await window.vk.files.writeImage(renderPng())
+  const image = await window.vk.files.writePose(renderPng())
   handoff.send('text', { control: { type: 'BodyPose', image, preprocess: false, size: [width.value, height.value] } })
   void router.push('/text')
 }
 
 async function savePng(): Promise<void> {
   if (!people.value.length) return
-  const image = await window.vk.files.writeImage(renderPng())
+  const image = await window.vk.files.writePose(renderPng())
   await window.vk.files.saveAs(image, 'pose.png')
 }
 
@@ -467,7 +481,11 @@ onMounted(() => {
 })
 onActivated(() => void nextTick(fit))
 onBeforeUnmount(() => window.removeEventListener('resize', fit))
-watch([width, height], () => void nextTick(fit))
+watch([width, height], () => {
+  // a smaller or other-shaped canvas: the people come inside again
+  people.value = people.value.map(fitted)
+  void nextTick(fit)
+})
 </script>
 
 <template>
@@ -574,13 +592,13 @@ watch([width, height], () => void nextTick(fit))
             <div v-for="side in SIDES" :key="side" class="part">
               <button class="chip" :class="{ on: part === side }" :disabled="!person[side]" @click="select(selected, side)">{{ side === 'rhand' ? t('pose.right') : t('pose.left') }}</button>
               <select v-model="handChoice[side]"><option v-for="(_h, n) in HAND_TEMPLATES" :key="n" :value="n">{{ poseLabel('hands', n) }}</option></select>
-              <button class="btn small" @click="setHand(side)">{{ person[side] ? t('pose.set') : t('pose.add') }}</button>
+              <button class="btn small icon-only" :aria-label="person[side] ? t('pose.set') : t('pose.add')" @click="setHand(side)"><Check v-if="person[side]" :size="13" /><Plus v-else :size="13" /></button>
               <button class="btn small ghost" :disabled="!person[side]" :title="t('pose.remove')" @click="removePart(side)"><Trash2 :size="12" /></button>
             </div>
             <div class="part">
               <button class="chip" :class="{ on: part === 'face' }" :disabled="!person.face" @click="select(selected, 'face')">{{ t('pose.face') }}</button>
               <select v-model="faceChoice"><option v-for="(_f, n) in FACE_EXPRESSIONS" :key="n" :value="n">{{ poseLabel('faces', n) }}</option></select>
-              <button class="btn small" @click="setFace">{{ person.face ? t('pose.set') : t('pose.add') }}</button>
+              <button class="btn small icon-only" :aria-label="person.face ? t('pose.set') : t('pose.add')" @click="setFace"><Check v-if="person.face" :size="13" /><Plus v-else :size="13" /></button>
               <button class="btn small ghost" :disabled="!person.face" :title="t('pose.remove')" @click="removePart('face')"><Trash2 :size="12" /></button>
             </div>
             </div>
@@ -626,15 +644,13 @@ svg {
   gap: 18px;
 }
 
-.field {
-  display: grid;
-  gap: 8px;
-}
-
 .field > span {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
+}
+
+.field {
+  gap: 8px;
 }
 
 .field b {
@@ -643,15 +659,7 @@ svg {
 }
 
 select {
-  height: 30px;
-  min-width: 0;
   width: 100%;
-  padding: 0 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
 }
 
 .pair {
@@ -664,24 +672,9 @@ select {
   flex-wrap: wrap;
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
 .chip {
   padding: 3px 9px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
-  font-size: 12px;
   white-space: nowrap;
-}
-
-.chip.on {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .chip:disabled {
@@ -691,9 +684,15 @@ select {
 /* the side's chip as wide as the longest of the three (Right, Left, Face) in the app's language */
 .parts {
   display: grid;
-  grid-template-columns: minmax(52px, max-content) minmax(0, 1fr) auto auto;
-  gap: 6px;
+  grid-template-columns: minmax(48px, max-content) minmax(0, 1fr) auto auto;
+  gap: 4px;
 }
+
+.part .icon-only { padding-inline: 7px; }
+.part .ghost { padding-inline: 4px; }
+/* the longest shape names ("Flach, geschlossen") fit in the narrow panel */
+.part select { font-size: 11.5px; padding-inline: 6px 0; min-width: 0; }
+.part .chip { padding-inline: 8px; }
 
 .part {
   display: grid;

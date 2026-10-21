@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Z-Image (Turbo and Base): recognising its checkpoints and repos, the import of single files from the Turbo / Base
 repo, the memory plans of both runtimes, the staged prompt encoding, guidance, its LoRAs in every naming and the

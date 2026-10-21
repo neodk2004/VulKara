@@ -4,6 +4,9 @@
   "remove": "Remover",
   "close": "Fechar",
   "starting": "A iniciar",
+  "share": "Partilhar",
+  "copyImage": "Copiar imagem",
+  "copied": "Copiado",
   "consent": {
    "yes": "Sim, continuar",
    "no": "Não, cancelar"
@@ -37,6 +40,7 @@
   }
  },
  "nav": {
+  "menu": "Menu",
   "start": "Início",
   "text": "Texto",
   "image": "Imagem",
@@ -61,6 +65,7 @@
   "licenses": "Licenças",
   "about": "Acerca",
   "runtimeUpdate": "{page}: há uma atualização de runtime disponível",
+  "discord": "Discord: a comunidade do VulKara",
   "coming": "Esta página ainda não faz parte desta versão."
  },
  "jobs": {
@@ -181,6 +186,7 @@
    "modelDefaults": "Valores do modelo",
    "suggestsHint": "Este modelo sugere {steps} passos e guidance {guidance}. “Valores do modelo” aplica esses valores; ao mudar de modelo, os seus valores mantêm-se.",
    "suggestsSizeHint": "Este modelo sugere {steps} passos e guidance {guidance}, {width}×{height}. “Valores do modelo” aplica esses valores; ao mudar de modelo, os seus valores mantêm-se.",
+   "makerSampler": "O criador recomenda o sampler {sampler}.",
    "steps": "Passos",
    "guidance": "Guidance",
    "guidanceHint": "Quanto a imagem segue o prompt.",
@@ -694,7 +700,7 @@
    "thumbsUp": "Polegar para cima",
    "ok": "OK",
    "flatClosed": "Plana, fechada",
-   "indexOnCheek": "Indicador na bochecha",
+   "indexOnCheek": "Dedo na bochecha",
    "looselyCurled": "Ligeiramente dobrada"
   },
   "faces": {
@@ -1290,7 +1296,7 @@
    "title": "Conteúdo",
    "nudity": "Permitir nudez nos resultados",
    "nudityHint": "Desativado: os resultados com nudez não são mostrados. Independentemente desta opção, o conteúdo sexual que envolva menores é sempre recusado, e cada resultado é verificado antes de ser mostrado.",
-   "sound": "Som quando uma tarefa termina"
+   "sound": "Reproduzir um som quando a fila terminar"
   },
   "privacy": {
    "title": "Privacidade",
@@ -1299,6 +1305,30 @@
    "hashLookupsHint": "Para modelos e LoRAs sem origem conhecida (importados do disco): as palavras-gatilho, a pré-visualização e a licença. Isto revela ao Civitai que ficheiros estão neste Mac.",
    "updateChecks": "Procurar atualizações de runtimes uma vez por dia",
    "updateChecksHint": "Lê as listas públicas de versões do PyPI e do GitHub; nada seu é enviado."
+  },
+  "remote": {
+   "title": "Acesso remoto",
+   "intro": "Abra o VulKara num navegador na sua rede doméstica ou através de uma ligação VPN, para ver a partir do telemóvel ou tablet o estado atual das suas imagens, introduzir e iniciar novas ideias quando estiver fora ou ver e transferir imagens prontas no histórico. Está protegido por um token de acesso, para garantir também aqui a sua privacidade.",
+   "enable": "Permitir acesso remoto",
+   "port": "Porta",
+   "https": "Encriptado (HTTPS)",
+   "httpsHint": "Com um certificado próprio deste Mac. Necessário para partilhar e copiar imagens no navegador, e o token não atravessa a rede em texto simples. Desativado: HTTP simples.",
+   "certificate": "Certificado para os seus dispositivos",
+   "certificateHint": "Abra esta ligação uma vez em cada dispositivo e instale o certificado para o navegador não avisar: no iPhone ou iPad, ative-o depois em Definições → Geral → Informações → Definições de confiança de certificados; no Android, instale-o em Definições → Segurança → Encriptação e credenciais → Instalar um certificado → Certificado da AC.",
+   "running": "Ativo",
+   "offline": "Desligado",
+   "reach": "Acessível em",
+   "reachHint": "Abra uma delas no outro dispositivo; o token está na ligação, por isso é introduzido só uma vez.",
+   "scan": "Ou aponte a câmara de um telemóvel ou tablet para abrir a ligação.",
+   "renew": "Renovar token",
+   "renewHint": "O token antigo deixa de funcionar de imediato; os outros dispositivos precisam da nova ligação.",
+   "copyLink": "Copiar ligação",
+   "copied": "Copiado",
+   "firewall": "Se o URL não puder ser aberto no dispositivo remoto, permita ligações de entrada para o VulKara no macOS (Definições do Sistema → Rede → Firewall).",
+   "loginIntro": "Introduza o token de acesso que o VulKara mostra no Mac em Definições → Acesso remoto, ou abra a ligação que aparece lá.",
+   "token": "Token de acesso",
+   "connect": "Ligar",
+   "wrongToken": "Este token não é aceite. Talvez tenha sido renovado no Mac."
   },
   "tokens": {
    "title": "Tokens de acesso",
@@ -1459,8 +1489,8 @@
    },
    "licence": {
     "title": "Licença e suporte",
-    "freeBefore": "O VulKara é software livre ao abrigo da",
-    "freeAfter": ": pode usá-lo, estudá-lo, partilhá-lo e modificá-lo; uma versão modificada que transmita ou disponibilize através de uma rede tem de permanecer sob a mesma licença. O texto completo acompanha a app (LICENSE.txt). Os modelos e runtimes não fazem parte da app e mantêm as licenças de quem os publica; consulte",
+    "freeBefore": "O VulKara é gratuito e tem o código-fonte público, ao abrigo da",
+    "freeAfter": ": pode usá-lo, estudá-lo, partilhá-lo e modificá-lo para qualquer fim não comercial, como uso pessoal, investigação, ensino ou uma organização sem fins lucrativos; a utilização comercial não é permitida. O texto completo acompanha a app (LICENSE.txt). Os modelos e runtimes não fazem parte da app e mantêm as licenças de quem os publica; consulte",
     "licensesLink": "Licenças",
     "freeEnd": ".",
     "sourceBefore": "O código-fonte está no",
@@ -1468,6 +1498,9 @@
     "problemBefore": "Algo não funciona?",
     "problemLink": "Comunicar um problema",
     "problemAfter": ": mostra o registo de uma sessão com os seus dados pessoais substituídos por ****, para o ler, copiar e publicar como issue no GitHub. A app não envia nada.",
+    "communityBefore": "Dúvidas, ideias ou imagens que quer mostrar: encontre a comunidade no",
+    "communityLink": "Discord",
+    "communityAfter": ".",
     "supportBefore": "O VulKara não custa nada. Se lhe for útil, pode",
     "supportLink": "apoiar o desenvolvimento",
     "supportAfter": "(Buy Me a Coffee)."

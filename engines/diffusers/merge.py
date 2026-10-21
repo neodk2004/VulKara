@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """LoRAs baked into a model: a new model of its own (a diffusers folder under the models folder) that needs no LoRA
 any more. The base must hold its weights unquantized (a checkpoint, or a diffusers folder); GGUF, FP8 and NF4 files

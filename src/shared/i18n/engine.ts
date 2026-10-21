@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The engines write their status lines in English (engines/*: protocol.status, import and training progress). Known
 // lines are shown in the app's language; a line not in this table, and every error message, stays as it is.

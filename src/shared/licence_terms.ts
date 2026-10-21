@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The licences models come with, by the id Hugging Face uses for them, and what each allows commercially
 // (model = commercial use of the model, outputs = of the pictures). The same terms as tools/gen_licenses.py.

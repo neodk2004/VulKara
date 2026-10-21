@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The consent question (shared/content_policy.ts) as a dialog with two plain answers: the question itself as its
 // message, the explanation as its detail. Resolves true when the user answers yes.

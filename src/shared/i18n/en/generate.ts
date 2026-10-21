@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 export default {
   modes: {
@@ -50,6 +50,7 @@ export default {
     modelDefaults: 'Model defaults',
     suggestsHint: 'This model suggests {steps} steps and guidance {guidance}. Model defaults sets that; switching the model keeps your settings.',
     suggestsSizeHint: 'This model suggests {steps} steps and guidance {guidance}, {width}×{height}. Model defaults sets that; switching the model keeps your settings.',
+    makerSampler: 'Its maker recommends the sampler {sampler}.',
     steps: 'Steps',
     guidance: 'Guidance',
     guidanceHint: 'How closely the picture follows the prompt.',

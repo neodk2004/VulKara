@@ -4,6 +4,9 @@
   "remove": "Eliminar",
   "close": "Cerrar",
   "starting": "Iniciando",
+  "share": "Compartir",
+  "copyImage": "Copiar imagen",
+  "copied": "Copiado",
   "consent": {
    "yes": "Sí, continuar",
    "no": "No, cancelar"
@@ -37,6 +40,7 @@
   }
  },
  "nav": {
+  "menu": "Menú",
   "start": "Inicio",
   "text": "Texto",
   "image": "Imagen",
@@ -61,6 +65,7 @@
   "licenses": "Licencias",
   "about": "Acerca de",
   "runtimeUpdate": "{page}: hay una actualización de un runtime",
+  "discord": "Discord: la comunidad de VulKara",
   "coming": "Esta página aún no forma parte de esta versión."
  },
  "jobs": {
@@ -181,6 +186,7 @@
    "modelDefaults": "Valores del modelo",
    "suggestsHint": "Este modelo sugiere {steps} pasos y guidance {guidance}; el botón Valores del modelo los aplica. Al cambiar de modelo se conservan tus ajustes.",
    "suggestsSizeHint": "Este modelo sugiere {steps} pasos y guidance {guidance}, {width}×{height}; el botón Valores del modelo los aplica. Al cambiar de modelo se conservan tus ajustes.",
+   "makerSampler": "Su creador recomienda el sampler {sampler}.",
    "steps": "Pasos",
    "guidance": "Guidance",
    "guidanceHint": "Con qué fidelidad sigue la imagen al prompt.",
@@ -694,7 +700,7 @@
    "thumbsUp": "Pulgar arriba",
    "ok": "OK",
    "flatClosed": "Plana, cerrada",
-   "indexOnCheek": "Índice en la mejilla",
+   "indexOnCheek": "Dedo en la mejilla",
    "looselyCurled": "Ligeramente doblada"
   },
   "faces": {
@@ -1290,7 +1296,7 @@
    "title": "Contenido",
    "nudity": "Permitir desnudos en los resultados",
    "nudityHint": "Desactivado: los resultados con desnudos no se muestran. Con independencia de este ajuste, el contenido sexual con menores se rechaza siempre y cada resultado se comprueba antes de mostrarse.",
-   "sound": "Sonido al terminar una tarea"
+   "sound": "Reproducir un sonido cuando la cola esté terminada"
   },
   "privacy": {
    "title": "Privacidad",
@@ -1299,6 +1305,30 @@
    "hashLookupsHint": "Para modelos y LoRAs sin origen conocido (importados desde el disco): sus palabras clave, su vista previa y su licencia. Esto le indica a Civitai qué archivos hay en este Mac.",
    "updateChecks": "Buscar actualizaciones de runtimes una vez al día",
    "updateChecksHint": "Lee las listas públicas de versiones de PyPI y GitHub; no se envía nada tuyo."
+  },
+  "remote": {
+   "title": "Acceso remoto",
+   "intro": "Abre VulKara en un navegador de tu red doméstica o a través de una conexión VPN, para ver desde el móvil o la tableta el estado actual de tus imágenes, introducir e iniciar nuevas ideas cuando estás fuera o ver y descargar imágenes terminadas en el historial. Está protegido con un token de acceso, para garantizar también aquí tu privacidad.",
+   "enable": "Permitir acceso remoto",
+   "port": "Puerto",
+   "https": "Cifrado (HTTPS)",
+   "httpsHint": "Con un certificado propio de este Mac. Necesario para compartir y copiar imágenes en el navegador, y el token no cruza la red sin cifrar. Desactivado: HTTP sin cifrar.",
+   "certificate": "Certificado para tus dispositivos",
+   "certificateHint": "Abre este enlace una vez en cada dispositivo e instala el certificado para que el navegador no avise: en un iPhone o iPad actívalo después en Ajustes → General → Información → Ajustes de confianza de certificados; en Android instálalo en Ajustes → Seguridad → Cifrado y credenciales → Instalar un certificado → Certificado de CA.",
+   "running": "Activo",
+   "offline": "Apagado",
+   "reach": "Accesible en",
+   "reachHint": "Abre una de ellas en el otro dispositivo; el token va en el enlace, así se introduce una sola vez.",
+   "scan": "O escanéalo con la cámara de un móvil o tablet para abrir el enlace.",
+   "renew": "Renovar token",
+   "renewHint": "El token anterior deja de funcionar de inmediato; los otros dispositivos necesitan el nuevo enlace.",
+   "copyLink": "Copiar enlace",
+   "copied": "Copiado",
+   "firewall": "Si la URL no se puede abrir en el dispositivo remoto, permite conexiones entrantes para VulKara en macOS (Ajustes del Sistema → Red → Cortafuegos).",
+   "loginIntro": "Introduce el token de acceso que VulKara muestra en el Mac en Ajustes → Acceso remoto, o abre el enlace que aparece allí.",
+   "token": "Token de acceso",
+   "connect": "Conectar",
+   "wrongToken": "Este token no se acepta. Puede que se haya renovado en el Mac."
   },
   "tokens": {
    "title": "Tokens de acceso",
@@ -1459,8 +1489,8 @@
    },
    "licence": {
     "title": "Licencia y soporte",
-    "freeBefore": "VulKara es software libre bajo la",
-    "freeAfter": ": puedes usarlo, estudiarlo, compartirlo y modificarlo; una versión modificada que distribuyas u ofrezcas a través de una red debe mantenerse bajo la misma licencia. El texto completo se incluye con la app (LICENSE.txt). Los modelos y los runtimes no forman parte de la app y conservan las licencias de sus editores; consulta",
+    "freeBefore": "VulKara es gratuito y su código fuente es público, bajo la",
+    "freeAfter": ": puedes usarlo, estudiarlo, compartirlo y modificarlo para cualquier fin no comercial, como el uso privado, la investigación, la enseñanza o una organización sin ánimo de lucro; el uso comercial no está permitido. El texto completo se incluye con la app (LICENSE.txt). Los modelos y los runtimes no forman parte de la app y conservan las licencias de sus editores; consulta",
     "licensesLink": "Licencias",
     "freeEnd": ".",
     "sourceBefore": "El código fuente está en",
@@ -1468,6 +1498,9 @@
     "problemBefore": "¿Algo no funciona?",
     "problemLink": "Informar de un problema",
     "problemAfter": ": muestra el registro de una sesión con tus datos personales sustituidos por ****, para que lo leas, lo copies y lo publiques como issue en GitHub. La app no envía nada.",
+    "communityBefore": "¿Preguntas, ideas o imágenes que quieres enseñar? Encuentra a la comunidad en",
+    "communityLink": "Discord",
+    "communityAfter": ".",
     "supportBefore": "VulKara no cuesta nada. Si te resulta útil, puedes",
     "supportLink": "apoyar su desarrollo",
     "supportAfter": "(Buy Me a Coffee)."

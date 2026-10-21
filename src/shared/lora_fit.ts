@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Which LoRAs fit which model: the same family (engines/diffusers/registry.py lora_identity) and, where a family
 // has models of different sizes, the same sub-base (FLUX.2 [klein] 4B / [klein] 9B / [dev], Wan 5B / 14B). The

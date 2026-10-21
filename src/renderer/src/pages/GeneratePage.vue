@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Text to image, Image to image, Inpainting, Image to video and Illusion: one page in five modes. The prompt and
 // the results are in the work area, the settings of the job in the panel on the right.
@@ -90,6 +90,15 @@ const offDefaults = computed(() => {
   const s = suggested.value
   if (!s) return false
   return s.steps !== form.steps || s.guidance !== form.guidance || (showSize.value && (s.width !== form.width || s.height !== form.height))
+    || (does.sampler && s.sampler !== 'Default' && (s.sampler !== form.sampler || s.sigmaSchedule !== form.sigmaSchedule))
+})
+
+const suggestText = computed(() => {
+  const s = suggested.value
+  if (!s) return ''
+  const base = showSize.value ? t('generate.panel.suggestsSizeHint', { steps: s.steps, guidance: s.guidance, width: s.width, height: s.height }) : t('generate.panel.suggestsHint', { steps: s.steps, guidance: s.guidance })
+  const sampler = s.sigmaSchedule !== 'Default' ? `${s.sampler} ${s.sigmaSchedule}` : s.sampler
+  return does.sampler && s.sampler !== 'Default' ? `${base} ${t('generate.panel.makerSampler', { sampler })}` : base
 })
 
 // steps and guidance the chosen model is not made for (kept from another model)
@@ -201,7 +210,7 @@ const labelPreview = computed(() => {
 
 <template>
   <PageFrame :title="t(TEXTS[mode].title)" :subtitle="t(TEXTS[mode].subtitle)">
-    <div class="work">
+    <div class="page-grid">
       <PatternEditor v-if="mode === 'illusion'" ref="pattern" :width="form.width" :height="form.height" />
       <ImageInput v-if="does.input" v-model="form.inputImage" @size="(w, h) => (inputSize = [w, h])">
         <template v-if="mode === 'inpaint'" #default="{ src, loaded }">
@@ -319,7 +328,7 @@ const labelPreview = computed(() => {
 
         <div v-if="offDefaults && suggested" class="defaults">
           <button class="btn small" @click="model && applyDefaults(form, model)">{{ t('generate.panel.modelDefaults') }}</button>
-          <HintBadge notice :text="showSize ? t('generate.panel.suggestsSizeHint', { steps: suggested.steps, guidance: suggested.guidance, width: suggested.width, height: suggested.height }) : t('generate.panel.suggestsHint', { steps: suggested.steps, guidance: suggested.guidance })" />
+          <HintBadge notice :text="suggestText" />
         </div>
         <label class="field">
           <span>
@@ -412,33 +421,12 @@ const labelPreview = computed(() => {
 </template>
 
 <style scoped>
-.work {
-  display: grid;
-  gap: 16px;
-  max-width: 1400px;
-}
-
 .prompt {
   padding: 12px 12px 10px 14px;
 }
 
-textarea {
-  width: 100%;
-  resize: vertical;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: inherit;
-  font: 14px/1.5 var(--font);
-  user-select: text;
-}
-
 .send {
-  display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 /* longer languages: the parts go to a second line instead of out of the box */
@@ -452,15 +440,9 @@ textarea {
   gap: 18px;
 }
 
-.field {
-  display: grid;
-  gap: 6px;
-}
-
 .field > span {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
 }
 
 .field b {
@@ -470,24 +452,21 @@ textarea {
 }
 
 .field textarea {
+  width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius-s);
   background: var(--surface-2);
-  font-size: 13px;
+  color: inherit;
+  font: 13px/1.5 var(--font);
+  outline: 0;
+  resize: vertical;
+  user-select: text;
 }
 
 select,
 input[type='number'] {
-  height: 30px;
-  min-width: 0;
   width: 100%;
-  padding: 0 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
 }
 
 input[type='range'] {

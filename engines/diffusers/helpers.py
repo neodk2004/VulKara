@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """The helper models (content filter, Restore, pose and depth detection, ControlNets, upscaling) as the Models page
 shows them: helpers.json lists them with their folder under the helpers folder. They are downloaded when first

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The AI Canvas: pictures as layers on an endless surface and a frame in which the model paints. What lies
 // under the frame decides what "Generate" does.

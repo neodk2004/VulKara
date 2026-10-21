@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The log files: one per start of the app, logs/session-YYYY-MM-DD_HH-MM-SS.log (local time) in the app data folder,
 // the newest 10 kept. The one file of earlier versions (vulkara.log and its .1) is split into session files at its

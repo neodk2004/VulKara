@@ -121,7 +121,7 @@ The guide is `docs/USER_GUIDE.md`; the translated ones are `docs/<code>/USER_GUI
 - In the description: the language and code, whether you checked it in the app (which macOS), and anything you were
   unsure about.
 - Add a line to `CHANGELOG.md` under *Unreleased*: *The app in Italian (Settings → Appearance → Language).*
-- By contributing you agree that your translation is licensed under the AGPL-3.0-or-later, as the rest of VulKara.
+- By contributing you agree that your translation is licensed under the PolyForm Noncommercial License 1.0.0, as the rest of VulKara, and that Oliver Schmidt may also publish it under other licence terms (see [CONTRIBUTING.md](../CONTRIBUTING.md)).
 
 ## Improving a language
 

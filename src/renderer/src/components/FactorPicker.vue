@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // How many times larger a picture becomes: preset tiles (×1.5 … up to the model's own scale) and a slider in steps of
 // 0.1 for anything between. Used by Enhance (enlarging photo tools) and Upscale.

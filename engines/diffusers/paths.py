@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Folders of the engines. The app passes them in the environment (VK_*); the defaults below apply when an
 engine runs on its own (development, tests)."""

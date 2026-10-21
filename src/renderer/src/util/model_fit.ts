@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Steps and guidance that do not suit the chosen model. Switching the model keeps them (job_form applyModel), so a
 // value meant for one model can end up on a distilled one: FLUX.1 [schnell] at 18 steps and guidance 6.2 takes

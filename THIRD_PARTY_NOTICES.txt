@@ -1,6 +1,6 @@
 VulKara – third-party notices
 
-VulKara contains the following open-source packages. Their licences are reproduced below.
+VulKara contains the following third-party packages. Their licences are reproduced below.
 Electron includes Chromium and Node.js; their notices are in the file LICENSES.chromium.html inside the app.
 
 Not part of the app: the Python runtimes (PyTorch, diffusers, MLX, ComfyUI and their dependencies) and all

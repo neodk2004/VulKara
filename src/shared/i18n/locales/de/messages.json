@@ -4,6 +4,9 @@
   "remove": "Entfernen",
   "close": "Schließen",
   "starting": "Startet",
+  "share": "Teilen",
+  "copyImage": "Bild kopieren",
+  "copied": "Kopiert",
   "consent": {
    "yes": "Ja, fortfahren",
    "no": "Nein, abbrechen"
@@ -37,6 +40,7 @@
   }
  },
  "nav": {
+  "menu": "Menü",
   "start": "Start",
   "text": "Text",
   "image": "Bild",
@@ -61,6 +65,7 @@
   "licenses": "Lizenzen",
   "about": "Über",
   "runtimeUpdate": "{page}: Ein Runtime-Update ist verfügbar",
+  "discord": "Discord: die VulKara-Community",
   "coming": "Diese Seite ist in dieser Version noch nicht enthalten."
  },
  "jobs": {
@@ -181,6 +186,7 @@
    "modelDefaults": "Modellvorgaben",
    "suggestsHint": "Dieses Modell empfiehlt {steps} Schritte und Guidance {guidance}. „Modellvorgaben“ stellt das ein; ein Modellwechsel behält deine Einstellungen.",
    "suggestsSizeHint": "Dieses Modell empfiehlt {steps} Schritte und Guidance {guidance}, {width}×{height}. „Modellvorgaben“ stellt das ein; ein Modellwechsel behält deine Einstellungen.",
+   "makerSampler": "Der Hersteller empfiehlt den Sampler {sampler}.",
    "steps": "Schritte",
    "guidance": "Guidance",
    "guidanceHint": "Wie genau das Bild dem Prompt folgt.",
@@ -694,7 +700,7 @@
    "thumbsUp": "Daumen hoch",
    "ok": "OK",
    "flatClosed": "Flach, geschlossen",
-   "indexOnCheek": "Zeigefinger an der Wange",
+   "indexOnCheek": "Finger an der Wange",
    "looselyCurled": "Locker gekrümmt"
   },
   "faces": {
@@ -1290,7 +1296,7 @@
    "title": "Inhalte",
    "nudity": "Nacktheit in Ergebnissen erlauben",
    "nudityHint": "Aus: Ergebnisse mit Nacktheit werden nicht angezeigt. Unabhängig von diesem Schalter werden sexuelle Inhalte mit Minderjährigen immer verweigert, und jedes Ergebnis wird geprüft, bevor es angezeigt wird.",
-   "sound": "Ton, wenn ein Auftrag fertig ist"
+   "sound": "Signalton abspielen, wenn die Warteschlange abgearbeitet wurde"
   },
   "privacy": {
    "title": "Datenschutz",
@@ -1299,6 +1305,30 @@
    "hashLookupsHint": "Für Modelle und LoRAs ohne bekannte Herkunft (von der Festplatte importiert): ihre Trigger-Wörter, Vorschau und Lizenz. Civitai erfährt dabei, welche Dateien auf diesem Mac liegen.",
    "updateChecks": "Einmal täglich nach Runtime-Updates suchen",
    "updateChecksHint": "Liest die öffentlichen Versionslisten von PyPI und GitHub; nichts von dir wird gesendet."
+  },
+  "remote": {
+   "title": "Fernzugriff",
+   "intro": "Öffne VulKara in einem Browser im Heimnetzwerk oder via VPN-Verbindung, um vom Handy oder Tablet den aktuellen Bildstatus zu sehen, neue Ideen von unterwegs bereits einzugeben und zu starten oder fertige Bilder im Verlauf anzusehen und herunterzuladen. Es ist mit einem Zugangstoken gesichert, um auch hier Privatsphäre zu garantieren.",
+   "enable": "Fernzugriff erlauben",
+   "port": "Port",
+   "https": "Verschlüsselt (HTTPS)",
+   "httpsHint": "Mit einem eigenen Zertifikat dieses Macs. Nötig zum Teilen und Kopieren von Bildern im Browser, und das Token geht nicht im Klartext durchs Netz. Aus: einfaches HTTP.",
+   "certificate": "Zertifikat für deine Geräte",
+   "certificateHint": "Öffne diesen Link einmal auf jedem Gerät und installiere das Zertifikat, damit der Browser nicht warnt: auf iPhone oder iPad danach unter Einstellungen → Allgemein → Info → Zertifikatsvertrauenseinstellungen einschalten; auf Android unter Einstellungen → Sicherheit → Verschlüsselung & Anmeldedaten → Zertifikat installieren → CA-Zertifikat.",
+   "running": "Aktiv",
+   "offline": "Aus",
+   "reach": "Erreichbar unter",
+   "reachHint": "Öffne eine davon auf dem anderen Gerät; das Token steckt im Link und wird so nur einmal eingegeben.",
+   "scan": "Oder mit der Kamera eines Smartphones oder Tablets scannen, um den Link zu öffnen.",
+   "renew": "Token erneuern",
+   "renewHint": "Das alte Token gilt sofort nicht mehr; die anderen Geräte brauchen den neuen Link.",
+   "copyLink": "Link kopieren",
+   "copied": "Kopiert",
+   "firewall": "Wenn die URL auf dem Remote-Gerät nicht geöffnet werden kann, erlaube in macOS eingehende Verbindungen für VulKara (Systemeinstellungen → Netzwerk → Firewall).",
+   "loginIntro": "Gib das Zugangstoken ein, das VulKara auf dem Mac unter Einstellungen → Fernzugriff zeigt, oder öffne den Link, der dort steht.",
+   "token": "Zugangstoken",
+   "connect": "Verbinden",
+   "wrongToken": "Dieses Token wird nicht angenommen. Vielleicht wurde es auf dem Mac erneuert."
   },
   "tokens": {
    "title": "Zugriffstoken",
@@ -1459,8 +1489,8 @@
    },
    "licence": {
     "title": "Lizenz und Unterstützung",
-    "freeBefore": "VulKara ist freie Software unter der",
-    "freeAfter": ": Du darfst sie nutzen, untersuchen, teilen und verändern; eine veränderte Version, die du weitergibst oder über ein Netzwerk anbietest, muss unter derselben Lizenz bleiben. Der vollständige Text liegt der App bei (LICENSE.txt). Modelle und Runtimes sind nicht Teil der App und behalten die Lizenzen ihrer Herausgeber; siehe",
+    "freeBefore": "VulKara ist kostenlos und sein Quellcode offen, unter der",
+    "freeAfter": ": Du darfst die App für jeden nicht kommerziellen Zweck nutzen, untersuchen, teilen und verändern, etwa privat, in Forschung und Lehre oder in einer gemeinnützigen Organisation; kommerzielle Nutzung ist nicht erlaubt. Der vollständige Text liegt der App bei (LICENSE.txt). Modelle und Runtimes sind nicht Teil der App und behalten die Lizenzen ihrer Herausgeber; siehe",
     "licensesLink": "Lizenzen",
     "freeEnd": ".",
     "sourceBefore": "Der Quellcode liegt auf",
@@ -1468,6 +1498,9 @@
     "problemBefore": "Etwas funktioniert nicht?",
     "problemLink": "Problem melden",
     "problemAfter": ": Es zeigt das Protokoll einer Sitzung, in dem deine persönlichen Daten durch **** ersetzt sind, damit du es lesen, kopieren und als Issue auf GitHub posten kannst. Die App sendet nichts.",
+    "communityBefore": "Fragen, Ideen oder Bilder, die du zeigen möchtest: Triff die Community auf",
+    "communityLink": "Discord",
+    "communityAfter": ".",
     "supportBefore": "VulKara kostet nichts. Wenn es dir nützt, kannst du",
     "supportLink": "seine Entwicklung unterstützen",
     "supportAfter": "(Buy Me a Coffee)."

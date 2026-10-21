@@ -1,8 +1,16 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // The frame of every page: a title row (the window is moved there), the work area, and optionally a panel on
 // the right for the settings of the page.
+import { MessagesSquare } from 'lucide-vue-next'
+import { DISCORD_URL } from '@shared/links'
+import { isRemote } from '../remote_vk'
+import { openLink } from '../util/links'
+import { t } from '../i18n'
+
 defineProps<{ title: string; subtitle?: string }>()
+// the community is one click away on every page (not in the remote web UI, which cannot open the Mac's browser)
+const community = !isRemote()
 </script>
 
 <template>
@@ -12,7 +20,13 @@ defineProps<{ title: string; subtitle?: string }>()
         <h1>{{ title }}</h1>
         <p v-if="subtitle" class="dim">{{ subtitle }}</p>
       </div>
-      <div class="actions"><slot name="actions" /></div>
+      <div class="actions">
+        <slot name="actions" />
+        <button v-if="community" type="button" class="btn community" :aria-label="t('nav.discord')" @click="openLink(DISCORD_URL)">
+          <!-- i18n-ok: the service's name -->
+          <MessagesSquare :size="15" :stroke-width="1.8" />Discord
+        </button>
+      </div>
     </header>
     <div class="body">
       <div class="work"><slot /></div>
@@ -73,5 +87,24 @@ defineProps<{ title: string; subtitle?: string }>()
 /* grids and flex rows in the panel may shrink below the width of their longest word */
 .panel :deep(*) {
   min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .head {
+    padding: 8px 16px 8px 56px;
+  }
+  .body {
+    flex-direction: column;
+    overflow: auto;
+  }
+  .work {
+    overflow: visible;
+    padding: 16px;
+  }
+  .panel {
+    width: auto;
+    border-left: none;
+    border-top: 1px solid var(--line);
+  }
 }
 </style>

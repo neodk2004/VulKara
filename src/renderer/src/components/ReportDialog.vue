@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Report a problem: pick one of the kept session logs, read it with personal data replaced by **** (the main process
 // redacts it, log_redact.ts), then copy it or open a new GitHub issue and paste it there. Nothing is sent by the app.

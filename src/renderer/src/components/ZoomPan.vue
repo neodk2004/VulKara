@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Zoom into a picture (and what is painted or clicked on it) without changing how it is laid out: the content is
 // scaled with a transform inside a frame of its own size. ⌘-scroll or a pinch zooms towards the pointer; scrolling

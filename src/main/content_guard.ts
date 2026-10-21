@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Content filter of the results: every picture or video an engine reports is checked by
 // engines/diffusers/content_check.py before a page sees it, and marked as AI generated. The checker is one

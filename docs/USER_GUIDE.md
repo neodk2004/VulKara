@@ -108,7 +108,7 @@ canvas or a pose. Each generate page also remembers its settings after a restart
 - In the queue panel, **Cancel** stops the running job and **Remove** takes a waiting or finished job out of the list.
   **Clear finished** empties the list of finished jobs.
 - When the last waiting job is done, the Mac plays a short sound. You can switch this off in Settings → Content →
-  *Sound when a job is done*.
+  *Play a sound when the queue is finished*.
 - No job starts while a LoRA is training.
 
 ## 3. Text to image
@@ -160,6 +160,10 @@ settings, so that models can be compared with the same ones:
 - **Steps, guidance, seed and size** stay as they are. When they differ from what the new model suggests, an orange
   **!** appears above the sliders next to **Model defaults**: the pointer on it shows the suggestion (*This model
   suggests 4 steps and guidance 0, 1024×1024*), and the button sets it.
+- **Where the suggestion comes from**: when a model's card names them, the steps, guidance, sampler, sigma schedule
+  and negative prompt of its maker are read on import and become the model's own defaults; the hint then names the
+  sampler too (*Its maker recommends the sampler DPM++ SDE Karras.*), and **Model defaults** sets it with the rest. A
+  model whose card says nothing keeps the values VulKara holds for its family.
 - **Values the model is not made for** get an orange **!** next to *Steps* or *Guidance*, with a button that sets
   the model's own value: steps more than twice what a distilled model is made for (*Made for 4 steps: more take
   longer without a better picture.*), guidance on a model that has none (FLUX.1 [schnell], a distilled FLUX.2
@@ -780,13 +784,16 @@ Every finished job, newest first, with all its settings.
 - **Open**: double-click, ↩ or Space opens the large view.
 - **⌫** moves the selected entries **to the Trash**, files included, after a confirmation.
 
-The panel of a single entry shows the picture with **Save as** and **Show in Finder**, the prompt and all settings.
-It has three buttons:
+The panel of a single entry shows the picture with **Save as**, **Show in Finder**, **Share** and **Copy picture**,
+the prompt and all settings. It has three buttons:
 
 - **Use these settings** puts prompt, model, style, size, seed, LoRAs and all other settings back into the page the
   job came from. The model is found again even when its folder has moved.
 - **Remove entry** takes the entry out of the history; the files stay.
 - **Move to Trash** removes the entry and moves its files to the macOS Trash.
+
+**Share** opens macOS's share menu: Mail, Messages, AirDrop and every app that offers itself there, such as WhatsApp
+or Telegram. **Copy picture** puts the picture on the clipboard, to paste it into any app, also Signal or Threema.
 
 The history is kept in its own folder, which can be changed in Settings.
 
@@ -836,7 +843,7 @@ its own without a title bar), so it never hides the app out of reach.
 - The **×** in the upper right corner, or **Esc**, closes the window; it has its own close button because a window
   over a full-screen app has no title bar.
 - The side panel shows prompt, model, size, steps, seed and style.
-- **Save as**, **Show in Finder**.
+- **Save as**, **Show in Finder**, **Share** (macOS's share menu) and **Copy picture** (onto the clipboard).
 - **Use these settings**: prompt, settings and seed back into the form.
 - **Image to image**, **Inpaint**, **Image to video**, **Upscale** send the picture to that page of the main window.
 
@@ -927,7 +934,46 @@ macOS's region.
 - **Allow nudity in results**: off by default. Off, results showing nudity are not displayed, and LoRAs and preview
   pictures for adults are left out of the lists. Independent of this switch, sexual content involving minors is
   always refused. See [Content rules](#21-content-rules).
-- **Sound when a job is done**: on by default.
+- **Play a sound when the queue is finished**: on by default. It plays once the whole queue is done, not after each
+  job.
+
+### Remote access
+
+![Settings → Remote access](screenshots/settings_remote.jpg)
+
+Open VulKara in a browser on another device in your home network or connected over a VPN — a phone, a tablet, a
+second computer — to see the current status of your pictures, to type in and start new ideas while you are out, or to
+look through and download finished pictures in the history. Only this Mac does the computing; nothing goes out to the
+internet.
+
+- **Allow remote access**: off by default. On, the Mac serves the pages and the line below reads *Serving*.
+- **Port**: 8787 by default. If it is taken, the next free one is used; the address shows the port it really got.
+- **Encrypted (HTTPS)**: on by default. VulKara makes a small certificate authority of this Mac's own and with it the
+  certificate the web UI runs with; the links then begin with https://. Needed for **Share** and **Copy picture** in
+  the browser, and the token no longer crosses the network in the clear. Off: plain HTTP.
+- **Reachable at**: one link per network the Mac is on, with the access token already in it. Open it on the other
+  device; the token is kept there, so it is entered only once. The copy icon on the right of a link copies it (*Copy
+  link* while the pointer is on it), and the **QR code** opens the same link when scanned with a phone or tablet
+  camera.
+- **Certificate for your devices**: open this link once on each device and install the certificate; from then on the
+  browser opens the web UI without a warning. On an iPhone or iPad switch it on afterwards under Settings → General →
+  About → Certificate Trust Settings; on Android install it under Settings → Security → Encryption & credentials →
+  Install a certificate → CA certificate. Until then the browser warns once that the page is not trusted. When the
+  Mac gets another address, VulKara makes a new certificate from the same authority, so nothing has to be installed
+  again. The certificate is only good for addresses in your local network, never for other websites.
+- **Access token**: a random key made the first time remote access is turned on. **Renew token** makes a new one at
+  once — the old links stop working and the other devices need the new link.
+
+A browser shows only the pages for generating and watching — Text, Image, Video, Illusion, Inpaint, Pose, LoRA,
+History (view, favourite, delete), Favorites, Tips, Changelog. The pages that belong on the Mac stay there (Settings,
+Models, Training, Enhance, Upscale, Restore, Canvas, Hardware, Logs, Licenses, About): a browser cannot change
+settings, install models or runtimes, or reach any file on the Mac other than the pictures it is shown. Each device
+keeps its own language, chosen in the browser; the Mac's own language is untouched. In the browser, **Share** opens
+the phone's share sheet (WhatsApp, Signal, Telegram, Threema, Mail …) and **Copy picture** is there as well, both
+only over HTTPS; with HTTPS switched off the buttons are not shown.
+
+With HTTPS switched off the connection is plain HTTP; then use it only on a network you trust. If the URL can not be
+opened on the remote device, allow incoming connections for VulKara in macOS (System Settings → Network → Firewall).
 
 ### Privacy
 

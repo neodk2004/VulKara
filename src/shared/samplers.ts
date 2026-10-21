@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Samplers per model family; labels as in engines/diffusers/samplers.py and engines/comfy/workflows.py.
 // Noise-predicting models (SD 1.x/2.x, SDXL) and flow-matching models (SD 3.5, FLUX) take different samplers.

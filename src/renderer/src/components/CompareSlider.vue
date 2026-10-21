@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Before and after over each other: left of the line the changed picture, right of it the original. The line is
 // dragged (or moved with the arrow keys when focused); the pictures can be zoomed together (ZoomPan).

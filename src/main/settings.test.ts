@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -32,5 +32,12 @@ describe('settings', () => {
     expect(settableByPage('helpersDir', '/Volumes/x')).toBe(false)
     expect(settableByPage('runtimesDir', '')).toBe(true)
     expect(settableByPage('theme', 'dark')).toBe(true)
+  })
+
+  it('lets a page clear the remote token but never choose one', () => {
+    expect(settableByPage('remoteToken', '')).toBe(true)
+    expect(settableByPage('remoteToken', 'mine')).toBe(false)
+    expect(isValidSetting('remotePort', 80)).toBe(false)  // below 1024: a port that needs root
+    expect(isValidSetting('remotePort', 8787)).toBe(true)
   })
 })

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The moving teaser of the planned 3D pose editor on the landing page: an OpenPose skeleton in 3D that the camera walks
 // around, written as SVG with SMIL (no script, no inline style: the site's CSP allows neither), plus a still frame for

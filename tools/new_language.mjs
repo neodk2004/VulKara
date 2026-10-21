@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Starts a new language: src/shared/i18n/locales/<code>/ with every text in English, ready to be translated
 // (docs/TRANSLATING.md). An existing folder is completed instead: texts it has stay, missing ones are added in English.

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Restoring old photos: colour cast and contrast, repairing by an AI under guard rails, rebuilding soft detail,
 restoring faces, colouring, sharpening.

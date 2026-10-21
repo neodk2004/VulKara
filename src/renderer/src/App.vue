@@ -1,10 +1,12 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { Menu } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import NavRail from './components/NavRail.vue'
 import JobBar from './components/JobBar.vue'
 import ImagePicker from './components/ImagePicker.vue'
+import ViewerPage from './pages/ViewerPage.vue'
 import { useFavoritesStore } from './stores/favorites'
 import { useHandoffStore } from './stores/handoff'
 import { useQueueStore } from './stores/queue'
@@ -12,10 +14,14 @@ import { useRuntimesStore } from './stores/runtimes'
 import { useSettingsStore } from './stores/settings'
 import { formPage } from './util/job_form'
 import { useAssetsStore } from './stores/assets'
-import { locale } from './i18n'
+import { locale, t } from './i18n'
+import { hideViewer, viewerOverlay } from './viewer_overlay'
+import type { ViewerAction } from '@shared/api'
 
 const route = useRoute()
 const router = useRouter()
+const navOpen = ref(false)
+watch(() => route.path, () => { navOpen.value = false })
 // a viewer or splash window shows its page alone
 const bare = computed(() => route.meta.bare === true || /^#\/(viewer|splash)/.test(location.hash))
 
@@ -31,26 +37,36 @@ onMounted(() => {
     void useAssetsStore().refresh()
   })
   // a viewer window hands a picture or the settings of a job back
-  const handoff = useHandoffStore()
-  window.vk.viewer.onAction((action) => {
-    if (action.page === 'upscale') {
-      // enlarging has no settings to take over: the picture itself goes there
-      handoff.send('upscale', { inputImage: action.type === 'reuse' ? action.job.inputImage ?? action.file : action.file })
-      void router.push({ path: '/upscale', query: { t: String(Date.now()) } })
-      return
-    }
-    const page = formPage(action.page)
-    if (action.type === 'reuse') handoff.send(page, { job: action.job, inputImage: page === 'text' ? undefined : action.job.inputImage })
-    else handoff.send(page, { inputImage: action.file })
-    void router.push({ path: '/' + page, query: { t: String(Date.now()) } })
-  })
+  window.vk.viewer.onAction(routeViewerAction)
 })
+
+const handoff = useHandoffStore()
+/** A viewer action (a window's, or the overlay's): the settings of a job or the picture into the right page. */
+function routeViewerAction(action: ViewerAction): void {
+  if (action.page === 'upscale') {
+    // enlarging has no settings to take over: the picture itself goes there
+    handoff.send('upscale', { inputImage: action.type === 'reuse' ? action.job.inputImage ?? action.file : action.file })
+    void router.push({ path: '/upscale', query: { t: String(Date.now()) } })
+    return
+  }
+  const page = formPage(action.page)
+  if (action.type === 'reuse') handoff.send(page, { job: action.job, inputImage: page === 'text' ? undefined : action.job.inputImage })
+  else handoff.send(page, { inputImage: action.file })
+  void router.push({ path: '/' + page, query: { t: String(Date.now()) } })
+}
+function onOverlayAct(action: ViewerAction): void {
+  routeViewerAction(action)
+  hideViewer()
+}
 </script>
 
 <template>
   <RouterView v-if="bare" />
-  <div v-else class="shell">
-    <NavRail />
+  <template v-else>
+    <button class="nav-toggle" :aria-label="t('nav.menu')" @click="navOpen = !navOpen"><Menu :size="22" /></button>
+    <div v-if="navOpen" class="nav-backdrop" @click="navOpen = false" />
+    <div class="shell">
+      <NavRail :class="{ open: navOpen }" />
     <main class="stage">
       <RouterView v-slot="{ Component, route: shown }">
         <KeepAlive>
@@ -58,16 +74,26 @@ onMounted(() => {
         </KeepAlive>
       </RouterView>
     </main>
-    <JobBar />
-    <ImagePicker />
+      <JobBar />
+      <ImagePicker />
+    </div>
+  </template>
+  <div v-if="viewerOverlay" class="viewer-overlay">
+    <ViewerPage :inline="viewerOverlay" @close="hideViewer" @act="onOverlayAct" />
   </div>
 </template>
 
 <style scoped>
+.viewer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--bg);
+}
 .shell {
   display: grid;
   grid-template-columns: var(--rail) 1fr;
-  grid-template-rows: 1fr var(--jobbar);
+  grid-template-rows: 1fr minmax(var(--jobbar), auto);
   height: 100%;
 }
 
@@ -75,5 +101,39 @@ onMounted(() => {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+}
+
+.nav-toggle,
+.nav-backdrop {
+  display: none;
+}
+
+/* phones and narrow tablets: the rail becomes a drawer behind a menu button */
+@media (max-width: 860px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+  .nav-toggle {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 40;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  }
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 34;
+    background: rgba(0, 0, 0, 0.45);
+  }
 }
 </style>

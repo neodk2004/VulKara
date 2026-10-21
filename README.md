@@ -13,14 +13,14 @@ Text to image · Image to image · Inpainting · AI Canvas · Image to video · 
 ![Vue](https://img.shields.io/badge/Vue-3.5-42b883?logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
 ![Runs locally](https://img.shields.io/badge/runs-100%25%20local-c2662d)
-[![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)](LICENSE)
 [![Discord](https://img.shields.io/badge/community-Discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/SDnSHZfQY)
 
 <img src="docs/images/banner.jpg" alt="Pictures made with VulKara">
 
 <sub>Made with VulKara on an M2: Juggernaut XL v7, 25 steps, styles Cinematic, Digital Art, Neon Punk, Fantasy Art and Analog Film.</sub>
 
-**VulKara is free and open source, made in my spare time.** If it is useful to you, a coffee keeps it going:<br>
+**VulKara is free, its source code is open, and it is made in my spare time.** If it is useful to you, a coffee keeps it going:<br>
 new models, fixes and features — free, local and private for everyone.
 
 <a href="https://buymeacoffee.com/revil.0"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
@@ -420,9 +420,10 @@ Concepts for what comes next: [Characters](docs/concepts/CHARACTERS.md).
 
 ## Licence
 
-VulKara is free software: © Oliver Schmidt, released under the
-[GNU Affero General Public License v3.0 or later](LICENSE). You may use, study, share and change it; a changed version
-that you pass on or offer over a network has to stay under the same licence. Third-party components and their
+VulKara is © Oliver Schmidt and released under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use,
+study, share and change it for any noncommercial purpose: private use, research, teaching, nonprofit organisations.
+Commercial use is not allowed. Earlier versions keep the licence they were released under (see the
+[changelog](CHANGELOG.md)). Third-party components and their
 licences are listed in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt). Models and runtimes are not part of the
 app; they keep the licences of their publishers, listed in the app under **Licenses**.
 

@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt */
+/* SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt */
 /* VulKara design tokens and base styles. Dark is the default; light follows prefers-color-scheme, which the
    appearance setting switches. */
 
@@ -212,17 +212,80 @@ button {
   font: inherit;
 }
 
-/* a text field or select of a form, as wide as its place */
+/* the text fields and selects of every form; :where() keeps it at zero specificity, so a page sets only what differs */
+:where(select, input[type='text'], input[type='number'], input[type='password']),
 .entry {
   height: 30px;
   min-width: 0;
-  width: 100%;
   padding: 0 8px;
   border: 1px solid var(--line);
   border-radius: var(--radius-s);
   background: var(--surface-2);
   color: inherit;
   font: inherit;
+  user-select: text;
+}
+
+/* a form field as wide as its place */
+.entry {
+  width: 100%;
+}
+
+/* a form field: its label over the control */
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field > span {
+  font-weight: 600;
+}
+
+/* the prompt box: the text field fills it without a frame of its own */
+.prompt textarea {
+  width: 100%;
+  resize: vertical;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: 14px/1.5 var(--font);
+  user-select: text;
+}
+
+/* small rounded toggles in a row; .on is the chosen one */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chip {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: transparent;
+  font-size: 12px;
+}
+
+.chip.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* the line under a prompt or picture: hints left, the start button right */
+.send {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* the column of a tool page inside its frame */
+.page-grid {
+  display: grid;
+  gap: 16px;
+  max-width: 1400px;
 }
 
 .bar {

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // What the page of a LoRA says about it: the description of its makers, the settings they recommend and the
 // prompts of their example pictures. Read from Civitai (its API) or Hugging Face (the model card) and kept next

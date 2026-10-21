@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The large view of pictures and videos: every view is a window of its own, so several can stay open next to
 // the app and next to each other. A viewer window gets the list it was opened from and may only ask for that

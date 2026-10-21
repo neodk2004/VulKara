@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Which pictures the pages may see or hand to a job. Code smuggled into a page could otherwise read every picture on
 // the Mac, through vk-file:// or by sending it into a job. Allowed are:

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 import { describe, expect, it } from 'vitest'
 import { hiddenSummary, redact, type RedactContext } from './log_redact'
@@ -82,7 +82,7 @@ describe('redact: files', () => {
   })
 
   it('keeps technical file names', () => {
-    expect(r('[mlx] 🔧 Applying LoRA: z_image_baec52651432dc58.safetensors (scale=1.0)')).toBe('[mlx] 🔧 Applying LoRA: z_image_baec52651432dc58.safetensors (scale=1.0)')
+    expect(r('[mlx] Applying LoRA: z_image_baec52651432dc58.safetensors (scale=1.0)')).toBe('[mlx] Applying LoRA: z_image_baec52651432dc58.safetensors (scale=1.0)')
     expect(r('No such file: model_index.json')).toBe('No such file: model_index.json')
   })
 })

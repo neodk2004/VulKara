@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The OpenPose skeleton as ControlNet reads it (drawn like controlnet_aux draws body, hands and face): COCO-18 body, 21 points per hand, 70 face points (68 landmarks + 2 pupils).
 
@@ -200,6 +200,29 @@ export function placeFace(expression: string, rightEye: Point, leftEye: Point): 
         let u = (x - tmid[0]) * s, v = (y - tmid[1]) * s
         return [mid[0] + u * cos - v * sin, mid[1] + u * sin + v * cos]
     })
+}
+
+/**
+ * How to move (and, only when it is larger, shrink) a set of points so that all of them lie inside a canvas with a
+ * margin: points outside after a template was applied (the template keeps the neck where it was, and a lying pose has
+ * its neck at one end) or after the canvas got smaller. Identity when they are inside already.
+ */
+export function fitInside(points: Points, width: number, height: number, margin = 0.05): { scale: number; dx: number; dy: number; cx: number; cy: number } {
+  const pts = points.filter((k): k is Point => !!k)
+  const none = { scale: 1, dx: 0, dy: 0, cx: 0, cy: 0 }
+  if (!pts.length) return none
+  const xs = pts.map((k) => k[0])
+  const ys = pts.map((k) => k[1])
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
+  const [mx, my] = [width * margin, height * margin]
+  const [inW, inH] = [width - 2 * mx, height - 2 * my]
+  const scale = Math.min(1, inW / Math.max(1e-6, x1 - x0), inH / Math.max(1e-6, y1 - y0))
+  // shrunk around the box's centre, then moved in
+  const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2]
+  const [hw, hh] = [((x1 - x0) * scale) / 2, ((y1 - y0) * scale) / 2]
+  const ncx = Math.min(Math.max(cx, mx + hw), width - mx - hw)
+  const ncy = Math.min(Math.max(cy, my + hh), height - my - hh)
+  return { scale, dx: ncx - cx, dy: ncy - cy, cx, cy }
 }
 
 // ------------------------------------------------------------------ body templates

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Model / LoRA downloads from civitai.com.
 
@@ -279,6 +279,8 @@ def resolve(ref, token=None):
         "precision": (f.get("metadata") or {}).get("fp"), "note": note, "extras": extras,
         "trigger_words": clean_trigger_words(version.get("trainedWords")),
         "images": sample_images(version),  # for the model's preview picture
+        # the maker's texts, where the recommended settings are written (maker_settings.py)
+        "card": "%s\n%s" % (version.get("description") or "", (model or {}).get("description") or ""),
     }
 
 

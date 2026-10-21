@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Where VulKara keeps its files. App data (settings, history, runtimes) lives in the user data folder of
 // the app; the large files (models, LoRAs, pictures) in ~/VulKara by default, changeable in the settings.

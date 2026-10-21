@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Starts the app from the sources as "VulKara" instead of "Electron": macOS takes the name in the Dock and the
 // menu bar from the app bundle, so this makes a copy of Electron's bundle with VulKara's name and icon.

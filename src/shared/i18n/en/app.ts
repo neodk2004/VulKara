@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 export default {
   about: {
@@ -90,8 +90,8 @@ export default {
     },
     licence: {
       title: 'Licence and support',
-      freeBefore: 'VulKara is free software under the',
-      freeAfter: ': you may use, study, share and change it; a changed version that you pass on or offer over a network has to stay under the same licence. The full text ships with the app (LICENSE.txt). Models and runtimes are not part of the app and keep the licences of their publishers; see',
+      freeBefore: 'VulKara is free of charge and its source code is open, under the',
+      freeAfter: ': you may use, study, share and change it for any noncommercial purpose, such as private use, research, teaching or a nonprofit organisation; commercial use is not allowed. The full text ships with the app (LICENSE.txt). Models and runtimes are not part of the app and keep the licences of their publishers; see',
       licensesLink: 'Licenses',
       freeEnd: '.',
       sourceBefore: 'The source code is on',
@@ -99,6 +99,9 @@ export default {
       problemBefore: 'Something does not work?',
       problemLink: 'Report a problem',
       problemAfter: ': it shows the log of a session with your personal data replaced by ****, for you to read, copy and post as an issue on GitHub. Nothing is sent by the app.',
+      communityBefore: 'Questions, ideas or pictures you want to show: meet the community on',
+      communityLink: 'Discord',
+      communityAfter: '.',
       supportBefore: 'VulKara costs nothing. If it is useful to you, you can',
       supportLink: 'support its development',
       supportAfter: '(Buy Me a Coffee).',

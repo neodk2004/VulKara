@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Getting models and LoRAs: downloads from Hugging Face and Civitai, files and folders of the user. The work is
 // done by "main.py import_model" of the Diffusers engine; here its runs are queued (one at a time, they are

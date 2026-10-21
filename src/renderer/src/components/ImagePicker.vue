@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // The picture picker (util/pick_image.ts): the pictures of the history, newest first, searchable and filtered to the
 // favourites on request; one click takes a picture. "From disk" opens the file dialog instead.
@@ -8,8 +8,11 @@ import { FolderOpen, Heart, Search, X } from 'lucide-vue-next'
 import { finishPick, picker } from '../util/pick_image'
 import type { HistoryEntry } from '@shared/types'
 import { t } from '../i18n'
+import { isRemote } from '../remote_vk'
 
 const PAGE_SIZE = 40
+// a browser of the remote web UI cannot open the Mac's file dialog: there the history is the source
+const diskChoice = !isRemote()
 const dialog = ref<HTMLDialogElement>()
 const query = ref('')
 const favorites = ref(false)
@@ -83,7 +86,7 @@ const close = (): void => finishPick(undefined)
     <div class="inner">
       <header>
         <h2 class="grow">{{ t('common.picker.title') }}</h2>
-        <button class="btn primary" @click="fromDisk"><FolderOpen :size="14" /> {{ t('common.picker.fromDisk') }}</button>
+        <button v-if="diskChoice" class="btn primary" @click="fromDisk"><FolderOpen :size="14" /> {{ t('common.picker.fromDisk') }}</button>
         <button class="btn small ghost" :aria-label="t('common.close')" @click="close"><X :size="14" /></button>
       </header>
       <div class="controls">

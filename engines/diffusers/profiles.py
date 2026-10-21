@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """This Mac and what the engines do on it: chip, GPU, RAM, number format, and per model family the
 mode (quantization, text encoder staging, runtime) and resolution the memory plan picks.

@@ -1,24 +1,36 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // The app's language: System (macOS's) or one of the four, each under its own name. Settings → Appearance and the
 // Start page; icon: with the Languages icon in front (the Start page, where it stands alone).
+import { computed, ref, watch } from 'vue'
 import { Languages } from 'lucide-vue-next'
 import { LANG_NAMES, LANGS, type LangSetting } from '@shared/i18n'
 import { useSettingsStore } from '../stores/settings'
-import { t } from '../i18n'
+import { isRemote } from '../remote_vk'
+import { setLang, storedLang, t } from '../i18n'
 
 defineProps<{ icon?: boolean }>()
 const settings = useSettingsStore()
 const LANGUAGES: LangSetting[] = ['system', ...LANGS]
 const langName = (l: LangSetting): string => (l === 'system' ? t('settings.appearance.system') : LANG_NAMES[l])
+
+// a browser (remote web UI) switches its own language and cannot write the Mac's settings; the app writes them
+const chosen = ref<LangSetting>(isRemote() ? storedLang() : settings.values.language)
+watch(() => settings.values.language, (v) => { if (!isRemote()) chosen.value = v })
+const current = computed(() => chosen.value)
+function change(value: LangSetting): void {
+  chosen.value = value
+  if (isRemote()) void setLang(value)
+  else void settings.set('language', value)
+}
 </script>
 
 <template>
   <label class="language" :class="{ icon }">
     <Languages v-if="icon" :size="14" class="dim" />
     <select
-      :value="settings.values.language" :aria-label="t('settings.appearance.language')"
-      @change="settings.set('language', ($event.target as HTMLSelectElement).value as LangSetting)"
+      :value="current" :aria-label="t('settings.appearance.language')"
+      @change="change(($event.target as HTMLSelectElement).value as LangSetting)"
     >
       <option v-for="l in LANGUAGES" :key="l" :value="l">{{ langName(l) }}</option>
     </select>
@@ -30,16 +42,5 @@ const langName = (l: LangSetting): string => (l === 'system' ? t('settings.appea
   display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-
-/* as the menus of Settings */
-select {
-  height: 30px;
-  padding: 0 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
 }
 </style>

@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Restoring old photos: colour cast and contrast are corrected without a model; repairing (scratches, creases, spots,
 // holes) is done by a FLUX.2 model, held to guard rails: fixed rules and the user's own for the model, the original kept
@@ -268,7 +268,7 @@ function open(q: QueuedJob, file: string): void {
 
 <template>
   <PageFrame :title="t('restore.title')" :subtitle="t('restore.subtitle')">
-    <div class="work">
+    <div class="page-grid">
       <ImageInput v-model="input" @size="(w, h) => (size = [w, h])">
         <template #default="{ src, loaded }">
           <MaskCanvas ref="mask" :src="src" @loaded="(e) => (loaded(e), measure(e))" @change="painted = $event">
@@ -423,21 +423,8 @@ function open(q: QueuedJob, file: string): void {
 </template>
 
 <style scoped>
-.work {
-  display: grid;
-  gap: 16px;
-  max-width: 1400px;
-}
-
 .hint {
   margin-top: -6px;
-}
-
-.send {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 .prompt {
@@ -468,17 +455,6 @@ function open(q: QueuedJob, file: string): void {
   gap: 16px;
 }
 
-textarea {
-  width: 100%;
-  resize: vertical;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: inherit;
-  font: 14px/1.5 var(--font);
-  user-select: text;
-}
-
 .fields,
 .field {
   display: grid;
@@ -493,7 +469,6 @@ textarea {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-weight: 600;
 }
 
 .field > span b {
@@ -559,11 +534,6 @@ textarea {
   color: var(--text);
   font: inherit;
   font-size: 12px;
-}
-
-.chip.on {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .chip.own {

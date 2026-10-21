@@ -111,7 +111,7 @@ einen Neustart hinweg.
 - In der Warteschlange stoppt **Abbrechen** den laufenden Auftrag, und **Entfernen** nimmt einen wartenden oder
   fertigen Auftrag aus der Liste. **Erledigte entfernen** leert die Liste der fertigen Aufträge.
 - Wenn der letzte wartende Auftrag fertig ist, spielt der Mac einen kurzen Ton. Das lässt sich unter Einstellungen →
-  Inhalte → *Ton, wenn ein Auftrag fertig ist* ausschalten.
+  Inhalte → *Signalton abspielen, wenn die Warteschlange abgearbeitet wurde* ausschalten.
 - Während ein LoRA trainiert wird, startet kein Auftrag.
 
 ## 3. Text zu Bild
@@ -167,6 +167,11 @@ anderen Modells die Einstellungen bei, damit sich Modelle mit denselben Werten v
 - **Schritte, Guidance, Seed und Größe** bleiben, wie sie sind. Weichen sie vom Vorschlag des neuen Modells ab,
   erscheint über den Reglern neben **Modellvorgaben** ein oranges **!**: Der Zeiger darauf zeigt den Vorschlag
   (*Dieses Modell empfiehlt 4 Schritte und Guidance 0, 1024×1024*), und der Button stellt ihn ein.
+- **Woher der Vorschlag kommt**: Nennt die Modellkarte sie, werden die Schritte, die Guidance, der Sampler, der
+  Sigma-Verlauf und der Negativ-Prompt des Herstellers beim Import gelesen und zu den eigenen Vorgaben des Modells;
+  der Hinweis nennt dann auch den Sampler (*Der Hersteller empfiehlt den Sampler DPM++ SDE Karras.*), und
+  **Modellvorgaben** stellt ihn mit ein. Sagt die Karte nichts, bleiben die Werte, die VulKara für die Familie des
+  Modells vorsieht.
 - **Werte, für die das Modell nicht gemacht ist**, bekommen ein oranges **!** neben *Schritte* oder *Guidance*, mit
   einem Button, der den eigenen Wert des Modells einstellt: mehr als doppelt so viele Schritte, wie ein destilliertes
   Modell vorsieht (*Gemacht für 4 Schritte: Mehr dauern länger, ohne das Bild zu verbessern.*), Guidance bei einem
@@ -832,14 +837,18 @@ Jeder fertige Auftrag, der neueste zuerst, mit allen seinen Einstellungen.
 - **Öffnen**: Doppelklick, ↩ oder die Leertaste öffnet die große Ansicht.
 - **⌫** legt die ausgewählten Einträge nach einer Rückfrage **in den Papierkorb**, samt ihren Dateien.
 
-Das Feld eines einzelnen Eintrags zeigt das Bild mit **Speichern unter** und **Im Finder anzeigen**, den Prompt und
-alle Einstellungen. Es hat drei Tasten:
+Das Feld eines einzelnen Eintrags zeigt das Bild mit **Speichern unter**, **Im Finder anzeigen**, **Teilen** und
+**Bild kopieren**, den Prompt und alle Einstellungen. Es hat drei Tasten:
 
 - **Diese Einstellungen verwenden** übernimmt Prompt, Modell, Stil, Größe, Seed, LoRAs und alle anderen Einstellungen
   wieder in die Seite, von der der Auftrag kam. Das Modell wird auch dann wiedergefunden, wenn sein Ordner verschoben
   wurde.
 - **Eintrag entfernen** nimmt den Eintrag aus dem Verlauf; die Dateien bleiben.
 - **In den Papierkorb legen** entfernt den Eintrag und legt seine Dateien in den Papierkorb von macOS.
+
+**Teilen** öffnet das Teilen-Menü von macOS: Mail, Nachrichten, AirDrop und jede App, die sich dort anbietet, etwa
+WhatsApp oder Telegram. **Bild kopieren** legt das Bild in die Zwischenablage, um es in jede App einzufügen, auch in
+Signal oder Threema.
 
 Der Verlauf liegt in einem eigenen Ordner, der sich in den Einstellungen ändern lässt.
 
@@ -891,7 +900,8 @@ einem eigenen Vollbild-Space ohne Titelleiste), so verdeckt sie die App nie uner
 - Das **×** in der rechten oberen Ecke oder **Esc** schließt das Fenster; es hat eine eigene Schließen-Taste, weil ein
   Fenster über einer Vollbild-App keine Titelleiste hat.
 - Die Seitenleiste zeigt Prompt, Modell, Größe, Schritte, Seed und Stil.
-- **Speichern unter**, **Im Finder anzeigen**.
+- **Speichern unter**, **Im Finder anzeigen**, **Teilen** (das Teilen-Menü von macOS) und **Bild kopieren** (in die
+  Zwischenablage).
 - **Diese Einstellungen verwenden**: Prompt, Einstellungen und Seed zurück ins Formular.
 - **Bild zu Bild**, **Inpainting**, **Bild zu Video**, **Vergrößern** schicken das Bild an diese Seite des
   Hauptfensters.
@@ -986,7 +996,52 @@ Sprache; mit *System* folgen Datumsangaben der Region von macOS.
 - **Nacktheit in Ergebnissen erlauben**: standardmäßig aus. Ist es aus, werden Ergebnisse mit Nacktheit nicht angezeigt,
   und LoRAs und Vorschaubilder für Erwachsene fehlen in den Listen. Unabhängig von diesem Schalter werden sexuelle
   Inhalte mit Minderjährigen immer abgelehnt. Siehe [Inhaltsregeln](#21-inhaltsregeln).
-- **Ton, wenn ein Auftrag fertig ist**: standardmäßig an.
+- **Signalton abspielen, wenn die Warteschlange abgearbeitet wurde**: standardmäßig an. Er spielt, wenn die ganze
+  Warteschlange fertig ist, nicht nach jedem Auftrag.
+
+### Fernzugriff
+
+![Einstellungen → Fernzugriff](../screenshots/de/settings_remote.jpg)
+
+Öffne VulKara in einem Browser auf einem anderen Gerät im Heimnetzwerk oder via VPN-Verbindung – einem Handy, einem
+Tablet, einem zweiten Rechner –, um von dort den aktuellen Bildstatus zu sehen, neue Ideen von unterwegs bereits
+einzugeben und zu starten oder fertige Bilder im Verlauf anzusehen und herunterzuladen. Nur dieser Mac rechnet;
+nichts geht ins Internet.
+
+- **Fernzugriff erlauben**: standardmäßig aus. An, stellt der Mac die Seiten bereit und die Zeile darunter zeigt
+  *Aktiv*.
+- **Port**: standardmäßig 8787. Ist er belegt, wird der nächste freie genommen; die Adresse zeigt den tatsächlich
+  verwendeten Port.
+- **Verschlüsselt (HTTPS)**: standardmäßig an. VulKara legt eine kleine eigene Zertifizierungsstelle dieses Macs an
+  und damit das Zertifikat, mit dem die Web-UI läuft; die Links beginnen dann mit https://. Nötig für **Teilen** und
+  **Bild kopieren** im Browser, und das Token geht nicht mehr im Klartext durchs Netz. Aus: einfaches HTTP.
+- **Erreichbar unter**: ein Link je Netzwerk, in dem der Mac ist, mit dem Zugangstoken schon darin. Öffne ihn auf dem
+  anderen Gerät; das Token bleibt dort, wird also nur einmal eingegeben. Das Kopier-Symbol rechts neben einem Link
+  kopiert ihn (*Link kopieren*, solange der Zeiger darauf steht), und der **QR-Code** öffnet denselben Link, wenn man
+  ihn mit der Kamera eines Handys oder Tablets scannt.
+- **Zertifikat für deine Geräte**: Öffne diesen Link einmal auf jedem Gerät und installiere das Zertifikat; danach
+  öffnet der Browser die Web-UI ohne Warnung. Auf iPhone oder iPad schalte es anschließend unter Einstellungen →
+  Allgemein → Info → Zertifikatsvertrauenseinstellungen ein; auf Android installiere es unter Einstellungen →
+  Sicherheit → Verschlüsselung & Anmeldedaten → Zertifikat installieren → CA-Zertifikat. Bis dahin warnt der Browser
+  einmal, dass der Seite nicht vertraut wird. Bekommt der Mac eine andere Adresse, macht VulKara ein neues Zertifikat
+  von derselben Stelle; installiert werden muss dann nichts erneut. Das Zertifikat gilt nur für Adressen im lokalen
+  Netz, nie für andere Websites.
+- **Zugangstoken**: ein zufälliger Schlüssel, der beim ersten Einschalten des Fernzugriffs erzeugt wird. **Token
+  erneuern** erzeugt sofort ein neues – die alten Links funktionieren nicht mehr und die anderen Geräte brauchen den
+  neuen Link.
+
+Ein Browser zeigt nur die Seiten zum Erstellen und Zusehen – Text, Bild, Video, Illusion, Inpainting, Pose, LoRA,
+Verlauf (ansehen, favorisieren, löschen), Favoriten, Tipps, Änderungen. Die Seiten, die auf den Mac gehören, bleiben
+dort (Einstellungen, Modelle, Training, Verbessern, Vergrößern, Restaurieren, Leinwand, Hardware, Protokolle,
+Lizenzen, Über): Ein Browser kann keine Einstellungen ändern, keine Modelle oder Runtimes installieren und keine
+Datei auf dem Mac erreichen außer den Bildern, die er gezeigt bekommt. Jedes Gerät behält seine eigene Sprache, im
+Browser gewählt; die Sprache des Macs bleibt unberührt. Im Browser öffnet **Teilen** das Teilen-Menü des Handys
+(WhatsApp, Signal, Telegram, Threema, Mail …), und **Bild kopieren** steht ebenfalls bereit, beides nur über HTTPS;
+mit ausgeschaltetem HTTPS werden die Tasten nicht gezeigt.
+
+Mit ausgeschaltetem HTTPS ist die Verbindung einfaches HTTP; nutze sie dann nur in einem Netzwerk, dem du vertraust.
+Wenn die URL auf dem Remote-Gerät nicht geöffnet werden kann, erlaube in macOS eingehende Verbindungen für VulKara
+(Systemeinstellungen → Netzwerk → Firewall).
 
 ### Datenschutz
 

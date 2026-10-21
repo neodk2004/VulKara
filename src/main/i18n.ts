@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The main process's texts (errors, progress, dialogs) in the app's language. index.ts sets the language from the
 // settings and macOS; until then, and in tests, it is English.

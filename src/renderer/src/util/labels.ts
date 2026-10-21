@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Names that are stored or sent in English, shown in the app's language: styles (a job keeps the style's name) and the
 // sampler choices "Default" and "... (flow)" (the engines take the names as they are).

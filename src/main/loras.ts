@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Looking after LoRAs: what a LoRA was trained with (read from the header of its file), its trigger words and
 // category (kept in its manifest), renaming.

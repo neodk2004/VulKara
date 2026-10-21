@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The icons of the documents (README, user guide): the same Lucide icons the app shows, written as SVG files into
 // docs/icons from the app's own lucide-vue-next, in the app's accent colour (readable on light and dark pages).
@@ -20,6 +20,7 @@ export const DOC_ICONS = {
   'sun-moon': 'website: appearance like the system',
   'copy': 'website: copy a command',
   'monitor': 'everything on the Mac',
+  'tablet-smartphone': 'website: remote access from a phone or tablet',
   'boxes': 'Models',
   'cpu': 'engines, Hardware',
   'paintbrush': 'tools',

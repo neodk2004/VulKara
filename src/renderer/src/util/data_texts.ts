@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Texts of the data files (recommended models, helper groups, the licence list) in the app's language
 // (src/shared/i18n/data.ts); English, as the files have them, where no translation is known.

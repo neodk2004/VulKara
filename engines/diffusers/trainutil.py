@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Shared by the LoRA trainers (diffusers/train_sdxl.py, mlx/train.py): the job's
 pictures and captions, the progress protocol and storing the result like an imported LoRA."""

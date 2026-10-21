@@ -1,10 +1,13 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 export default {
   cancel: 'Cancel',
   remove: 'Remove',
   close: 'Close',
   starting: 'Starting',
+  share: 'Share',
+  copyImage: 'Copy picture',
+  copied: 'Copied',
   consent: {
     yes: 'Yes, continue',
     no: 'No, cancel',

@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // Training a LoRA on own pictures: a name, a trigger word, the model to train on, the pictures with captions
 // and a few numbers. The training itself runs in the main process; this page shows how far it is.
@@ -238,15 +238,9 @@ const url = (path: string): string => window.vk.files.url(path)
   max-width: 900px;
 }
 
-.field {
-  display: grid;
-  gap: 6px;
-}
-
 .field > span {
   display: flex;
   gap: 8px;
-  font-weight: 600;
 }
 
 .field b {
@@ -277,23 +271,20 @@ input[type='text'],
 input[type='number'],
 select,
 textarea {
-  min-width: 0;
   width: 100%;
-  padding: 0 10px;
-  height: 30px;
+}
+
+textarea {
+  min-width: 0;
+  padding: 6px 8px;
   border: 1px solid var(--line);
   border-radius: var(--radius-s);
   background: var(--surface-2);
   color: inherit;
   font: inherit;
-  user-select: text;
-}
-
-textarea {
-  height: auto;
-  padding: 6px 8px;
-  resize: vertical;
   font-size: 12px;
+  user-select: text;
+  resize: vertical;
 }
 
 .pictures {
@@ -324,15 +315,6 @@ textarea {
 
 .chip {
   padding: 4px 10px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
-  font-size: 12px;
-}
-
-.chip.on {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .warn {

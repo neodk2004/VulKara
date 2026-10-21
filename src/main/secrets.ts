@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Access tokens (Hugging Face, Civitai), encrypted with the macOS keychain (safeStorage). The page can only
 // set or clear a token and ask whether one exists; the plain token never goes back to it.

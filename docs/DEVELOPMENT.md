@@ -360,6 +360,13 @@ the same API the pages use.
   without the Diffusers runtime it waits for a later start. To run it again after a detection change, raise the flag's
   number. `python main.py recheck_loras` without `--apply` prints what would change.
 
+`engines/diffusers/maker_settings.py` reads the settings a model's maker recommends out of its card (the Hugging Face
+README beside the model, a Civitai description already stored with it, and — only when `VK_HASH_LOOKUPS=1`, the
+"hash look-ups" setting — the Civitai page found by the file's SHA256): steps, guidance, sampler, sigma schedule and
+negative prompt. The importer calls it once per model and writes what it found into `manifest.maker` and over
+`manifest.defaults`. `python main.py maker_settings` reads the cards of every installed model again, `--dry` prints
+what would change.
+
 ### Adding an architecture
 
 1. `engines/diffusers/registry.py`: an `ARCHS` entry (family, label, pipelines, denoiser, base repository, dtype,
@@ -431,7 +438,7 @@ the same API the pages use.
 - Every measurement (a benchmark, a profile, a live result on the Mac mini) is recorded in
   [docs/MEASUREMENTS.md](MEASUREMENTS.md) with date, machine and conclusion, and that file is read before anything
   is measured again.
-- Every own source file starts with `SPDX-License-Identifier: AGPL-3.0-or-later` and the copyright line
+- Every own source file starts with `SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0` and the copyright line
   (a new file gets the same two lines). Third-party code that lives in the tree
   (`engines/diffusers/ddcolor`) keeps its own notice and licence file instead.
 
@@ -711,9 +718,9 @@ preview (a click opens one large, the arrow keys step through its tip's row); th
 
 ## The edition
 
-`src/shared/edition.ts` describes what the build offers. VulKara is free software, so there is one edition with
-everything; the switches (`comfyui`, `explicitContent`, `commercialModelsOnly`) stay in place so that a restricted
-build remains possible without touching the pages.
+`src/shared/edition.ts` describes what the build offers. VulKara is published free of charge, so there is one edition
+with everything; the switches (`comfyui`, `explicitContent`, `commercialModelsOnly`) stay in place so that a
+restricted build remains possible without touching the pages.
 
 ## Release
 
@@ -808,6 +815,7 @@ prints `clean`, or the matches; any match makes the release fail.
 
 ## Licence
 
-GNU Affero General Public License v3.0 or later, see [LICENSE](../LICENSE): changes that are passed on or offered over
-a network stay under the same licence. Third-party components: [THIRD_PARTY_NOTICES.txt](../THIRD_PARTY_NOTICES.txt).
-Contributions are welcome under the same licence; see [CONTRIBUTING.md](../CONTRIBUTING.md).
+PolyForm Noncommercial License 1.0.0, see [LICENSE](../LICENSE): use, changes and sharing for any noncommercial
+purpose; commercial use is not allowed. Earlier versions keep the licence they were released under (see the
+changelog). Third-party components: [THIRD_PARTY_NOTICES.txt](../THIRD_PARTY_NOTICES.txt). Contributions are welcome
+under the terms in [CONTRIBUTING.md](../CONTRIBUTING.md).

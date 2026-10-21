@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The form of the generate pages and how it becomes a job.
 
 import { controlTypesFor } from '@shared/controlnet'
 import { loraFits } from '@shared/lora_fit'
-import { samplersFor } from '@shared/samplers'
+import { SIGMA_SCHEDULES, samplersFor } from '@shared/samplers'
 import type { AiLabel, Asset, Job } from '@shared/types'
 import { DEFAULT_SIZES, sizeForRatio, videoSize, type VideoResolution } from './sizes'
 import { t } from '../i18n'
@@ -111,15 +111,24 @@ export const lorasFor = (model: Asset | undefined, loras: Asset[]): Asset[] =>
 
 const num = (v: unknown, fallback: number): number => (typeof v === 'number' && Number.isFinite(v) ? v : fallback)
 
-/** What a model suggests: its steps, guidance and size. */
-export function modelDefaults(model: Asset): { steps: number; guidance: number; width: number; height: number } {
+/** What a model suggests: its steps, guidance and size, and the sampler, sigma schedule and negative prompt its maker
+ *  recommends (manifest defaults, read from the model card on import: engines/diffusers/maker_settings.py). A sampler
+ *  the model can not take here counts as "Default". */
+export function modelDefaults(model: Asset): { steps: number; guidance: number; width: number; height: number; sampler: string; sigmaSchedule: string; negativePrompt?: string } {
   const d = model.meta.defaults ?? {}
-  return { steps: num(d.num_steps, 25), guidance: num(d.guidance_scale, 7), width: num(d.width, 1024), height: num(d.height, 1024) }
+  const sampler = typeof d.sampler === 'string' && samplersFor(model.meta)?.includes(d.sampler) ? d.sampler : 'Default'
+  const sigmaSchedule = sampler !== 'Default' && typeof d.sigma_schedule === 'string' && SIGMA_SCHEDULES.includes(d.sigma_schedule) ? d.sigma_schedule : 'Default'
+  return {
+    steps: num(d.num_steps, 25), guidance: num(d.guidance_scale, 7), width: num(d.width, 1024), height: num(d.height, 1024), sampler, sigmaSchedule,
+    ...(typeof d.negative_prompt === 'string' && d.negative_prompt ? { negativePrompt: d.negative_prompt } : {}),
+  }
 }
 
-/** Steps, guidance and size as the model suggests them ("Model defaults"). */
+/** Steps, guidance, size, sampler and the maker's negative prompt as the model suggests them ("Model defaults"). */
 export function applyDefaults(form: GenerateForm, model: Asset): void {
-  Object.assign(form, modelDefaults(model))
+  const { negativePrompt, ...rest } = modelDefaults(model)
+  Object.assign(form, rest)
+  if (negativePrompt) form.negativePrompt = negativePrompt
   form.sizeWanted = undefined
 }
 
@@ -134,7 +143,10 @@ export function applyModel(form: GenerateForm, model: Asset, loras: Asset[], pre
   const d = model.meta.defaults ?? {}
   form.modelId = model.id
   if (!previous) {
+    // a sampler chosen before stays unless the maker recommends one
+    const { sampler, sigmaSchedule } = form
     applyDefaults(form, model)
+    if (form.sampler === 'Default') Object.assign(form, { sampler, sigmaSchedule })
     form.sizeWanted = undefined
   } else {
     const sizes = model.meta.resolutions?.length ? model.meta.resolutions : DEFAULT_SIZES

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Announces a release on Mastodon and Bluesky (.github/workflows/release.yml). Each one only when its secrets are set:
 //   MASTODON_INSTANCE (https://mastodon.social), MASTODON_TOKEN (an access token with write:statuses)

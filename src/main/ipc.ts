@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // What the pages can ask of the main process (src/shared/api.ts, exposed by the preload script as window.vk).
 
-import { app, BrowserWindow, dialog, ipcMain, net, powerSaveBlocker, shell, type IpcMainInvokeEvent } from 'electron'
+import { app, BrowserWindow, clipboard, ClipboardItem, dialog, ipcMain, nativeImage, net, powerSaveBlocker, ShareMenu, shell, type IpcMainInvokeEvent } from 'electron'
 import { type ChildProcess, execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -11,6 +11,7 @@ import { totalmem } from 'node:os'
 import { describeMac, macModel } from './mac_model'
 import { dataDir, enginesDir, isInside } from './paths'
 import { isMedia } from './protocols'
+import { REMOTE_CHANNELS, REMOTE_EVENTS } from './remote_channels'
 import { adoptFolder, listAssets, removeAsset, setDisplayName, titleOfFolder } from './assets'
 import { foreignRefusalOf, reimportRequest } from './foreign_mac'
 import { anyEngineInstalled, dispatch, forgetMlxRefusals, guard, stopEngines, stopJob, unloadEngines } from './engines'
@@ -47,8 +48,34 @@ import type { Job } from '@shared/types'
 
 let win: BrowserWindow | undefined
 
+/** where the pose editor's skeletons go (files:writePose): pictures that show no person */
+const posesDir = (): string => join(dataDir(), 'inputs', 'poses')
+
 function send(channel: string, ...args: unknown[]): void {
   if (win && !win.isDestroyed()) win.webContents.send(channel, ...args)
+  if (REMOTE_EVENTS.has(channel)) for (const fn of remoteListeners) fn(channel, args)
+}
+
+/** An event that main's own code sends to every window by itself: the browsers of the remote web UI hear it too. */
+export function sendToRemote(channel: string, ...args: unknown[]): void {
+  if (REMOTE_EVENTS.has(channel)) for (const fn of remoteListeners) fn(channel, args)
+}
+
+// the remote web UI (remote.ts): the handlers it may call by channel, and who hears what the pages hear
+const remoteHandlers = new Map<string, (...args: unknown[]) => unknown>()
+const remoteListeners = new Set<(channel: string, args: unknown[]) => void>()
+
+/** The bridge as the remote web UI sees it: only the channels of remote.ts's list, the same events as the pages. */
+export const remoteBridge = {
+  call(channel: string, args: unknown[]): Promise<unknown> {
+    const fn = remoteHandlers.get(channel)
+    if (!fn) return Promise.reject(new Error('not allowed'))
+    return Promise.resolve().then(() => fn(...args))
+  },
+  subscribe(fn: (channel: string, args: unknown[]) => void): () => void {
+    remoteListeners.add(fn)
+    return () => remoteListeners.delete(fn)
+  },
 }
 
 // snapshots at most every 100 ms: an engine reports progress far more often than a page needs it
@@ -59,6 +86,8 @@ const queue: JobQueue<RuntimeId> = new JobQueue<RuntimeId>({
   dispatch: (job, listener) => dispatch('generate', job, listener),
   stop: stopJob,
   check: (path, model, label) => guard.check(path, { safeMode: !getSettings().allowExplicit, model, label }),
+  // skeletons of the pose editor (written by files:writePose only) show no person
+  generated: (path) => isInside(path, posesDir()),
   // a fresh result the filter did not pass leaves the pictures folder too (also when the filter could not run)
   discard: (path) => { if (isInside(path, imagesDir())) rmSync(path, { force: true }) },
   log,
@@ -253,7 +282,7 @@ function scheduleUpdateChecks(): void {
 
 // what a viewer window may ask for; everything else is for the main window only
 // every window asks for the app's language (i18n:lang) before it shows its page
-const VIEWER_CHANNELS = new Set(['viewer:payload', 'viewer:act', 'files:saveAs', 'files:reveal', 'i18n:lang'])
+const VIEWER_CHANNELS = new Set(['viewer:payload', 'viewer:act', 'files:saveAs', 'files:reveal', 'files:share', 'files:copyImage', 'i18n:lang'])
 const SPLASH_CHANNELS = new Set(['splash:state', 'splash:confirm', 'app:info', 'i18n:lang'])
 
 type Handler = (...args: never[]) => unknown
@@ -273,6 +302,7 @@ function handleFrom(channel: string, fn: SenderHandler): void {
 
 function handle(channel: string, fn: Handler): void {
   handleFrom(channel, (_event, ...args) => (fn as (...a: unknown[]) => unknown)(...args))
+  if (REMOTE_CHANNELS.has(channel)) remoteHandlers.set(channel, fn as (...a: unknown[]) => unknown)
 }
 
 export function registerIpc(): void {
@@ -603,19 +633,37 @@ export function registerIpc(): void {
     copyFileSync(path, res.filePath)
     return true
   })
-  handle('files:writeImage', (dataUrl: string) => {
+  // a picture a page made (a mask, a drawing) as PNG; the pose editor's skeletons go into a folder of their own, so
+  // that the consent question knows they show no person
+  const writePng = (dataUrl: string, folder: string): string => {
     // a canvas of 8192 × 8192 is far below this
     if (typeof dataUrl !== 'string' || dataUrl.length > 300 * 1024 ** 2) throw new Error(t('main.files.tooLarge'))
     const m = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl)
     if (!m) throw new Error('not a PNG picture')
-    const dir = join(dataDir(), 'inputs')
-    mkdirSync(dir, { recursive: true })
-    const path = join(dir, randomUUID() + '.png')
+    mkdirSync(folder, { recursive: true })
+    const path = join(folder, randomUUID() + '.png')
     writeFileSync(path, Buffer.from(m[1], 'base64'))
     return path
-  })
+  }
+  handle('files:writeImage', (dataUrl: string) => writePng(dataUrl, join(dataDir(), 'inputs')))
+  handle('files:writePose', (dataUrl: string) => writePng(dataUrl, posesDir()))
   handle('files:reveal', (path: string) => {
     if (typeof path === 'string' && isAbsolute(path) && existsSync(path) && fileAccess.allows(path)) shell.showItemInFolder(path)
+  })
+  // a result to Mail, Messages, AirDrop and every app that offers itself in macOS's share menu (WhatsApp, Telegram, …)
+  handleFrom('files:share', (event, path: string) => {
+    const owner = BrowserWindow.fromWebContents(event.sender)
+    if (!owner || typeof path !== 'string' || !isMedia(path) || !existsSync(path) || !fileAccess.allows(path)) return false
+    new ShareMenu({ filePaths: [path] }).popup({ window: owner })
+    return true
+  })
+  // the picture itself on the clipboard, to paste into any app (Signal, Threema, a mail being written, …)
+  handle('files:copyImage', async (path: string) => {
+    if (typeof path !== 'string' || !isMedia(path) || !existsSync(path) || !fileAccess.allows(path)) return false
+    const image = nativeImage.createFromPath(path)
+    if (image.isEmpty()) return false  // a video: the share menu takes it, the clipboard does not
+    await clipboard.write([new ClipboardItem({ 'image/png': new Blob([image.toPNG()], { type: 'image/png' }) })])
+    return true
   })
 
   handle('viewer:open', (items: ViewerItem[], index: number) => {
@@ -762,6 +810,10 @@ export function registerIpc(): void {
   })
   // the one page of GitHub this call opens, built here: a page can not choose the address
   handle('logs:openIssue', () => shell.openExternal(issueUrl()))
+  handle('remote:info', async () => {
+    const r = await import('./remote')
+    return { running: r.remoteRunning(), addresses: r.remoteAddresses(), https: r.remoteHttps() }
+  })
   onLog((line) => send('app:log', line))
 }
 

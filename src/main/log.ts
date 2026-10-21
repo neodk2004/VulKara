@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The app log: what the engines and installers print, kept in memory for the Logs page and written to a file of
 // this session (logs/session-….log in the app data folder, the newest 10 kept: log_sessions.ts), so an earlier

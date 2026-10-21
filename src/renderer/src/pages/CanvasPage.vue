@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // The AI Canvas: an endless surface with pictures as layers and a frame in which the model paints. An empty
 // frame gives a new picture; a frame over the edge of a picture extends it; a painted mask repaints a part;
@@ -778,22 +778,16 @@ onBeforeUnmount(() => {
   gap: 14px;
 }
 
-.field {
-  display: grid;
+/* a notice next to the name of a field */
+.field > .label-row {
+  justify-content: flex-start;
+  align-items: center;
   gap: 6px;
 }
 
 .field > span {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
-}
-
-/* a notice next to the name of a field */
-.field > .label-row {
-  justify-content: flex-start;
-  align-items: center;
-  gap: 6px;
 }
 
 .field b {
@@ -808,9 +802,7 @@ onBeforeUnmount(() => {
   gap: 10px;
 }
 
-textarea,
-select,
-input[type='number'] {
+textarea {
   width: 100%;
   padding: 6px 10px;
   border: 1px solid var(--line);
@@ -819,35 +811,17 @@ input[type='number'] {
   color: inherit;
   font: inherit;
   user-select: text;
-}
-
-textarea {
   resize: vertical;
 }
 
 select,
 input[type='number'] {
-  height: 30px;
-  padding: 0 8px;
+  width: 100%;
 }
 
 input[type='range'] {
   width: 100%;
   accent-color: var(--accent);
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.chip {
-  padding: 3px 10px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
-  font-size: 12px;
 }
 
 .plan {

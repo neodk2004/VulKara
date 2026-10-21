@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Control pictures: a pose, a depth map or edges steer the composition of a picture. Which kinds a model can
 // take follows engines/diffusers/controlnet.py (the control model is downloaded on first use).

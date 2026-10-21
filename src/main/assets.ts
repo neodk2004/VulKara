@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Installed models and LoRAs: every folder of the models / LoRA folder with a manifest (model.json, lora.json).
 
@@ -27,6 +27,7 @@ function meta(m: Raw, type: Asset['type'], folder: string): ModelMeta {
     kind: m.kind === 'video' ? 'video' : 'image',
     minRamGb: typeof m.min_ram_gb === 'number' ? m.min_ram_gb : undefined,
     defaults: (m.defaults as ModelMeta['defaults']) ?? undefined,
+    maker: (m.maker as ModelMeta['maker']) ?? undefined,
     resolutions: Array.isArray(m.resolutions) ? (m.resolutions as number[]) : undefined,
     negativePrompt: m.negative_prompt === true, img2img: m.img2img === true,
     inpaint: typeof m.inpaint === 'boolean' ? m.inpaint : undefined,

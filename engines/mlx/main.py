@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """MLX engine: runs FLUX.1, FLUX.2 [klein] and Z-Image models (diffusers folder layout), Krea 2 and Ideogram 4
 with mflux.

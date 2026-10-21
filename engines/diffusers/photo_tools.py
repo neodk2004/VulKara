@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Photo tools: small models that take a photo and give back a photo or a mask (sharpen, denoise, upscale, remove JPEG
 artefacts, remove the background, select objects). No diffusion model is involved. Two runtimes:

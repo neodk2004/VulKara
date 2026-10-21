@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The licence of an installed model or LoRA, read from where it came from: the permissions its makers set on
 // Civitai, or the licence in its Hugging Face model card. A file without a known origin is looked up on Civitai by

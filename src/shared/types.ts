@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Types shared by the main process, the preload script and the pages.
 
@@ -11,6 +11,8 @@ export interface ModelMeta {
   kind: 'image' | 'video'
   minRamGb?: number
   defaults?: Record<string, number | string>
+  /** what the model's maker recommends (its card), with where it was read; over the defaults (maker_settings.py) */
+  maker?: Record<string, number | string>
   resolutions?: number[]
   negativePrompt?: boolean
   img2img?: boolean

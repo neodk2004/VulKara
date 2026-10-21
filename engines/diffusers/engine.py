@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Runs imported diffusers models (SDXL, SD 3.5, FLUX.1, Chroma, FLUX.2, Qwen-Image, Z-Image) on MPS."""
 import gc
@@ -1096,7 +1096,17 @@ class DiffusersEngine:
             for w in words:
                 if w and w.lower() not in prompt.lower():
                     prompt = w + ", " + prompt
-        model.set_sampler(d.get("sampler"), d.get("sigma_schedule"))
+        # no sampler chosen: the one the model's maker recommends (maker_settings.py), else the model's own
+        if d.get("sampler") and str(d["sampler"]).lower() != "default":
+            model.set_sampler(d.get("sampler"), d.get("sigma_schedule"))
+        else:
+            # a card naming a schedule the sampler, or a sampler the family can not take: what of it works
+            for sampler, sigmas in ((defaults.get("sampler"), defaults.get("sigma_schedule")), (defaults.get("sampler"), None), (None, None)):
+                try:
+                    model.set_sampler(sampler, sigmas)
+                    break
+                except ValueError:
+                    pass
         pipe = model.pipe
         pipe_class = None  # another pipeline built on the loaded components
         pipe_extra = {}
@@ -1182,9 +1192,10 @@ class DiffusersEngine:
             if negative and spec["negative_prompt"]:
                 call["negative_prompt"] = negative
 
-        # above ~1536² the UNet's attention maps alone take GBs: compute them in slices
-        if hasattr(pipe, "enable_attention_slicing") and spec["family"] == "sdxl":
-            if width * height > SLICE_ABOVE_PIXELS:
+        # above ~1536² the UNet's attention maps alone take GBs: compute them in slices; SD 1.5 / 2 (whose first
+        # attention runs at a quarter of the latent's width) already above 512² (768² took 16 GB and swapped, 2026-10-14)
+        if hasattr(pipe, "enable_attention_slicing") and spec["family"] in ("sdxl", "sd1", "sd2"):
+            if width * height > (SLICE_ABOVE_PIXELS if spec["family"] == "sdxl" else 512 * 512):
                 pipe.enable_attention_slicing()
             else:
                 pipe.disable_attention_slicing()

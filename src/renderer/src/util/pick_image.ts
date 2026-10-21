@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Choosing a picture to start from: the app's own results from the history (ImagePicker.vue, mounted once in App.vue)
 // or a file from disk. pickImage() opens the picker and resolves with the chosen path, or undefined when closed.

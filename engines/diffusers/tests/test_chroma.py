@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Chroma: recognising its checkpoints, the import plan, the memory plan, staged prompt encoding, its LoRAs, and
 Chroma checkpoints once imported as FLUX.1 (or marked as not runnable) made runnable. No network: the fixture holds

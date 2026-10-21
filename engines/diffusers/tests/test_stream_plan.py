@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """The import plan counts SSD streaming as the engine does: a model too large for the memory still fits when its
 denoiser can stream (a GGUF one in 16 bit, unpacked once)."""

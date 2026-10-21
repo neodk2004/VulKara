@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // The hidden pattern of an illusion: a spiral, rings, a checkerboard, stripes, a word or an own picture, drawn
 // in black and white in the size of the result. Light parts of the pattern become bright in the picture, dark
@@ -197,25 +197,6 @@ canvas {
   align-content: start;
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.chip {
-  padding: 3px 10px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
-  font-size: 12px;
-}
-
-.chip.on {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
 .line {
   display: flex;
   align-items: center;
@@ -239,14 +220,6 @@ canvas {
 }
 
 input[type='text'] {
-  height: 30px;
   max-width: 360px;
-  padding: 0 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
-  user-select: text;
 }
 </style>

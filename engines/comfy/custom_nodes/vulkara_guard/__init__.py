@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """VulKara's lock on ComfyUI's server. ComfyUI listens on 127.0.0.1 without a password, so any program on the Mac (and
 a web page in a browser, through the loopback address) could send it work. The app starts ComfyUI with a random key

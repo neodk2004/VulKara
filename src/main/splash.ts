@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The splash window at start: the main window loads behind it; the splash closes by itself once the main window is
 // ready and the splash has been seen for a moment (a click closes it earlier).

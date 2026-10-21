@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // LoRAs baked into a new model of its own (engines/diffusers/merge.py): a base model, one or more LoRAs with their
 // strength, a name. The new model needs no LoRA any more and shows up under Models; the work runs in the import
@@ -175,14 +175,6 @@ h2 {
   min-width: 0;
 }
 
-.field {
-  display: grid;
-  gap: 6px;
-}
-
-.field > span {
-  font-weight: 600;
-}
 
 .lora {
   display: flex;

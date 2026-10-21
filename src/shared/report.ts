@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The problem report as it goes to the clipboard and to GitHub: the header, then the redacted log in a code block.
 // The log itself never goes into the link: it would not fit, and the user pastes it after reading it.

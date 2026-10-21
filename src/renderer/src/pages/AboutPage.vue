@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // About the app: what runs where, and which content rules the model licences set and how the app keeps them.
 import { onMounted, ref } from 'vue'
@@ -8,7 +8,7 @@ import ReportDialog from '../components/ReportDialog.vue'
 import { useSettingsStore } from '../stores/settings'
 import { openLink } from '../util/links'
 import { t } from '../i18n'
-import { LICENCE_NAME, LICENCE_URL, REPO_URL, SUPPORT_URL } from '@shared/links'
+import { DISCORD_URL, LICENCE_NAME, LICENCE_URL, REPO_URL, SUPPORT_URL } from '@shared/links'
 
 const info = ref<{ name: string; version: string; electron: string; platform: string; ramGb: number; mac: string; os: string }>()
 const settings = useSettingsStore()
@@ -92,6 +92,10 @@ onMounted(async () => {
       </p>
       <p>
         {{ t('app.about.licence.problemBefore') }} <a href="#" @click.prevent="reporting = true">{{ t('app.about.licence.problemLink') }}</a>{{ t('app.about.licence.problemAfter') }}
+      </p>
+      <p>
+        {{ t('app.about.licence.communityBefore') }}
+        <a href="#" @click.prevent="openLink(DISCORD_URL)">{{ t('app.about.licence.communityLink') }}</a>{{ t('app.about.licence.communityAfter') }}
       </p>
       <p v-if="SUPPORT_URL">
         {{ t('app.about.licence.supportBefore') }}

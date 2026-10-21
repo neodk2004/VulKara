@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Training a LoRA on the user's pictures: SDXL with the Diffusers runtime, FLUX.2 [klein] and Krea 2 with MLX.
 // One training at a time; it runs in the main process' care, so its state survives page changes.

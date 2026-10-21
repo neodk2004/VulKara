@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The pages' texts in the app's language (src/shared/i18n). The language is a reactive value: everything that calls
 // t() while rendering (a template, a computed) follows a change at once, without a restart.
@@ -7,7 +7,7 @@
 // language at that moment. Keep the key instead (title: 'settings.folders.models' as Key) and call t() in the template.
 
 import { ref } from 'vue'
-import { LOCALES, translate, value, type Args, type Key, type Lang, type Language } from '@shared/i18n'
+import { LOCALES, translate, value, type Args, type Key, type Lang, type LangSetting, type Language } from '@shared/i18n'
 
 export type { Key, PlainKey } from '@shared/i18n'
 
@@ -48,13 +48,51 @@ function apply(language: Language): void {
   region.value = language.locale
   document.documentElement.lang = language.lang
 }
+const localeOf = (lang: Lang): Language => ({ lang, locale: LOCALES[lang] ?? 'en-US' })
 
-/** Asks the main process for the language and follows its changes (every window does this before it mounts). */
-export async function startI18n(): Promise<void> {
+// the remote web UI cannot (and must not) change the Mac's language, so a browser keeps its own choice here and
+// follows the Mac's language only while that choice is "System". The app itself always follows the Mac.
+const LANG_KEY = 'vk.lang'
+let followSystem = true
+
+/** The language this browser chose (remote web UI), or "system". */
+export function storedLang(): LangSetting {
+  try {
+    return (localStorage.getItem(LANG_KEY) as LangSetting) || 'system'
+  } catch {
+    return 'system'
+  }
+}
+
+/** Remote web UI: switch this browser's language (kept in this browser). "system" follows the Mac again. */
+export async function setLang(setting: LangSetting): Promise<void> {
+  try {
+    localStorage.setItem(LANG_KEY, setting)
+  } catch {
+    // private window: the choice lives as long as the page
+  }
+  followSystem = setting === 'system'
+  if (followSystem) {
+    try {
+      apply(await window.vk.i18n.lang())
+    } catch {
+      // no main process
+    }
+  } else {
+    apply(localeOf(setting))
+  }
+}
+
+/** Asks the main process for the language and follows its changes (every window does this before it mounts).
+ *  In a browser (remote web UI) the device's own stored choice wins over the Mac's. */
+export async function startI18n(remote = false): Promise<void> {
+  const pref = remote ? storedLang() : 'system'
+  followSystem = pref === 'system'
   try {
     apply(await window.vk.i18n.lang())
   } catch {
     // no main process (a test page): English
   }
-  window.vk?.i18n.onLang(apply)
+  if (!followSystem) apply(localeOf(pref))
+  window.vk?.i18n.onLang((l) => { if (followSystem) apply(l) })
 }

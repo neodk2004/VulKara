@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Installed LoRAs and models checked again with the current detection (registry.lora_identity, model_variant,
 is_chroma): a LoRA filed under the wrong family (a kohya FLUX.1 LoRA taken for SDXL, a Qwen-Image 2.1 LoRA for

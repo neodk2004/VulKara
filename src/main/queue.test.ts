@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 import { describe, expect, it } from 'vitest'
 import { ConsentRequired, JobQueue, type QueueEvent } from './queue'
@@ -76,6 +76,22 @@ describe('job queue', () => {
     expect(sent).toHaveLength(0)
     queue.add({ ...JOB, prompt: 'nude woman', inputImage: '/in.png', consent: true })
     expect(sent).toHaveLength(1)
+  })
+
+  it('does not ask for consent for a skeleton of the pose editor, but for a photo', () => {
+    const sent: unknown[] = []
+    const queue = new JobQueue<string>({
+      dispatch: (job) => { sent.push(job); return 'diffusers' },
+      stop: () => {},
+      check: async () => ({ ok: true }),
+      generated: (p) => p.startsWith('/data/inputs/poses/'),
+      now: () => 0,
+      changed: () => {},
+    })
+    queue.add({ ...JOB, prompt: 'nude woman on a beach', controlnet: { type: 'BodyPose', image: '/data/inputs/poses/a.png', weight: 1, preprocess: false } })
+    expect(sent).toHaveLength(1)
+    expect(() => queue.add({ ...JOB, prompt: 'nude woman', controlnet: { type: 'BodyPose', image: '/photos/me.jpg', weight: 1, preprocess: true } })).toThrow(ConsentRequired)
+    expect(() => queue.add({ ...JOB, prompt: 'nude woman', inputImage: '/data/inputs/poses/a.png', restore: { correct: true, repair: false, colorize: false, colorStrength: 1, sharpen: false, sharpness: 0.25, lock: true, maxChange: 0.06, rules: [], checkFaces: true } })).toThrow(ConsentRequired)
   })
 
   it('does not show a result the content filter blocked', async () => {

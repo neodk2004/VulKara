@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Renders build/icon.svg into the macOS icon set (build/icon.icns) and a 1024 px PNG (build/icon.png).
 // The SVG is drawn into a canvas of a hidden page in every size the icon set needs.

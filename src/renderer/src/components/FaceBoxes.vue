@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // The faces Restore will restore, over the photo: one rounded frame each (the square CodeFormer restores). A frame
 // is dragged to where the face really is, or taken away with its ×. Positions are in the photo's pixels; the

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The job queue. It lives in the main process, so jobs keep running while pages change or reload; the pages
 // only see snapshots. One job runs at a time (the engines share the unified memory). A result reaches a job
@@ -26,6 +26,9 @@ export interface QueueDeps<E = string> {
   finished?(job: Job, results: string[]): void
   /** a result the content filter did not pass (or could not check) is removed from the disk */
   discard?(path: string): void
+  /** whether an input picture is VulKara's own making with no real photo behind it (a pose editor skeleton): no
+   *  consent question for it */
+  generated?(path: string): boolean
   log?(line: string): void
 }
 
@@ -60,8 +63,10 @@ export class JobQueue<E = string> {
     const text = [job.prompt, ...(job.restore?.rules ?? [])].join('\n')
     const refused = prohibitedPrompt(text, mainLanguage().lang)
     if (refused) throw new Error(refused)
-    // a picture of a person reaches the model as input, as pose or depth guide, or to be restored
-    const fromPicture = !!(job.inputImage || job.controlnet?.image || job.restore)
+    // a picture of a person reaches the model as input, as pose or depth guide, or to be restored; a skeleton of the
+    // pose editor shows no person
+    const pictures = [job.inputImage, job.controlnet?.image].filter((f): f is string => typeof f === 'string' && !!f)
+    const fromPicture = !!job.restore || pictures.some((f) => !this.deps.generated?.(f))
     if (fromPicture && isSexualPrompt(text) && job.consent !== true) throw new ConsentRequired()
     const n = Math.max(1, Math.min(100, Math.floor(Number(count) || 1)))
     const seed = Number.isFinite(job.seed) && job.seed >= 0 ? Math.floor(job.seed) % 2 ** 31 : Math.floor(Math.random() * 2 ** 31)

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // The history: every finished job with the files it produced, one JSON object per line in
 // <history folder>/entries.jsonl. The folder is a setting; the pictures themselves stay where they were saved.

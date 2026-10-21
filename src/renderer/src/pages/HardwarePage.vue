@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // This Mac: chip, cores, memory and the GPU, what VulKara is using right now, the room on the SSD for streaming, and
 // the settings that keep the Mac responsive (the guard rails), each with a way to Settings.

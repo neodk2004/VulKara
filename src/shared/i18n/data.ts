@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 // Texts of the data files in the other languages: the descriptions of the recommended models
 // (src/shared/data/curated_models.json), the helper models and photo tools (engines/diffusers/helpers.json,

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """Exports a picture made as an example for the app or its docs (Tips & tricks, helper previews, the splash, README
 pictures): scaled to at most 768 px, as JPEG, with the EU icon *AI GENERATED* small in its lower right corner (black on

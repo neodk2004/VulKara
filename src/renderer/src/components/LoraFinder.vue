@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later · Copyright (C) 2026 Oliver Schmidt -->
+<!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
 // LoRAs that fit a model, from Civitai or Hugging Face, installed through the import queue.
 import { computed, onMounted, reactive, ref, watch } from 'vue'
@@ -271,16 +271,6 @@ header {
 .controls .search input {
   flex: 1;
   min-width: 0;
-}
-
-select {
-  height: 30px;
-  padding: 0 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
 }
 
 .results {

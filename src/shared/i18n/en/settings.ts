@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 export default {
   title: 'Settings',
@@ -79,7 +79,7 @@ export default {
     title: 'Content',
     nudity: 'Allow nudity in results',
     nudityHint: 'Off: results showing nudity are not displayed. Independent of this switch, sexual content involving minors is always refused, and every result is checked before it is shown.',
-    sound: 'Sound when a job is done',
+    sound: 'Play a sound when the queue is finished',
   },
   privacy: {
     title: 'Privacy',
@@ -88,6 +88,31 @@ export default {
     hashLookupsHint: 'For models and LoRAs without a known origin (imported from disk): their trigger words, preview and licence. It tells Civitai which files are on this Mac.',
     updateChecks: 'Look for runtime updates once a day',
     updateChecksHint: 'Reads the public version lists of PyPI and GitHub; nothing of yours is sent.',
+  },
+  remote: {
+    title: 'Remote access',
+    intro: 'Open VulKara in a browser on your home network or over a VPN connection, to see the current status of your pictures from a phone or tablet, to type in and start new ideas while you are out, or to look through and download finished pictures in the history. It is behind an access token, to keep your privacy here too.',
+    enable: 'Allow remote access',
+    port: 'Port',
+    https: 'Encrypted (HTTPS)',
+    httpsHint: 'With a certificate of this Mac\'s own. Needed to share and copy pictures in the browser, and the token does not cross the network in the clear. Off: plain HTTP.',
+    certificate: 'Certificate for your devices',
+    certificateHint: 'Open this link once on each device and install the certificate, so the browser does not warn: on an iPhone or iPad then switch it on under Settings → General → About → Certificate Trust Settings; on Android install it under Settings → Security → Encryption & credentials → Install a certificate → CA certificate.',
+    running: 'Serving',
+    offline: 'Off',
+    reach: 'Reachable at',
+    reachHint: 'Open one of these on the other device; the token is in the link, so it is entered only once.',
+    scan: 'Or scan this with a phone or tablet camera to open the link.',
+    renew: 'Renew token',
+    renewHint: 'The old token stops working at once; the other devices need the new link.',
+    copyLink: 'Copy link',
+    copied: 'Copied',
+    firewall: 'If the URL can not be opened on the remote device, allow incoming connections for VulKara in macOS (System Settings → Network → Firewall).',
+
+    loginIntro: 'Enter the access token shown in VulKara on the Mac under Settings → Remote access, or open the link shown there.',
+    token: 'Access token',
+    connect: 'Connect',
+    wrongToken: 'This token is not accepted. It may have been renewed on the Mac.',
   },
   tokens: {
     title: 'Access tokens',
