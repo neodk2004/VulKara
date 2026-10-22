@@ -151,6 +151,13 @@
    "noModel": "Aún no hay ningún modelo instalado para esta página.",
    "noModelLink": "Consigue uno en la página Modelos."
   },
+  "upsample": {
+   "label": "Ampliador de prompts",
+   "hint": "FLUX 3 Image Klein está entrenado con descripciones completas de escenas. El ampliador (de Black Forest Labs, 4 bits) escribe una a partir de tu prompt antes de crear la imagen: motivo, entorno, luz, cámara, colores. Un prompt que ya lo describe todo se usa tal cual. Se descarga una vez (5,7 GB, con el botón junto a la opción o en la página Modelos); ocupa la memoria solo para el prompt y luego se libera. La descripción que escribió aparece con la imagen.",
+   "download": "Descargar (5,7 GB)",
+   "downloading": "Descargando …",
+   "missing": "El ampliador de prompts aún no está descargado: descárgalo con el botón junto a la opción o desactiva la opción."
+  },
   "aiLabel": {
    "label": "Etiqueta IA de la UE",
    "hint": "Coloca el icono de la UE para contenido de IA en la esquina inferior derecha de cada imagen: “AI GENERATED” para imágenes creadas a partir de un prompt, “AI MODIFIED” cuando se modifica una imagen tuya (Imagen, Inpainting), o el “AI” redondo. Negro sobre esquinas claras, blanco sobre oscuras, salvo que elijas otra cosa. Cada imagen lleva la indicación en su archivo de todos modos; el icono la hace visible cuando se comparte. Iconos: Comisión Europea, de uso libre.",
@@ -1572,7 +1579,8 @@
     "circlestone": "El modelo, solo para fines no comerciales; las imágenes generadas pueden usarse para cualquier fin.",
     "ideogram": "Generar imágenes para productos que generan ingresos o para publicidad no es un fin no comercial.",
     "qwen": "Solo investigación y evaluación; el uso comercial requiere una licencia aparte de Alibaba (Tongyi Lab).",
-    "krea": "Uso comercial solo por debajo de 1 millón de USD de ingresos de la empresa; se requieren medidas de filtrado de contenido."
+    "krea": "Uso comercial solo por debajo de 1 millón de USD de ingresos de la empresa; se requieren medidas de filtrado de contenido.",
+    "fluxKommunity": "Uso del modelo solo no comercial. Las imágenes solo pueden usarse comercialmente por personas y empresas con menos de 5 millones de USD de ingresos anuales, con medidas de filtrado de contenido y la indicación de IA que exija la ley; todo lo demás necesita una licencia de Black Forest Labs."
    }
   },
   "report": {

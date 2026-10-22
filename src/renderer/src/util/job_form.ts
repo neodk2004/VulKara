@@ -46,6 +46,8 @@ export interface GenerateForm {
   controlPreprocess: boolean
   controlWeight: number
   /** the EU's icon for AI content in the lower right corner of the pictures */
+  /** FLUX 3 Image Klein, text to image: the prompt upsampler writes the full caption from the prompt */
+  upsample: boolean
   aiLabel: boolean
   aiLabelSize: AiLabel['size']
   /** auto: "AI GENERATED" from a prompt, "AI MODIFIED" from a picture; ai: the round icon */
@@ -81,7 +83,7 @@ export function emptyForm(mode: Mode): GenerateForm {
     prompt: '', negativePrompt: '', style: '', modelId: '', width: 512, height: 512, steps: 25, guidance: 7, seed: null, count: 1,
     sampler: 'Default', sigmaSchedule: 'Default', loras: [], strength: mode === 'inpaint' ? 1 : 0.6, inputImage: '', customSize: false,
     videoSeconds: 2, videoResolution: '480p', patternStrength: 1.1,
-    controlType: '', controlImage: '', controlPreprocess: true, controlWeight: 1, aiLabel: false, aiLabelSize: 'medium', aiLabelIcon: 'auto', aiLabelTone: 'auto', aiLabelSubtle: false,
+    controlType: '', controlImage: '', controlPreprocess: true, controlWeight: 1, upsample: true, aiLabel: false, aiLabelSize: 'medium', aiLabelIcon: 'auto', aiLabelTone: 'auto', aiLabelSubtle: false,
   }
 }
 
@@ -189,6 +191,9 @@ export interface JobExtras {
   patternImage?: string
 }
 
+/** FLUX 3 Image Klein reads full scene captions: its prompt upsampler writes one from a short prompt (MLX runtime). */
+export const takesUpsampler = (meta: Asset['meta'] | undefined): boolean => meta?.arch === 'flux3_klein'
+
 export function buildJob(mode: Mode, form: GenerateForm, model: Asset, loras: Asset[], opts: JobExtras = {}): Omit<Job, 'id'> {
   const does = MODES[mode]
   const job: Omit<Job, 'id'> = {
@@ -206,6 +211,7 @@ export function buildJob(mode: Mode, form: GenerateForm, model: Asset, loras: As
     .filter((l): l is { asset: Asset; scale: number } => !!l.asset && loraFits(l.asset, model))
   if (does.loras && chosen.length) job.loras = chosen.slice(0, MAX_LORAS).map((l) => ({ path: l.asset.folder, scale: l.scale }))
   if (form.aiLabel && mode !== 'video') job.aiLabel = aiLabelOf(form, mode)
+  if (form.upsample && mode === 'text' && takesUpsampler(model.meta)) job.upsample = true
 
   if (mode === 'video') {
     job.inputImage = form.inputImage

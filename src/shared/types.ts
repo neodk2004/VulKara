@@ -167,6 +167,8 @@ export interface Job {
   photoTool?: PhotoToolJob
   /** the user confirmed the consent question (intimate content from a picture) */
   consent?: boolean
+  /** FLUX 3 Image Klein: the prompt upsampler writes the full caption first (text to image) */
+  upsample?: boolean
   /** "AI generated .." written into the lower right corner of each picture (not videos) */
   aiLabel?: AiLabel
   label?: string

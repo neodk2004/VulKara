@@ -27,7 +27,8 @@ VulKara has to work on a Mac mini M4 with 16 GB, not only on the 24 GB developme
   `choose_quant`, each with `ram_gb=16`, and a 16 GB case in the tests.
 - Live: Settings → *Memory kept free for other apps* = 12 GB gives a 24 GB Mac the 12 GB budget of a 16 GB Mac.
 - **MLX can not stream.** A model MLX refuses for memory must go on with Diffusers (`src/main/mlx_fallback.ts`), and
-  the job says so in its note. Models only MLX runs (Krea 2, Ideogram 4) need staging (`STAGED_ARCHS`) to fit.
+  the job says so in its note. Models only MLX runs (Krea 2, Ideogram 4) need staging (`STAGED_ARCHS`) to fit; FLUX 3 encodes the
+  prompt before its transformer loads (`memory.plan(..., staging_frees_denoiser=True)`).
 - **GGUF streams too**: `streaming.unpack_gguf` writes a GGUF denoiser's blocks unpacked (16 bit) into the stream
   cache once, block by block, and the other weights into `rest.safetensors`; `unpacked.json` names the file
   (SHA-256) and the dtype. Later loads build the denoiser on the meta device from its config and read only the
@@ -129,7 +130,7 @@ Concepts not built yet are in `docs/concepts/` ([Characters](concepts/CHARACTERS
 | `src/renderer` | The pages (`pages/`), shared components (`components/`), Pinia stores (`stores/`), helpers (`util/`), the splash picture (`assets/splash`) |
 | `src/shared` | Types, the page API (`api.ts`), the texts in four languages (`i18n/`), settings, content policy, styles, samplers, ControlNet kinds, LoRA bases and fit, licence terms, editions, data (recommended models, licences) |
 | `engines/diffusers` | PyTorch / diffusers engine and the architecture registry (`registry.py`); also imports, previews, pose detection, content filter, photo restoration (`restore.py`, DDColor, LaMa), SSD streaming, the LoRA / model recheck, SDXL training |
-| `engines/mlx` | MLX engine (mflux): FLUX, Krea 2, Ideogram 4; training for FLUX.2 [klein] and Krea 2 |
+| `engines/mlx` | MLX engine (mflux): FLUX, Krea 2, Ideogram 4; FLUX 3 Image Klein with flux3-mlx and its prompt upsampler with mlx-lm (`flux3.py`); training for FLUX.2 [klein] and Krea 2 |
 | `engines/comfy` | Runs ComfyUI as a background process for the models only it supports (Anima, Wan) and for upscaling |
 | `tools` | Release, dev bundle, licence data, notices, icon, the clean check |
 | `build` | Icon and entitlements |

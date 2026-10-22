@@ -47,6 +47,12 @@ describe('steps for the model', () => {
 })
 
 describe('guidance for the model', () => {
+  it('notes guidance on the distilled FLUX 3 Image Klein, which samples without', () => {
+    const F3 = { arch: 'flux3_klein', family: 'flux3', label: 'FLUX 3 Image Klein', runtime: 'mlx', kind: 'image', defaults: { num_steps: 16, guidance_scale: 1, width: 1024, height: 1024 } } as ModelMeta
+    expect(guidanceHint(F3, 3.5, 16)?.fix.value).toBe(1)
+    expect(guidanceHint({ ...F3, defaults: { num_steps: 50, guidance_scale: 3.5, width: 1024, height: 1024 } }, 3.5, 50)).toBeNull()
+  })
+
   it('notes guidance on FLUX.1 [schnell], which has none', () => {
     expect(guidanceHint(SCHNELL, 6.2, 18)).toEqual({ text: 'FLUX.1 [schnell] has no guidance: this value has no effect.', fix: { label: 'Use guidance 0', value: 0 } })
     expect(guidanceHint({ ...SCHNELL, runtime: 'mlx' }, 6.2, 4)).not.toBeNull()

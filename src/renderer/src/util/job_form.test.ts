@@ -16,6 +16,7 @@ const lora = (id: string, family: string): Asset => ({
 const SDXL = model('xl')
 const FLUX = model('flux', { arch: 'flux1_schnell', family: 'flux1', negativePrompt: false, inpaint: false, defaults: { num_steps: 4, guidance_scale: 0, width: 1024, height: 1024 } })
 const VIDEO = model('wan', { kind: 'video' })
+const FLUX3 = model('flux3', { arch: 'flux3_klein', family: 'flux3', runtime: 'mlx', negativePrompt: false, inpaint: false, defaults: { num_steps: 16, guidance_scale: 1, width: 1024, height: 1024 } })
 const LORAS = [lora('a', 'sdxl'), lora('b', 'flux1')]
 
 describe('generate form', () => {
@@ -123,6 +124,16 @@ describe('generate form', () => {
     const flux = buildJob('text', { ...form, sampler: 'Euler a' }, FLUX, LORAS)
     expect(flux.negativePrompt).toBeUndefined()
     expect(flux.sampler).toBeUndefined()
+  })
+
+  it('asks for the prompt upsampler only with FLUX 3 on Text to image, and only when it is on', () => {
+    const form = { ...emptyForm('text'), prompt: 'a fox' }
+    applyModel(form, FLUX3, [])
+    expect(form.upsample).toBe(true)
+    expect(buildJob('text', form, FLUX3, []).upsample).toBe(true)
+    expect(buildJob('text', { ...form, upsample: false }, FLUX3, []).upsample).toBeUndefined()
+    expect(buildJob('image', { ...emptyForm('image'), prompt: 'x', inputImage: '/in.png' }, FLUX3, []).upsample).toBeUndefined()
+    expect(buildJob('text', form, SDXL, []).upsample).toBeUndefined()
   })
 
   it('describes jobs with an input picture', () => {

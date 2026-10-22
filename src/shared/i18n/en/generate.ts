@@ -15,6 +15,13 @@ export default {
     noModel: 'No model for this page is installed yet.',
     noModelLink: 'Get one on the Models page.',
   },
+  upsample: {
+    label: 'Prompt upsampler',
+    hint: "FLUX 3 Image Klein is trained on full scene descriptions. The upsampler (Black Forest Labs' own, 4 bit) writes one from your prompt before the picture is made: subject, setting, light, camera, colours. A prompt that already describes everything goes as written. It is downloaded once (5.7 GB, with the button next to the option or on the Models page); it is loaded only for the prompt and freed again. The description it wrote is shown with the picture.",
+    download: 'Download it (5.7 GB)',
+    downloading: 'Downloading …',
+    missing: 'The prompt upsampler is not downloaded yet: download it with the button next to the option, or switch the option off.',
+  },
   aiLabel: {
     label: 'EU AI label',
     hint: "Puts the EU's icon for AI content into the lower right corner of each picture: “AI GENERATED” for pictures made from a prompt, “AI MODIFIED” where a picture of yours is changed (Image, Inpaint), or the round “AI”. Black on light corners, white on dark ones, unless you choose. Every picture carries the note in its file anyway; the icon makes it visible when it is shared. Icons: European Commission, free to use.",

@@ -40,7 +40,10 @@
   "LUSTIFY-apexV8": "Checkpoint SDXL fotorrealista NSFW.",
   "MoP-Mix-asap": "Mix SDXL NSFW.",
   "MoP-Mix-fustercluck": "Mix SDXL NSFW.",
-  "CyberRealistic-Pony-v18": "Modelo Pony (SDXL) realista, capaz de NSFW."
+  "CyberRealistic-Pony-v18": "Modelo Pony (SDXL) realista, capaz de NSFW.",
+  "FLUX-3-Image-Klein-MLX-6bit": "O modelo mais novo da Black Forest Labs em 6 bits para o runtime MLX: texto para imagem e edição com imagem de referência, 16 passos, cerca de 6 minutos por imagem. Roda em Macs de 16 GB; um ampliador de prompt opcional escreve a descrição completa.",
+  "FLUX-3-Image-Klein-MLX-8bit": "FLUX 3 Image Klein em 8 bits para o runtime MLX, o mais próximo dos arquivos de 16 bits da Black Forest Labs; cabe também em Macs de 16 GB (o prompt é lido antes de o modelo ser carregado).",
+  "FLUX-3-Image-Klein": "Os arquivos de 16 bits da Black Forest Labs do FLUX 3 Image Klein (só é baixado o que o runtime MLX lê). É preciso aceitar a licença no Hugging Face e ter um token de acesso."
  },
  "helpers": {
   "content-nsfw": {
@@ -130,6 +133,10 @@
   "realesrgan": {
    "name": "Real-ESRGAN x4plus (Ampliar)",
    "description": "Amplia imagens duas ou quatro vezes com detalhes (página Ampliar, runtime ComfyUI); reconstrói detalhes suaves de fotos antigas (Restaurar)."
+  },
+  "flux3_pup": {
+   "name": "Ampliador de prompt do FLUX 3 (MLX, 4 bits)",
+   "description": "Escreve, a partir de um prompt curto, a descrição completa da cena com que o FLUX 3 Image Klein foi treinado (Texto para imagem, opção Ampliador de prompt, runtime MLX). flux-3-image-klein-pup da Black Forest Labs (Apache-2.0), quantizado em 4 bits."
   }
  },
  "groups": {
@@ -138,7 +145,8 @@
   "Photo tools": "Ferramentas de foto",
   "Pose and depth": "Pose e profundidade",
   "Restore": "Restaurar",
-  "Upscale": "Ampliar"
+  "Upscale": "Ampliar",
+  "Prompt": "Prompt"
  },
  "tools": {
   "nafnet-deblur": {
@@ -211,10 +219,13 @@
   "Use-based restrictions apply.": "Restrições baseadas no uso se aplicam.",
   "Helper models": "Modelos auxiliares",
   "Photo tools": "Ferramentas de foto",
-  "The ONNX repository's licence file is MIT (from KAIR) while its model card says Apache-2.0 (SCUNet's code); both allow any use.": "O arquivo de licença do repositório ONNX é MIT (da KAIR), enquanto o model card diz Apache-2.0 (o código do SCUNet); ambas permitem qualquer uso.",
   "The ONNX export (onnx-community) carries no licence statement of its own; the weights are Meta's SAM 2.1, released under Apache-2.0.": "A exportação ONNX (onnx-community) não traz declaração de licença própria; os pesos são o SAM 2.1 da Meta, lançado sob Apache-2.0.",
   "For non-commercial use only: restored faces may not be used commercially. VulKara is free and downloads the weights from the project on first use.": "Apenas para uso não comercial: rostos restaurados não podem ser usados comercialmente. O VulKara é gratuito e baixa os pesos do projeto no primeiro uso.",
   "In the app": "No app",
-  "Runtimes (installed on demand)": "Runtimes (instalados quando necessário)"
+  "Runtimes (installed on demand)": "Runtimes (instalados quando necessário)",
+  "Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs. Distributing the model needs Black Forest Labs' attribution notice.": "Uso do modelo apenas não comercial. As imagens só podem ser usadas comercialmente por pessoas e empresas com menos de 5 milhões de USD de receita anual, com medidas de filtragem de conteúdo e a indicação de IA exigida por lei; todo o resto precisa de uma licença da Black Forest Labs. Quem distribuir o modelo precisa incluir o aviso da Black Forest Labs.",
+  "OpenCV's ONNX export stays the Sharpen tool: the original NAFNet-GoPro weights blow up on many picture crops (MEASUREMENTS.md), this export does not.": "A ferramenta Nitidez continua sendo a exportação ONNX do OpenCV: os pesos originais NAFNet-GoPro saem do controle em muitos recortes de imagem (MEASUREMENTS.md), esta exportação não.",
+  "The original weights, published with KAIR (MIT) by SCUNet's author; SCUNet itself is Apache-2.0. Both allow any use.": "Os pesos originais, publicados com o KAIR (MIT) pelo autor do SCUNet; o próprio SCUNet é Apache-2.0. Ambos permitem qualquer uso.",
+  "Recommended: FLUX 3": "Recomendados: FLUX 3"
  }
 }

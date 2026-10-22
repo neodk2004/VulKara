@@ -26,7 +26,8 @@ BASE_MODELS = [
     (r"flux\.?2.*klein.*4b", "flux2_klein", "flux2", "klein4b"),
     (r"flux\.?2.*klein", "flux2_klein", "flux2", None),
     (r"flux\.?2", "flux2_dev", "flux2", "dev"),
-    (r"flux\.?3|flux 3", None, None, None),
+    # FLUX 3 Image Klein: its LoRAs are known; checkpoints come as repositories (Hugging Face), not as single files
+    (r"flux\.?3|flux 3", None, "flux3", None),
     (r"flux\.?1 ?s\b", "flux1_schnell", "flux1", None),
     (r"flux\.?1", "flux1_dev", "flux1", None),
     (r"^chroma\b", "chroma", "chroma", None),

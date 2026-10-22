@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.7.0 – 2026-10-22
+
+- **FLUX 3 Image Klein** (Black Forest Labs, MLX runtime): text to image and edits with the input picture as a
+  reference, 16 steps without guidance (Base: 50 steps with guidance 3.5). It imports from Black Forest Labs' repository
+  (18.9 GB of it are downloaded, about 19 GB of memory) or from the MLX repositories in 6 bit (8.4 GB) and 8 bit
+  (9.6 GB), which run on a 16 GB Mac: when the model's parts do not fit together, the prompt is encoded before the
+  transformer is loaded (6 bit at most 8.5 GB in a 16 GB budget). LoRAs for it come from Hugging Face and Civitai in
+  Black Forest Labs', diffusers' and kohya's names. About 6 minutes per picture at 1024 px on an M2 with 24 GB.
+- **Prompt upsampler** for FLUX 3 (Text to image, next to Generate): Black Forest Labs' own model (4 bit) writes the
+  full scene description FLUX 3 is trained on from a short prompt, in about 30 seconds, and the description becomes
+  the picture's note. It is downloaded once (5.7 GB, checked against pinned checksums) with the button next to the
+  option or on the Models page, and freed after each prompt; the MLX engine itself still never reaches the network.
+- The MLX runtime gets mflux 0.23, flux3-mlx 0.1 and mlx-lm 0.32 (and MLX 0.32.4), tested with every MLX model family,
+  LoRAs, the 16 GB budget and LoRA training; an installed MLX runtime is brought to this set at the first start.
+- **VulKara needs macOS 14 (Sonoma) or newer.** The runtimes' packages (PyTorch, MLX, ONNX Runtime) exist from macOS 14
+  on, so on macOS 13 no runtime could be installed even though the app started; the app and the Homebrew cask now
+  say so before the download.
+- A LoRA's weight steps by a tenth with the − and + next to it, also in the remote web UI on an iPhone or iPad, where
+  a number field has no arrows.
+- A LoRA weight that stayed on the CPU no longer stops a picture at its first step with "tensors on two devices"
+  (seen once with two LoRAs on a FLUX model): every weight is brought onto the GPU before the first step, and the log
+  names any that were not.
+- Tips & tricks shows every small picture at the same size; a long caption ends with "…" instead of widening its
+  picture.
+
 ## 0.6.0 – 2026-10-22
 
 - **Share** and **Copy picture** in the history and the large view: macOS's share menu (Mail, Messages, AirDrop,

@@ -333,6 +333,36 @@ A SD 1.5 model (epiCPhotoGasm) at 768 × 768 on a Mac kept at the 16 GB budget. 
 7.5 GB, and the step takes 4.2 s — about five times faster, with no change to the picture. SDXL only slices above
 1536 × 1536, where the same effect starts; below that slicing costs time without saving memory.
 
+## 7f. FLUX 3 Image Klein with flux3-mlx, and the MLX runtime update (2026-10-22, M2, 24 GB)
+
+A red fox in snow, 1024 × 1024, 16 steps, seed 7, a full scene caption (the model card's style); VulKara's MLX engine in
+a separate venv with the new lock (mflux 0.23.0, flux3-mlx 0.1.0, mlx-lm 0.32.2, MLX 0.32.4), each case its own process
+as the app runs it. Peak: the larger of the process's resident memory and MLX's peak (`mx.get_peak_memory`).
+
+| Case | Time per picture | Peak | Note |
+| --- | --- | --- | --- |
+| VisualInference 6 bit | 387 s | 12.1 GB | both parts resident |
+| VisualInference 8 bit | 376 s | 13.3 GB | finer fur than 6 bit, otherwise the same picture |
+| 6 bit, 16 GB budget (12 GB kept free) | 377 s | 8.5 GB | prompt encoded before the transformer loads; same picture |
+| 8 bit, 16 GB budget | 364 s | 9.7 GB | fits a 16 GB Mac too |
+| Black Forest Labs' 16 bit files | 314 s | 14.3 GB | 18.9 GB download (of about 41 GB in the repository); planned 19 GB RAM |
+| 6 bit, edit with a reference picture | 188 s | 10.0 GB | size of the reference (512 px) |
+| 6 bit, prompt upsampler (4 bit, mlx-lm) | +30–37 s | 14.0 GB (8.5 GB in the 16 GB budget) | from "a red fox in snow at golden hour"; caption of about 1,500 characters |
+| 6 bit, LoRA in diffusers' names (SimpleTuner photo aesthetics, rank 32) | 387 s | 12.1 GB | 172 of 172 layers; cooler colours, more contrast |
+| 6 bit, LoRA in Black Forest Labs' names (Radiance Chrome, rank 32), 832 × 1216 | 378 s | 12.0 GB | 258 of 258 layers |
+
+The memory plan (`importer.make_plan`, `staging_frees_denoiser`) came out 0.2–0.6 GB above each measured peak. A first
+version encoded the prompt with the transformer already loaded (flux3-mlx's own order): then both parts are in memory
+at once, and Black Forest Labs' files would have needed 27 GB.
+
+The same matrix with the MLX runtime before and after the update (mflux 0.20.0 / MLX 0.32.3 against mflux 0.23.0 /
+MLX 0.32.4), 512 × 512, seed 7: every case ran with both; times within ±15 %, peaks the same (FLUX.2 [klein] 4B 40 s /
+9.4 GB, 9B 77 s / 10.3 GB, Z-Image Turbo 103 s / 11.9 GB, FLUX.1 [dev] 12 steps 193 s / 11.9 GB, with a LoRA 222 s,
+Krea 2 141 s / 15.4 GB, with a LoRA 154 s, Ideogram 4 12 steps 345 s / 15.0 GB). The pictures are not bit-identical
+(PSNR 24–36 dB against the old runtime) but show the same subject and composition; only fine detail moves. In the 16 GB
+budget Krea 2 ran (13.3 GB); FLUX.2 [klein] 9B and Ideogram 4 are refused by MLX there and go to Diffusers, as before.
+LoRA training (FLUX.2 [klein] 4B, 3 pictures, 6 steps, 256 px) finished with both runtimes in 82–83 s.
+
 ## 8. Earlier references (from the user guide and the changelog)
 
 - Training on the M2 (2025–26): SDXL about 2.5 s per step at 768 px, FLUX.2 [klein] 4B about 15 s, 9B about 30 s,

@@ -12,6 +12,23 @@
   },
   "revision": "5d700aaad96c5ddcdf8a38ef9b22a82aac2c38e5"
  },
+ "VisualInference/FLUX-3-Image-Klein-pup-MLX-4bit": {
+  "files": {
+   "LICENSE": null,
+   "chat_template.jinja": null,
+   "config.json": null,
+   "generation_config.json": null,
+   "model-00001-of-00002.safetensors": "bdb437a6e7f9d551df2fd189701e5e8f0565142fd536f9ac867630ab7ee4aacf",
+   "model-00002-of-00002.safetensors": "3d079d5a645bc032513ae99c0e88660874094cf4cb8e6adec4383947a913b877",
+   "model.safetensors.index.json": null,
+   "preprocessor_config.json": null,
+   "processor_config.json": null,
+   "system_prompts.json": null,
+   "tokenizer.json": "a5cd9732badce41de57e6efce8302930ded1c1188c5f81feb2bd6c24c4a1941f",
+   "tokenizer_config.json": null
+  },
+  "revision": "b6cdf42d7f293db7f468e52de5e5d2e603484c7e"
+ },
  "depth-anything/Depth-Anything-V2-Small-hf": {
   "files": {
    "config.json": null,

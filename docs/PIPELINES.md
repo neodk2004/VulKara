@@ -18,7 +18,7 @@ flowchart TD
     PC -- "no" --> RF["Refused, or the consent question for edits of a real photo"]
     PC -- "yes" --> Q["Queue: one job at a time; Pictures = N gives N jobs with seeds counting up"]
     Q --> R{"Which engine?"}
-    R -- "Krea 2, Ideogram 4; FLUX.1 and FLUX.2 klein without an input picture when MLX is chosen" --> MLX["MLX"]
+    R -- "Krea 2, Ideogram 4, FLUX 3; FLUX.1 and FLUX.2 klein without an input picture when MLX is chosen" --> MLX["MLX"]
     R -- "Anima, Wan 2.2 video, Upscale" --> CUI["ComfyUI"]
     R -- "all other models, Restore" --> DIF["Diffusers"]
     DIF --> LD["Model loaded by the memory plan: in memory, compressed, staged text encoder or SSD streaming"]
@@ -32,9 +32,18 @@ flowchart TD
 
 - **Engines** are separate Python processes that read requests on stdin and report progress on stdout. Only one of
   them keeps a model in memory: before another engine starts a job, the previous one unloads its model.
-- **MLX or Diffusers**: Krea 2 and Ideogram 4 run only with MLX. FLUX.1 and FLUX.2 [klein] in repository layout run with
+- **MLX or Diffusers**: Krea 2, Ideogram 4 and FLUX 3 Image Klein run only with MLX (FLUX 3 with flux3-mlx, see
+  below). FLUX.1 and FLUX.2 [klein] in repository layout run with
   MLX when *Settings → Runtimes* prefers it (or chooses automatically and MLX is installed), but only without an input
   picture and without a control picture. Everything else of these families goes to Diffusers.
+- **FLUX 3 Image Klein** (`engines/mlx/flux3.py`) runs with flux3-mlx instead of mflux: it reads Black Forest Labs'
+  own files (`model.safetensors`, `ae.safetensors`, `text_encoder/`) or the MLX-quantized repositories made for it. When
+  transformer and text encoder do not fit together, the prompt is encoded before the transformer is loaded, so the peak
+  is the larger of the two (16 GB Macs: the 6 and 8 bit repositories). LoRAs are put beside its linear layers (also the
+  quantized ones), from Black Forest Labs', diffusers' or kohya's names. The optional prompt upsampler (Black Forest
+  Labs' flux-3-image-klein-pup, 4 bit, a helper model) runs with mlx-lm before the transformer is loaded and is freed
+  again; its caption becomes the job's note. A job with an input picture is not upsampled (that needs the upsampler's
+  vision part).
 - **The content check** is a long-lived process of the Diffusers runtime. It looks for nudity and estimates the age of
   every face; nudity with a face that is likely a minor is always blocked, any nudity in safe mode. Videos are checked
   on six frames. It **fails closed**: a result it could not check is not shown. Pictures that pass get IPTC/XMP

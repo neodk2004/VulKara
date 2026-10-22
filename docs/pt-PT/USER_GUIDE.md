@@ -68,7 +68,7 @@ A página Início mostra três passos. Cada passo recebe uma marca de verificaç
 
 1. **Instalar um runtime** (Definições → Runtimes). Um runtime é o software que executa os modelos. Comece pelo
    **Diffusers (Apple GPU)**: executa a maioria dos modelos e também o importador, a deteção de pose e o filtro de
-   conteúdo. O **MLX** é mais rápido para modelos FLUX e Z-Image e é o único runtime para Krea 2 e Ideogram 4. O **ComfyUI** é opcional
+   conteúdo. O **MLX** é mais rápido para modelos FLUX e Z-Image e é o único runtime para Krea 2, Ideogram 4 e FLUX 3 Image Klein. O **ComfyUI** é opcional
    e necessário para vídeo, ampliação e modelos Anima.
 2. **Obter um modelo** (Modelos → Recomendados). Para uma primeira experiência, utilize o *SDXL 1.0* ou o *DreamShaper XL v2 Turbo*
    num Mac com 16 GB de memória, ou o *Stable Diffusion 1.5* num com 8 GB.
@@ -81,7 +81,7 @@ Por baixo dos passos, a página conta os runtimes, modelos e LoRAs instalados.
 O menu no canto superior direito escolhe o idioma da app (*Sistema*, English, Deutsch, Español, Português (Brasil), Português (Portugal)), a mesma
 opção de **Definições → Aspeto → Idioma**.
 
-**Requisitos do sistema:** macOS em Apple silicon (M1 ou posterior), pelo menos 8 GB de memória (16 GB ou mais para
+**Requisitos do sistema:** macOS 14 (Sonoma) ou posterior em Apple silicon (M1 ou posterior), pelo menos 8 GB de memória (16 GB ou mais para
 SDXL, 32 GB ou mais para os modelos FLUX grandes) e espaço livre no SSD para os runtimes (cerca de 1–1,5 GB cada) e
 para os modelos (2–35 GB cada).
 
@@ -123,6 +123,15 @@ fila. Clique numa miniatura para a abrir na [vista grande](#18-a-vista-grande).
 - Uma miniatura de tarefa mostra o essencial. O cursor sobre o seu **ⓘ** abre todos os detalhes: o prompt completo,
   tamanho, passos e seed, uma nota sobre como foi feita e o erro completo de uma tarefa que falhou.
 - Um **ⓘ** numa imagem abre a respetiva nota da mesma forma, por exemplo quando foi feita com Diffusers em vez de MLX.
+- **Ampliador de prompt** (FLUX 3 Image Klein, Texto para imagem, ao lado de Gerar): o FLUX 3 foi treinado com
+  descrições completas de cenas; o ampliador da Black Forest Labs (4 bits, MLX) escreve primeiro uma a partir do seu
+  prompt – tema, ambiente, luz, câmara, cores. Um prompt que já é uma descrição completa segue como está, tal como o
+  de uma edição com imagem. É transferido uma vez (5,7 GB) com o botão ao lado da opção ou na página Modelos (modelos
+  auxiliares); ocupa a memória só para o prompt (cerca de 30 s) e depois é libertado, e a descrição que escreveu
+  passa a ser a nota da imagem.
+
+  ![Texto para imagem com FLUX 3: a opção Ampliador de prompt ao lado de Gerar](../screenshots/pt-PT/generate_upsampler.jpg)
+
 - **Selo de IA da UE** (ao lado de Gerar): coloca, de forma visível, o ícone da Comissão Europeia para conteúdo de IA
   no canto inferior direito de cada imagem. *AI GENERATED* para imagens feitas a partir de um prompt (Texto, Ilusão),
   *AI MODIFIED* quando uma imagem sua é alterada (Imagem, Inpainting), ou o *AI* redondo. **Tom automático** utiliza o
@@ -150,7 +159,7 @@ fila. Clique numa miniatura para a abrir na [vista grande](#18-a-vista-grande).
 | **Sampler** | depende da família | O método que remove o ruído passo a passo. *Predefinido* é o do próprio modelo. A segunda lista define o escalonamento do ruído (Karras, Exponential, Beta); fica desativada enquanto o sampler é *Predefinido*. |
 | **Seed** | número ou vazio | A mesma seed com as mesmas definições dá a mesma imagem. Vazio significa aleatório; o botão do dado volta a aleatório. |
 | **Imagens** | 1–20 | Quantas imagens são feitas, cada uma com a sua própria seed. |
-| **LoRAs** | até 3 | Complementos que ensinam ao modelo um estilo, uma pessoa ou um objeto, cada um com o seu próprio peso (−2 a 2). Só são oferecidas LoRAs da família do modelo. |
+| **LoRAs** | até 3 | Complementos que ensinam ao modelo um estilo, uma pessoa ou um objeto, cada um com o seu próprio peso (−2 a 2; os botões − e + ao lado mudam em décimas, também no telemóvel). Só são oferecidas LoRAs da família do modelo. |
 | **Fora da imagem** | texto | O prompt negativo: o que não deve aparecer. Só aparece quando o modelo o suporta. |
 
 ### Mudar de modelo
@@ -502,7 +511,7 @@ Esconde um padrão ou uma palavra numa imagem, que aparece quando semicerra os o
 ![LoRAs](../screenshots/pt-PT/lora.jpg)
 
 Uma LoRA é um pequeno complemento (normalmente 20–400 MB) que ensina a um modelo um estilo, uma personagem ou um
-objeto. A página LoRA mostra todas as LoRAs instaladas, ordenadas por família (SD 1.x, SDXL, SD 3.5, FLUX.1, Chroma, FLUX.2, Krea 2 …).
+objeto. A página LoRA mostra todas as LoRAs instaladas, ordenadas por família (SD 1.x, SDXL, SD 3.5, FLUX.1, Chroma, FLUX.2, FLUX 3, Krea 2 …).
 Pode filtrá-las por família e pesquisar nos nomes, palavras-gatilho e categorias.
 
 **O painel de uma LoRA:**
@@ -689,6 +698,7 @@ antigas são identificadas pela memória para a qual o plano foi feito.
 | Qwen-Image 2.1 | Diffusers (diffusers 0.41, Definições → Runtimes → Atualizar) | ficheiros GGUF ou o repositório; gera e edita | não / não (Qwen Research License) |
 | Z-Image (Z-Image-Turbo, Z-Image Base, fine-tunes) | Diffusers; o repositório também MLX (texto para imagem) | Turbo: 9 passos sem guidance; Base: cerca de 30 passos com guidance 3–5 e prompt negativo (o nome ou o modelo base do Civitai indica qual; guidance até 1 fica desativada); safetensors (também FP8) e GGUF, os ficheiros únicos recebem o codificador de texto Qwen3 e o VAE do repositório Turbo ou Base; imagem para imagem e inpainting com Diffusers. Testado num M2 com 24 GB: Turbo cerca de 5½ minutos por imagem a 1024 px com MLX (8 bits), 6½ com Diffusers; Base cerca de 33 minutos com 30 passos e guidance (MLX); LoRAs com nomes do kohya e do ComfyUI nos dois runtimes | sim / sim (Apache 2.0) |
 | Krea 2 | MLX | | com condições (receitas abaixo de USD 1 milhão, filtro de conteúdo obrigatório) |
+| FLUX 3 Image Klein (destilado, Base) | MLX (flux3-mlx) | o repositório da Black Forest Labs (18,9 GB de transferência, cerca de 19 GB de RAM) ou os repositórios MLX da VisualInference em 6 bits (8,4 GB, funciona em Macs de 16 GB) e 8 bits (9,6 GB); destilado: 16 passos sem guidance, Base: 50 passos com guidance 3,5; imagem para imagem usa a imagem como referência; LoRAs nos nomes da Black Forest Labs, diffusers e kohya; cerca de 6 minutos por imagem a 1024 px num M2 com 24 GB | não / com condições (receitas abaixo de USD 5 milhões, filtro de conteúdo e indicação de IA) |
 | Ideogram 4 | MLX | recusa nudez por si próprio | não / não |
 | Anima | ComfyUI | | não / sim |
 | Wan 2.2 5B / 14B (vídeo) | ComfyUI | Imagem para vídeo | sim / sim (Apache 2.0) |
@@ -887,7 +897,7 @@ completo próprio sem barra de título), pelo que nunca deixa a app fora de alca
 | Runtime | Tamanho | Executa |
 | --- | --- | --- |
 | **Diffusers (Apple GPU)** | ~0,9 GB | SD 1.x/2.x, SDXL, SD 3.5, FLUX.1, Chroma, FLUX.2, Qwen-Image e Qwen-Image 2.1, Z-Image, ficheiros GGUF e FP8, LoRAs, ControlNet; também o importador, a deteção de pose, a restauração de fotografias e o filtro de conteúdo. O Qwen-Image 2.1 precisa do diffusers 0.41: um runtime instalado antes disso avisa e recebe-o com **Atualizar** |
-| **MLX** | ~1 GB | modelos FLUX e Z-Image (como repositório, texto para imagem), em geral mais rápidos e mais leves; Krea 2 e Ideogram 4 |
+| **MLX** | ~1 GB | modelos FLUX e Z-Image (como repositório, texto para imagem), em geral mais rápidos e mais leves; Krea 2, Ideogram 4 e FLUX 3 Image Klein |
 | **ComfyUI** | ~1,5 GB | opcional: Anima, vídeo com Wan, ampliação |
 
 Cada runtime é um ambiente Python separado na pasta de runtimes. **Atualizar** volta a instalá-lo com os pacotes com

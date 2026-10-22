@@ -171,6 +171,16 @@ def applied_layers(module, adapter):
     return n
 
 
+def place_adapters(module, device):
+    """Brings every weight of a module that is not on the device there (a LoRA weight peft left on the CPU), and
+    returns the names it found. A quantized model already on the device is not touched by the move."""
+    strays = [n for n, p in list(module.named_parameters()) + list(module.named_buffers())
+              if p.device.type not in (str(device).split(":")[0], "meta")]
+    if strays:
+        module.to(device)
+    return strays
+
+
 class LoadedModel:
     """One imported model with the pipelines needed for the current RAM plan."""
 
@@ -517,6 +527,15 @@ class LoadedModel:
                     # "Adapter name(s) … not in the list of present adapters" and the like
                     raise ValueError("The LoRAs could not be switched on for this %s model: %s"
                                      % (self.spec["label"], str(e)[:200]))
+                # a LoRA weight peft left on the CPU would stop the first step ("tensors on two devices", seen once
+                # with two LoRAs on a FLUX model): every weight onto the device before anything runs
+                import torch
+                for comp_name, comp in pipe.components.items():
+                    if isinstance(comp, torch.nn.Module):
+                        strays = place_adapters(comp, self.device)
+                        if strays:
+                            protocol.log("[diffusers] %d LoRA weights of %s were not on the GPU, moved there (%s)"
+                                         % (len(strays), comp_name, ", ".join(strays[:3])))
             except Exception as e:
                 pipe.unload_lora_weights()
                 if isinstance(e, ValueError):

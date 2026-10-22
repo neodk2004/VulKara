@@ -4,7 +4,7 @@
 // the results are in the work area, the settings of the job in the panel on the right.
 import { computed, onActivated, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { Dices, Plus, Sparkles, X } from 'lucide-vue-next'
+import { Dices, Minus, Plus, Sparkles, X } from 'lucide-vue-next'
 import PageFrame from '../components/PageFrame.vue'
 import ImageInput from '../components/ImageInput.vue'
 import HintBadge from '../components/HintBadge.vue'
@@ -15,9 +15,10 @@ import StylePicker from '../components/StylePicker.vue'
 import { useAssetsStore } from '../stores/assets'
 import { useHandoffStore } from '../stores/handoff'
 import { useQueueStore } from '../stores/queue'
+import { useImportsStore } from '../stores/imports'
 import { cleanError } from '../stores/runtimes'
 import { guidanceHint, stepsHint } from '../util/model_fit'
-import { MAX_LORAS, MODES, aiLabelOf, applyDefaults, applyJob, applyModel, buildJob, modelDefaults, emptyForm, formProblem, lorasFor, modelsFor, type GenerateForm, type Mode } from '../util/job_form'
+import { MAX_LORAS, MODES, aiLabelOf, applyDefaults, applyJob, applyModel, buildJob, modelDefaults, emptyForm, formProblem, lorasFor, modelsFor, takesUpsampler, type GenerateForm, type Mode } from '../util/job_form'
 import { DEFAULT_SIZES, RATIOS, ratioOf, sizeForRatio } from '../util/sizes'
 import { CONSENT_QUESTION } from '@shared/content_policy'
 import { askConsent } from '../util/consent'
@@ -82,7 +83,7 @@ const ratio = computed(() => ratioOf(form.width, form.height, native.value[0], n
 const showSize = computed(() => does.size || (props.mode === 'image' && form.customSize))
 const controlNote = ref<PlainKey | ''>('')
 // FLUX.2 takes the input picture as a reference, there is no strength to set
-const showStrength = computed(() => (props.mode === 'inpaint' || props.mode === 'image') && !(props.mode === 'image' && ['flux2', 'qwen_image21'].includes(model.value?.meta.family ?? '')))
+const showStrength = computed(() => (props.mode === 'inpaint' || props.mode === 'image') && !(props.mode === 'image' && ['flux2', 'flux3', 'qwen_image21'].includes(model.value?.meta.family ?? '')))
 
 // the model's own suggestions, offered while the form differs from them
 const suggested = computed(() => (model.value ? modelDefaults(model.value) : undefined))
@@ -153,8 +154,36 @@ const error = ref('')
 const sending = ref(false)
 const problem = computed(() => formProblem(props.mode, form, model.value, hasMask.value))
 
+// FLUX 3's prompt upsampler is a helper model: downloaded here or on the Models page (the MLX engine never downloads)
+const PUP = 'flux3_pup'
+const imports = useImportsStore()
+const pupInstalled = ref<boolean | null>(null)
+async function checkPup(): Promise<void> {
+  try {
+    pupInstalled.value = takesUpsampler(model.value?.meta)
+      ? (await window.vk.helpers.list()).find((h) => h.id === PUP)?.installed ?? false
+      : null
+  } catch {
+    pupInstalled.value = null  // the remote web UI may not list helper models: the engine says when it is missing
+  }
+}
+watch(() => model.value?.id, () => void checkPup(), { immediate: true })
+const pupDownload = computed(() => imports.of({ source: 'helper', ref: PUP }))
+const pupDownloading = computed(() => pupDownload.value?.state === 'waiting' || pupDownload.value?.state === 'running')
+watch(() => pupDownload.value?.state, (state) => { if (state === 'done') void checkPup() })
+async function downloadPup(): Promise<void> {
+  error.value = ''
+  try {
+    void imports.start()
+    await window.vk.helpers.install(PUP)
+  } catch (err) {
+    error.value = cleanError(err)
+  }
+}
+
 async function generate(): Promise<void> {
   error.value = problem.value
+  if (!error.value && props.mode === 'text' && form.upsample && pupInstalled.value === false) error.value = t('generate.upsample.missing')
   if (error.value || !model.value || sending.value) return
   sending.value = true
   try {
@@ -190,6 +219,9 @@ function addLora(): void {
   const free = loras.value.find((l) => !form.loras.some((x) => x.id === l.id))
   if (free) form.loras.push({ id: free.id, scale: 1 })
 }
+
+/** the weight a tenth up or down, within the field's range, without float dust (0.55 + 0.1 = 0.65, not 0.6500000001) */
+const stepWeight = (scale: number, by: number): number => Math.round(Math.min(2, Math.max(-2, (Number(scale) || 0) + by)) * 100) / 100
 
 // ------------------------------------------------------------------ results
 const jobs = computed(() => queue.ofPage(props.mode))
@@ -227,6 +259,16 @@ const labelPreview = computed(() => {
           <span v-if="error" class="error selectable">{{ error }}</span>
           <span v-else class="dim">{{ t('generate.send.shortcut') }}</span>
           <span class="spacer" />
+          <label v-if="mode === 'text' && takesUpsampler(model?.meta)" class="check">
+            <input v-model="form.upsample" type="checkbox" /> {{ t('generate.upsample.label') }}
+            <HintBadge above :text="t('generate.upsample.hint')" />
+          </label>
+          <button
+            v-if="mode === 'text' && form.upsample && pupInstalled === false" class="btn small" :disabled="pupDownloading"
+            @click="downloadPup"
+          >
+            {{ pupDownloading ? t('generate.upsample.downloading') : t('generate.upsample.download') }}
+          </button>
           <!-- the EU's icon for AI content in the corner of the pictures -->
           <div v-if="mode !== 'video'" class="ai-label">
             <label class="check">
@@ -405,7 +447,12 @@ const labelPreview = computed(() => {
           <span>{{ t('generate.panel.loras') }}</span>
           <div v-for="(l, i) in form.loras" :key="i" class="lora">
             <select v-model="l.id"><option v-for="a in loras" :key="a.id" :value="a.id">{{ a.title }}</option></select>
-            <input v-model.number="l.scale" type="number" min="-2" max="2" step="0.05" :title="t('generate.panel.weight')" />
+            <!-- a phone's keyboard offers no stepping on a number field: the buttons step the weight by a tenth -->
+            <span class="weight">
+              <button class="btn small ghost" :aria-label="t('generate.panel.weight') + ' −'" @click="l.scale = stepWeight(l.scale, -0.1)"><Minus :size="12" /></button>
+              <input v-model.number="l.scale" type="number" min="-2" max="2" step="0.05" :title="t('generate.panel.weight')" />
+              <button class="btn small ghost" :aria-label="t('generate.panel.weight') + ' +'" @click="l.scale = stepWeight(l.scale, 0.1)"><Plus :size="12" /></button>
+            </span>
             <button class="btn small ghost" :title="t('generate.panel.remove')" @click="form.loras.splice(i, 1)"><X :size="12" /></button>
           </div>
           <button v-if="form.loras.length < Math.min(MAX_LORAS, loras.length)" class="btn small" @click="addLora"><Plus :size="12" /> {{ t('generate.panel.addLora') }}</button>
@@ -640,8 +687,19 @@ input[type='range'] {
 
 .lora {
   display: grid;
-  grid-template-columns: 1fr 64px auto;
+  grid-template-columns: 1fr auto auto;
   gap: 6px;
   align-items: center;
+}
+
+.weight {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.weight input {
+  width: 56px;
+  text-align: center;
 }
 </style>

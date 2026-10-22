@@ -71,7 +71,7 @@ Die Seite „Start“ zeigt drei Schritte. Jeder Schritt bekommt ein Häkchen, s
 1. **Runtime installieren** (Einstellungen → Runtimes). Eine Runtime ist die Software, die die Modelle ausführt.
    Beginne mit **Diffusers (Apple GPU)**: Sie führt die meisten Modelle aus und außerdem den Import, die
    Pose-Erkennung und den Inhaltsfilter. **MLX** ist schneller für FLUX- und Z-Image-Modelle und die einzige Runtime
-   für Krea 2 und Ideogram 4. **ComfyUI** ist optional und wird für Video, Vergrößern und Anima-Modelle gebraucht.
+   für Krea 2, Ideogram 4 und FLUX 3 Image Klein. **ComfyUI** ist optional und wird für Video, Vergrößern und Anima-Modelle gebraucht.
 2. **Modell besorgen** (Modelle → Empfohlen). Für einen ersten Versuch nimm *SDXL 1.0* oder *DreamShaper XL v2 Turbo*
    auf einem Mac mit 16 GB Arbeitsspeicher, oder *Stable Diffusion 1.5* auf einem mit 8 GB.
 3. **Dein erstes Bild erstellen** (Text). Beschreibe das Bild und drücke **Erstellen** oder ⌘↩. Der Schritt wird
@@ -84,7 +84,7 @@ Das Menü oben rechts stellt die Sprache der App ein (*System*, English, Deutsch
 Português (Portugal)), dieselbe
 Wahl wie **Einstellungen → Darstellung → Sprache**.
 
-**Systemvoraussetzungen:** macOS auf Apple-Chip (M1 oder neuer), mindestens 8 GB Arbeitsspeicher (16 GB oder mehr für
+**Systemvoraussetzungen:** macOS 14 (Sonoma) oder neuer auf Apple-Chip (M1 oder neuer), mindestens 8 GB Arbeitsspeicher (16 GB oder mehr für
 SDXL, 32 GB oder mehr für die großen FLUX-Modelle) und freier Platz auf der SSD für die Runtimes (je etwa 1–1,5 GB)
 und für die Modelle (je 2–35 GB).
 
@@ -129,6 +129,15 @@ Klicke auf eine Kachel, um sie in der [großen Ansicht](#18-die-große-ansicht) 
   ganzen Fehler.
 - Ein **ⓘ** auf einem Bild öffnet dessen Hinweis auf dieselbe Weise, etwa wenn es mit Diffusers statt mit MLX erstellt
   wurde.
+- **Prompt-Upsampler** (FLUX 3 Image Klein, Text zu Bild, neben „Erstellen“): FLUX 3 ist auf ausführliche
+  Szenenbeschreibungen trainiert; der Upsampler von Black Forest Labs (4 Bit, MLX) schreibt aus deinem Prompt zuerst
+  eine solche – Motiv, Umgebung, Licht, Kamera, Farben. Ein Prompt, der schon alles beschreibt, geht unverändert,
+  ebenso der Prompt einer Bearbeitung mit Bild. Er wird einmal geladen (5,7 GB), mit dem Button neben der Option oder
+  auf der Seite Modelle (Helfermodelle); er belegt den Speicher nur für den Prompt (etwa 30 s) und wird danach
+  freigegeben, und die Beschreibung, die er geschrieben hat, wird zur Notiz des Bildes.
+
+  ![Text zu Bild mit FLUX 3: die Option Prompt-Upsampler neben „Erstellen“](../screenshots/de/generate_upsampler.jpg)
+
 - **EU-KI-Kennzeichnung** (neben „Erstellen“): setzt das Symbol der Europäischen Kommission für KI-Inhalte sichtbar in
   die rechte untere Ecke jedes Bildes. *AI GENERATED* für Bilder aus einem Prompt (Text, Illusion), *AI MODIFIED*, wo
   ein Bild von dir verändert wird (Bild, Inpainting), oder das runde *AI*. **Automatisch** nimmt das schwarze Symbol
@@ -156,7 +165,7 @@ Klicke auf eine Kachel, um sie in der [großen Ansicht](#18-die-große-ansicht) 
 | **Sampler** | je nach Familie | Das Verfahren, das Schritt für Schritt das Rauschen entfernt. *Standard* ist der eigene des Modells. Die zweite Liste legt den Rauschverlauf fest (Karras, Exponential, Beta); sie ist aus, solange der Sampler auf *Standard* steht. |
 | **Seed** | Zahl oder leer | Derselbe Seed mit denselben Einstellungen ergibt dasselbe Bild. Leer heißt zufällig; der Würfel-Button stellt wieder auf zufällig. |
 | **Bilder** | 1–20 | Wie viele Bilder erstellt werden, jedes mit eigenem Seed. |
-| **LoRAs** | bis zu 3 | Erweiterungen, die dem Modell einen Stil, eine Person oder ein Objekt beibringen, jede mit eigener Gewichtung (−2 bis 2). Angeboten werden nur LoRAs der Familie des Modells. |
+| **LoRAs** | bis zu 3 | Erweiterungen, die dem Modell einen Stil, eine Person oder ein Objekt beibringen, jede mit eigener Gewichtung (−2 bis 2; − und + daneben ändern sie in Zehntelschritten, auch am Handy). Angeboten werden nur LoRAs der Familie des Modells. |
 | **Nicht im Bild** | Text | Der Negativ-Prompt: was nicht erscheinen soll. Nur sichtbar, wenn das Modell einen unterstützt. |
 
 ### Modell wechseln
@@ -519,7 +528,7 @@ Entfernung schaust.
 
 Eine LoRA ist eine kleine Erweiterung (meist 20–400 MB), die einem Modell einen Stil, eine Figur oder ein Objekt
 beibringt. Die Seite LoRA zeigt alle installierten LoRAs, sortiert nach Familie (SD 1.x, SDXL, SD 3.5, FLUX.1, Chroma,
-FLUX.2, Krea 2 …). Du kannst sie nach Familie filtern und ihre Namen, Trigger-Wörter und Kategorien durchsuchen.
+FLUX.2, FLUX 3, Krea 2 …). Du kannst sie nach Familie filtern und ihre Namen, Trigger-Wörter und Kategorien durchsuchen.
 
 **Das Feld einer LoRA:**
 
@@ -715,6 +724,7 @@ sein Arbeitsspeicher); ältere Importe werden am Arbeitsspeicher erkannt, für d
 | Qwen-Image 2.1 | Diffusers (diffusers 0.41, Einstellungen → Runtimes → Aktualisieren) | GGUF-Dateien oder das Repository; erstellt und bearbeitet | nein / nein (Qwen Research License) |
 | Z-Image (Z-Image-Turbo, Z-Image Base, Fine-Tunes) | Diffusers; das Repository auch MLX (Text zu Bild) | Turbo: 9 Schritte ohne Guidance; Base: etwa 30 Schritte mit Guidance 3–5 und einem Negativ-Prompt (der Name oder das Basismodell bei Civitai sagt, welches; Guidance bis 1 ist aus); safetensors (auch FP8) und GGUF, Einzeldateien bekommen den Qwen3-Text-Encoder und das VAE aus dem Turbo- oder Base-Repository; Bild zu Bild und Inpainting mit Diffusers. Getestet auf einem M2 mit 24 GB: Turbo etwa 5½ Minuten pro Bild bei 1024 px mit MLX (8 Bit), 6½ mit Diffusers; Base etwa 33 Minuten bei 30 Schritten mit Guidance (MLX); LoRAs mit kohya- und ComfyUI-Namen in beiden Runtimes | ja / ja (Apache 2.0) |
 | Krea 2 | MLX | | mit Auflagen (unter 1 Million USD Umsatz, Inhaltsfilter erforderlich) |
+| FLUX 3 Image Klein (destilliert, Base) | MLX (flux3-mlx) | das Repository von Black Forest Labs (18,9 GB Download, etwa 19 GB RAM) oder die MLX-Repositories von VisualInference in 6 Bit (8,4 GB, läuft auf 16-GB-Macs) und 8 Bit (9,6 GB); destilliert: 16 Schritte ohne Guidance, Base: 50 Schritte mit Guidance 3,5; Bild zu Bild nimmt das Bild als Referenz; LoRAs in den Namen von Black Forest Labs, diffusers und kohya; etwa 6 Minuten pro Bild bei 1024 px auf einem M2 mit 24 GB | nein / mit Auflagen (unter 5 Millionen USD Umsatz, Inhaltsfilter und KI-Kennzeichnung) |
 | Ideogram 4 | MLX | lehnt Nacktheit von sich aus ab | nein / nein |
 | Anima | ComfyUI | | nein / ja |
 | Wan 2.2 5B / 14B (Video) | ComfyUI | Bild zu Video | ja / ja (Apache 2.0) |
@@ -915,7 +925,7 @@ einem eigenen Vollbild-Space ohne Titelleiste), so verdeckt sie die App nie uner
 | Runtime | Größe | Führt aus |
 | --- | --- | --- |
 | **Diffusers (Apple GPU)** | ~0,9 GB | SD 1.x/2.x, SDXL, SD 3.5, FLUX.1, Chroma, FLUX.2, Qwen-Image und Qwen-Image 2.1, Z-Image, GGUF- und FP8-Dateien, LoRAs, ControlNet; außerdem den Importer, die Posenerkennung, die Fotorestaurierung und den Inhaltsfilter. Qwen-Image 2.1 braucht diffusers 0.41: Eine vorher installierte Runtime sagt das und bekommt es mit **Aktualisieren** |
-| **MLX** | ~1 GB | FLUX-Modelle und Z-Image (als Repository, Text zu Bild), meist schneller und sparsamer; Krea 2 und Ideogram 4 |
+| **MLX** | ~1 GB | FLUX-Modelle und Z-Image (als Repository, Text zu Bild), meist schneller und sparsamer; Krea 2, Ideogram 4 und FLUX 3 Image Klein |
 | **ComfyUI** | ~1,5 GB | optional: Anima, Wan-Video, Vergrößern |
 
 Jede Runtime ist eine eigene Python-Umgebung im Runtimes-Ordner. **Aktualisieren** installiert sie neu mit den

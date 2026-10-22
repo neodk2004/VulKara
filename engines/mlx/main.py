@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Copyright (C) 2026 Oliver Schmidt
 """MLX engine: runs FLUX.1, FLUX.2 [klein] and Z-Image models (diffusers folder layout), Krea 2 and Ideogram 4
-with mflux.
+with mflux, and FLUX 3 Image Klein with flux3-mlx (flux3.py).
 
 Speaks the same stdin/stdout protocol as the diffusers engine (see ../diffusers/protocol.py)
 and reads the same model.json manifests, so the app can route a job to either engine.
@@ -64,7 +64,7 @@ def model_class_and_config(m):
 
 
 FAMILIES = {"flux1_schnell": "flux1", "flux1_dev": "flux1", "flux2_klein": "flux2", "krea2": "krea2",
-            "ideogram4": "ideogram4", "z_image": "z_image"}
+            "ideogram4": "ideogram4", "z_image": "z_image", "flux3_klein": "flux3"}
 
 
 def z_image_guided(m):
@@ -506,7 +506,7 @@ class MlxEngine:
                 raise ValueError("The LoRA %s names a file outside its folder" % lm.get("name", "?"))
             if m.get("arch") == "z_image":
                 file = z_image_lora(file, lm.get("name") or "?")
-            out.append({"file": file, "scale": e.get("scale", 1.0),
+            out.append({"file": file, "scale": e.get("scale", 1.0), "name": lm.get("name") or os.path.basename(folder),
                         "trigger_words": lm.get("trigger_words", [])})
         return out
 
@@ -526,6 +526,8 @@ class MlxEngine:
                     prompt = w + ", " + prompt
         width = int(d.get("width") or defaults.get("width", 1024)) // 16 * 16
         height = int(d.get("height") or defaults.get("height", 1024)) // 16 * 16
+        if m.get("arch") == "flux3_klein":
+            return self._generate_flux3(d, m, model_dir, loras, prompt, width, height)
         encode_key = (prompt, width, height)  # what mflux caches encoded prompts by (Ideogram 4)
         self._ensure(model_dir, m, loras, encode_key)
 
@@ -570,6 +572,82 @@ class MlxEngine:
             result.image.save(path)
             protocol.log("[mlx] image done in %.1fs" % (time.time() - t0))
             if not d.get("_quiet"):
+                protocol.result(str(path))
+            saved.append(str(path))
+        return saved
+
+
+    def _generate_flux3(self, d, m, model_dir, loras, prompt, width, height):
+        """FLUX 3 Image Klein (flux3.py): an input picture is its reference; the prompt upsampler on request."""
+        import flux3
+        weights = m["weights_dir"] if os.path.isabs(m["weights_dir"]) else os.path.join(model_dir, m["weights_dir"])
+        key = ("flux3", weights, tuple((l["file"], l["scale"]) for l in loras))
+        if key != self.key:
+            self.unload()
+            low_memory, peak = flux3.plan(weights)
+            self._state("Loading model (MLX)")
+            self.model = flux3.Flux3Model(weights, loras, low_memory, peak)
+            self.key = key
+            protocol.log("[mlx] loaded %s with flux3-mlx (peak about %.0f GB%s)"
+                         % (m["name"], peak, ", text encoder only for encoding" if low_memory else ""))
+        images = []
+        if d.get("input_image"):
+            import colour
+            images.append(colour.open_rgb(d["input_image"]))  # in sRGB, whatever profile it carries
+            if not d.get("exact_size"):
+                width = height = None  # the reference sets the size (flux3-mlx crops back to its shape)
+
+        caption = prompt
+        if d.get("upsample") and not flux3.finished_caption(prompt):
+            if images:
+                protocol.log("[mlx] the prompt upsampler is for text to image here: the edit uses the prompt as written")
+            else:
+                import helpers
+                import pinned
+                pup = next(h for h in helpers.catalog() if h["id"] == "flux3_pup")
+                folder = helpers.folder_of(pup)
+                if not pinned.ready(pup["repo"], folder):
+                    # the MLX engine never downloads (it runs without network): the page or Models does that
+                    raise ValueError("The FLUX 3 prompt upsampler is not downloaded yet: download it next to the option "
+                                     "on Text to image or on the Models page (Helper models), or switch the option off")
+                if self.model.make_room(flux3.upsampler_gb(folder)):
+                    protocol.log("[mlx] model parts freed for the prompt upsampler")
+                self._state("Writing the full caption (prompt upsampler)")
+                t0 = time.time()
+                def stop():
+                    if self.reader is not None and self.reader.stop_requested():
+                        raise StopRequested()
+                caption = flux3.Upsampler(folder)(prompt, stop=stop)
+                # the caption retells the prompt: it goes to the job's note, never into the log (a shared report)
+                protocol.log("[mlx] prompt upsampled in %.0fs (%d characters)" % (time.time() - t0, len(caption)))
+                protocol.note("Prompt written by the upsampler: " + caption)
+
+        defaults = m.get("defaults", {})
+        # the distilled checkpoint (16 steps) samples without guidance; Base with it (registry.detect_flux3)
+        distilled = float(defaults.get("guidance_scale") or 1.0) <= 1.0
+        steps = int(d.get("num_steps") or defaults.get("num_steps") or (flux3.DISTILLED_STEPS if distilled else flux3.BASE_STEPS))
+        # the distilled model samples without guidance; Base with classifier-free guidance
+        guidance = None if distilled else float(d.get("guidance_scale") or defaults.get("guidance_scale") or flux3.BASE_GUIDANCE)
+        seed = d.get("seed")
+        seed = int(seed) if seed not in (None, "") and int(seed) >= 0 else random.randint(0, 2 ** 31 - 1)
+        quiet = d.get("_quiet", False)
+
+        def step(done, total):
+            if not quiet:
+                protocol.progress(round(100.0 * done / total, 1))
+            if self.reader is not None and self.reader.stop_requested():
+                raise StopRequested()
+
+        saved = []
+        for i in range(int(d.get("count") or 1)):
+            self._state("Generating")
+            t0 = time.time()
+            image = self.model.generate(caption, images, width, height, steps, guidance, seed + i, step, distilled)
+            stem = "".join(filter(str.isalnum, prompt[:30])) or "image"
+            path = IMAGES_DIR / ("%s_%s.png" % (stem, uuid.uuid4().hex[:12]))
+            image.save(path)
+            protocol.log("[mlx] image done in %.1fs" % (time.time() - t0))
+            if not quiet:
                 protocol.result(str(path))
             saved.append(str(path))
         return saved

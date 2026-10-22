@@ -27,6 +27,7 @@ const NOTES = {
   ideogram: 'app.licenses.terms.ideogram',
   qwen: 'app.licenses.terms.qwen',
   krea: 'app.licenses.terms.krea',
+  fluxKommunity: 'app.licenses.terms.fluxKommunity',
 } as const satisfies Record<string, PlainKey>
 const note = (name: keyof typeof NOTES): string => translate('en', NOTES[name])
 
@@ -50,6 +51,7 @@ export const TERMS: Record<string, LicenceTerms> = {
   'circlestone-labs-non-commercial-license': { name: 'CircleStone Labs Non-Commercial License', url: 'https://huggingface.co/circlestone-labs/Anima/blob/main/LICENSE.md', model: 'no', outputs: 'yes', note: note('circlestone') },
   'ideogram-4-non-commercial': { name: 'Ideogram Non-Commercial Model Agreement', url: 'https://huggingface.co/ideogram-ai/ideogram-4-fp8/blob/main/LICENSE.md', model: 'no', outputs: 'no', note: note('ideogram') },
   'qwen-research': { name: 'Qwen Research License Agreement', url: 'https://huggingface.co/Qwen/Qwen-Image-2.1/blob/main/LICENSE', model: 'no', outputs: 'no', note: note('qwen') },
+  'flux-kommunity-license': { name: 'FLUX Kommunity License v1.0', url: 'https://huggingface.co/black-forest-labs/flux-3-image-klein/blob/main/LICENSE.md', model: 'no', outputs: 'limited', note: note('fluxKommunity') },
   'krea-2-community-license': { name: 'Krea 2 Community License', url: 'https://www.krea.ai/krea-2-use-policy', model: 'limited', outputs: 'limited', note: note('krea') },
 }
 
@@ -81,6 +83,7 @@ export function baseLicence(family: string, arch = '', pageBase = ''): { title: 
       if (is('9b') || arch === 'flux2_dev' || is('flux.2 d')) return { title: 'FLUX.2 [klein] 9B / [dev]', terms: TERMS['flux-non-commercial-license'] }
       if (is('4b')) return { title: 'FLUX.2 [klein] 4B', terms: TERMS['apache-2.0'] }
       return undefined
+    case 'flux3': return { title: 'FLUX 3 Image Klein', terms: TERMS['flux-kommunity-license'] }
     case 'krea2': return { title: 'Krea 2', terms: TERMS['krea-2-community-license'] }
     case 'anima': return { title: 'Anima', terms: TERMS['circlestone-labs-non-commercial-license'] }
     case 'ideogram4': return { title: 'Ideogram 4', terms: TERMS['ideogram-4-non-commercial'] }

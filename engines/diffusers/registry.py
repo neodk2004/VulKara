@@ -181,6 +181,25 @@ ARCHS = {
         "resolutions": _res(512, 1536),
         "fallback_params": {"transformer": 4.0, "text_encoder": 4.0, "vae": 0.08},
     },
+    # FLUX 3 Image Klein (Black Forest Labs, FLUX Kommunity License: non-commercial, outputs commercially for users
+    # under US$5M revenue): 5.6B transformer, Qwen3-VL 4B text encoder, the FLUX.2 VAE. Text to image and edits with
+    # references in one model. Only the MLX runtime runs it, with flux3-mlx (engines/mlx/flux3.py): from Black Forest
+    # Labs' own files or the MLX-quantized repos made for it (6 / 8 bit); no diffusers pipeline (diffusers ships it as
+    # a modular pipeline on its main branch only). The distilled checkpoint samples 16 steps without guidance, Base 50
+    # steps with guidance 3.5 (detect_flux3).
+    "flux3_klein": {
+        "family": "flux3", "label": "FLUX 3 Image Klein",
+        "pipeline": None, "img2img_pipeline": None, "img2img": True, "image_reference": True,
+        "denoiser": "transformer", "denoiser_class": None,
+        "base_repo": "black-forest-labs/flux-3-image-klein", "runtime": "mlx",
+        "plan_on_disk": True,  # flux3-mlx holds the weights as they lie on disk (quantized or not)
+        "torch_dtype": "bfloat16", "negative_prompt": False, "size_multiple": 16,
+        "defaults": {"num_steps": 16, "guidance_scale": 1.0, "width": 1024, "height": 1024},
+        "resolutions": _res(512, 2048),
+        "fallback_params": {"transformer": 5.6, "text_encoder": 4.4, "vae": 0.08},
+        "licence": {"name": "FLUX Kommunity License v1.0",
+                    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein/blob/main/LICENSE.md"},
+    },
     # Qwen-Image (Alibaba, Apache 2.0): 20B MMDiT, Qwen2.5-VL 7B text encoder, own VAE; also its 2512
     # update and fine-tunes. True classifier-free guidance (two passes per step, true_cfg_scale); the
     # pipeline only guides with a negative prompt, an empty one is passed as " " (empty_negative)
@@ -366,6 +385,27 @@ def name_overrides(ref):
     if "turbo" in r or "lightning" in r or "hyper" in r:
         return {"num_steps": 4, "guidance_scale": 0.0}
     return {}
+
+
+# Black Forest Labs' FLUX 3 repos describe themselves in config.json ("model": "flux-3-image-klein[-base]") next to a
+# modular_model_index.json; the MLX repos for flux3-mlx in config.json ("format": "flux3-mlx", "variant", "flow_map")
+FLUX3_BASE_DEFAULTS = {"num_steps": 50, "guidance_scale": 3.5}
+
+
+def detect_flux3(config, modular_index=None):
+    """("flux3_klein", default overrides) for a FLUX 3 Image Klein repo's config.json (and its modular index), else
+    None. Base (undistilled) gets 50 steps with guidance 3.5."""
+    config = config or {}
+    model = str(config.get("model") or config.get("base_model") or "")
+    cls = str((modular_index or {}).get("_class_name") or "")
+    if not (config.get("format") == "flux3-mlx" or "flux-3-image-klein" in model or cls.startswith("Flux3")):
+        return None
+    if config.get("format") == "flux3-mlx" and int(config.get("format_version") or 1) > 1:
+        raise UnsupportedModel("This FLUX 3 folder is in a newer flux3-mlx format (version %s) than the MLX runtime "
+                               "reads; update VulKara" % config.get("format_version"))
+    base = (config.get("variant") == "base" or config.get("flow_map") is False or model.endswith("-base")
+            or (cls.startswith("Flux3") and "Distilled" not in cls))
+    return "flux3_klein", (dict(FLUX3_BASE_DEFAULTS) if base else {})
 
 
 def detect_from_model_index(model_index, denoiser_config=None, ref="", scheduler_config=None):
@@ -673,6 +713,7 @@ _REPO_FAMILIES = [
     (r"black-forest-labs/flux\.2-klein-(base-)?9b", "flux2", "klein9b"),
     (r"black-forest-labs/flux\.2-klein-(base-)?4b", "flux2", "klein4b"),
     (r"black-forest-labs/flux\.2-dev", "flux2", "dev"),
+    (r"black-forest-labs/flux-3-image-klein|flux-?3-image-klein", "flux3", None),
     (r"black-forest-labs/flux\.1-", "flux1", None),
     (r"^lodestones/chroma", "chroma", None),
     (r"^qwen/qwen-image-2\.1", "qwen_image21", None),
@@ -908,6 +949,9 @@ def _structure(L, te):
         return None, None, ("z_image", "lumina", "ideogram4")
     if L.has(r"^joint_blocks_\d+_"):
         return "sd3", None, ()
+    # FLUX 3: Black Forest Labs' names (content_mode_blocks, txt_mode_blocks) or diffusers' (mode_blocks_image_N)
+    if L.has(r"^(content_mode_blocks|txt_mode_blocks)_|^mode_blocks_(image|image_cond)_\d+_"):
+        return "flux3", None, ()
     flux = _flux_like(L)
     if flux:
         return flux

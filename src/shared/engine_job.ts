@@ -25,6 +25,7 @@ export function toEngineJob(job: Job): Record<string, unknown> {
     ['mask_image', job.maskImage],
     ['video_seconds', job.videoSeconds],
     ['upscale', job.upscale],
+    ['upsample', job.upsample],
   ]
   for (const [key, value] of optional) if (value !== undefined && value !== '') out[key] = value
   if (job.inputImage) {

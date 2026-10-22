@@ -247,6 +247,75 @@ def _fill_params(params, arch, components):
     return {c: (params.get(c) or fallback.get(c, 0.1)) for c in components}
 
 
+# ------------------------------------------------------------ FLUX 3 Image Klein
+
+# what flux3-mlx reads of Black Forest Labs' repo: its own transformer and autoencoder files and the text encoder (the
+# diffusers copies in transformer/ and vae/ and the FP8 / NVFP4 variants are left out: about 22 GB less)
+FLUX3_BFL_FILES = ("model.safetensors", "ae.safetensors", "config.json", "manifest.json", "LICENSE.md", "NOTICE.md")
+FLUX3_SKIP = re.compile(r"^(gallery|assets|variants)/|\.(jpe?g|png|webp|gif|md)$|^\.gitattributes$", re.I)
+
+
+def flux3_files(files, config):
+    """The files of a FLUX 3 repo to download: an MLX repo for flux3-mlx whole (without its gallery), Black Forest
+    Labs' repo only what flux3-mlx reads."""
+    if config.get("format") == "flux3-mlx":
+        return sorted(f for f in files if not FLUX3_SKIP.search(f) or f in ("LICENSE.md", "NOTICE.md"))
+    wanted = [f for f in files if f in FLUX3_BFL_FILES or (f.startswith("text_encoder/") and not FLUX3_SKIP.search(f))]
+    if "model.safetensors" not in wanted:
+        raise registry.UnsupportedModel("This FLUX 3 repo has no model.safetensors (Black Forest Labs' transformer "
+                                        "file), which the MLX runtime reads")
+    return sorted(wanted)
+
+
+def _flux3_components(sizes, files):
+    """{component: billions of 16 bit parameters as large as the files}: flux3-mlx holds the weights as they lie on
+    disk, so the plan (in 16 bit) comes out at their size."""
+    def gb(pred):
+        return sum(sizes.get(f, 0) for f in files if pred(f) and f.endswith(".safetensors")) / 1e9 / 2
+    # Black Forest Labs' own files where they are (a full clone also holds diffusers' copies in transformer/ and vae/),
+    # the same preference as the engine (flux3.components)
+    transformer = gb(lambda f: f == "model.safetensors") or gb(lambda f: f.startswith("transformer/"))
+    vae = gb(lambda f: f == "ae.safetensors") or gb(lambda f: f.startswith("vae/"))
+    return {"transformer": transformer or 5.6, "text_encoder": gb(lambda f: f.startswith("text_encoder/")) or 4.4,
+            "vae": vae or 0.08}
+
+
+def inspect_flux3(source, ref, token=None):
+    """inspect() for a FLUX 3 Image Klein repo or folder (no model_index.json), else None."""
+    if source == "hf":
+        try:
+            config = _hf_json(ref, "config.json", token)
+        except Exception:
+            return None
+        try:
+            modular = _hf_json(ref, "modular_model_index.json", token)
+        except Exception:
+            modular = None
+    else:
+        config_path = os.path.join(ref, "config.json")
+        if not os.path.isfile(config_path):
+            return None
+        config = _load_json(config_path)
+        mpath = os.path.join(ref, "modular_model_index.json")
+        modular = _load_json(mpath) if os.path.isfile(mpath) else None
+    found = registry.detect_flux3(config, modular)
+    if not found:
+        return None
+    arch, overrides = found
+    info = {"source": source, "ref": ref, "file": None, "arch": arch, "overrides": overrides, "denoiser": "transformer",
+            "variant": None}
+    if source == "hf":
+        sizes = _hf_repo_info(ref, token)[1]
+        files = flux3_files(list(sizes), config)
+        info.update(layout="repo", files=files, file_sizes={f: sizes.get(f, 0) for f in files},
+                    download_bytes=sum(sizes.get(f, 0) for f in files), components=_flux3_components(sizes, files))
+    else:
+        files = [str(p.relative_to(ref)) for p in Path(ref).rglob("*") if p.is_file() and not p.name.startswith("._")]
+        sizes = {f: os.path.getsize(os.path.join(ref, f)) for f in files}
+        info.update(layout="folder", download_bytes=0, components=_flux3_components(sizes, files))
+    return info
+
+
 # ------------------------------------------------------------ inspection
 
 def _scheduler_config(model_index, read):
@@ -269,6 +338,9 @@ def inspect(source, ref, file=None, token=None, name_hint=""):
         try:
             model_index = _hf_json(ref, "model_index.json", token)
         except EntryNotFoundError:
+            flux3 = inspect_flux3(source, ref, token)
+            if flux3:
+                return flux3
             raise registry.UnsupportedModel(_no_layout_message(ref, token))
         den = _denoiser_name(model_index)
         try:
@@ -287,6 +359,10 @@ def inspect(source, ref, file=None, token=None, name_hint=""):
         return info
 
     if source == "dir":
+        if not os.path.isfile(os.path.join(ref, "model_index.json")):
+            flux3 = inspect_flux3(source, ref)
+            if flux3:
+                return flux3
         model_index = _load_json(os.path.join(ref, "model_index.json"))
         den = _denoiser_name(model_index)
         den_cfg_path = os.path.join(ref, den, "config.json")
@@ -490,6 +566,11 @@ def make_plan(info, quant="auto", ram_gb=None):
         # ComfyUI keeps the weights as they are and frees the text encoder when the denoiser needs room
         return memory.plan(info["components"], info["denoiser"], spec["family"],
                            ram_gb if ram_gb is not None else memory.total_ram_gb(), quant="none", allow_staging=True)
+    if spec.get("plan_on_disk"):
+        # FLUX 3 (flux3-mlx): the weights in memory as on disk, the text encoder only for encoding when both do not fit
+        return memory.plan(info["components"], info["denoiser"], spec["family"],
+                           ram_gb if ram_gb is not None else memory.total_ram_gb(), quant="none", allow_staging=True,
+                           staging_frees_denoiser=True)
     if spec.get("runtime") == "mlx":
         # MLX-only models: mflux quantizes all weights (4 bit on small Macs, text encoder included),
         # the checkpoint's own precision (FP8) does not matter

@@ -40,7 +40,10 @@
   "LUSTIFY-apexV8": "Fotorealistischer NSFW-Checkpoint für SDXL.",
   "MoP-Mix-asap": "NSFW-Mix für SDXL.",
   "MoP-Mix-fustercluck": "NSFW-Mix für SDXL.",
-  "CyberRealistic-Pony-v18": "Realistisches Pony-Modell (SDXL), NSFW-fähig."
+  "CyberRealistic-Pony-v18": "Realistisches Pony-Modell (SDXL), NSFW-fähig.",
+  "FLUX-3-Image-Klein-MLX-6bit": "Das neueste Modell von Black Forest Labs in 6 Bit für die MLX-Runtime: Text zu Bild und Bearbeiten mit Referenzbild, 16 Schritte, etwa 6 Minuten pro Bild. Läuft auf 16-GB-Macs; ein optionaler Prompt-Upsampler schreibt die ausführliche Beschreibung.",
+  "FLUX-3-Image-Klein-MLX-8bit": "FLUX 3 Image Klein in 8 Bit für die MLX-Runtime, am nächsten an den 16-Bit-Dateien von Black Forest Labs; passt auch auf 16-GB-Macs (der Prompt wird gelesen, bevor das Modell geladen wird).",
+  "FLUX-3-Image-Klein": "Die 16-Bit-Dateien von Black Forest Labs für FLUX 3 Image Klein (geladen wird nur, was die MLX-Runtime liest). Die Lizenz muss auf Hugging Face akzeptiert sein, dazu ein Zugangstoken."
  },
  "helpers": {
   "content-nsfw": {
@@ -130,6 +133,10 @@
   "realesrgan": {
    "name": "Real-ESRGAN x4plus (Vergrößern)",
    "description": "Vergrößert Bilder auf das Zwei- oder Vierfache mit Details (Seite „Vergrößern“, ComfyUI-Runtime); stellt weiche Details alter Fotos wieder her (Restaurieren)."
+  },
+  "flux3_pup": {
+   "name": "FLUX-3-Prompt-Upsampler (MLX, 4 Bit)",
+   "description": "Schreibt aus einem kurzen Prompt die ausführliche Szenenbeschreibung, auf die FLUX 3 Image Klein trainiert ist (Text zu Bild, Option Prompt-Upsampler, MLX-Runtime). flux-3-image-klein-pup von Black Forest Labs (Apache-2.0), auf 4 Bit quantisiert."
   }
  },
  "groups": {
@@ -138,7 +145,8 @@
   "Photo tools": "Fotowerkzeuge",
   "Pose and depth": "Pose und Tiefe",
   "Restore": "Restaurieren",
-  "Upscale": "Vergrößern"
+  "Upscale": "Vergrößern",
+  "Prompt": "Prompt"
  },
  "tools": {
   "nafnet-deblur": {
@@ -211,10 +219,13 @@
   "Use-based restrictions apply.": "Es gelten nutzungsbasierte Beschränkungen.",
   "Helper models": "Hilfsmodelle",
   "Photo tools": "Fotowerkzeuge",
-  "The ONNX repository's licence file is MIT (from KAIR) while its model card says Apache-2.0 (SCUNet's code); both allow any use.": "Die Lizenzdatei des ONNX-Repositorys ist MIT (von KAIR), seine Model Card nennt dagegen Apache-2.0 (der Code von SCUNet); beide erlauben jede Nutzung.",
   "The ONNX export (onnx-community) carries no licence statement of its own; the weights are Meta's SAM 2.1, released under Apache-2.0.": "Der ONNX-Export (onnx-community) hat keine eigene Lizenzangabe; die Gewichte sind Metas SAM 2.1, veröffentlicht unter Apache-2.0.",
   "For non-commercial use only: restored faces may not be used commercially. VulKara is free and downloads the weights from the project on first use.": "Nur für nicht kommerzielle Nutzung: Wiederhergestellte Gesichter dürfen nicht kommerziell genutzt werden. VulKara ist kostenlos und lädt die Gewichte bei der ersten Nutzung vom Projekt herunter.",
   "In the app": "In der App",
-  "Runtimes (installed on demand)": "Runtimes (bei Bedarf installiert)"
+  "Runtimes (installed on demand)": "Runtimes (bei Bedarf installiert)",
+  "Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs. Distributing the model needs Black Forest Labs' attribution notice.": "Nutzung des Modells nur nichtkommerziell. Bilder dürfen nur Personen und Unternehmen mit weniger als 5 Millionen USD Jahresumsatz kommerziell nutzen, mit Inhaltsfilter-Maßnahmen und der gesetzlich verlangten KI-Kennzeichnung; alles andere braucht eine Lizenz von Black Forest Labs. Wer das Modell weitergibt, muss den Hinweis von Black Forest Labs beilegen.",
+  "OpenCV's ONNX export stays the Sharpen tool: the original NAFNet-GoPro weights blow up on many picture crops (MEASUREMENTS.md), this export does not.": "Das Schärfen-Werkzeug bleibt OpenCVs ONNX-Export: Die originalen NAFNet-GoPro-Gewichte entgleisen bei vielen Bildausschnitten (MEASUREMENTS.md), dieser Export nicht.",
+  "The original weights, published with KAIR (MIT) by SCUNet's author; SCUNet itself is Apache-2.0. Both allow any use.": "Die originalen Gewichte, vom SCUNet-Autor mit KAIR (MIT) veröffentlicht; SCUNet selbst steht unter Apache-2.0. Beides erlaubt jede Nutzung.",
+  "Recommended: FLUX 3": "Empfohlen: FLUX 3"
  }
 }

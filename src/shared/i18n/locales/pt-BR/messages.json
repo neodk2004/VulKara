@@ -151,6 +151,13 @@
    "noModel": "Ainda não há nenhum modelo instalado para esta página.",
    "noModelLink": "Obtenha um na página Modelos."
   },
+  "upsample": {
+   "label": "Ampliador de prompt",
+   "hint": "O FLUX 3 Image Klein foi treinado com descrições completas de cenas. O ampliador (da Black Forest Labs, 4 bits) escreve uma a partir do seu prompt antes de criar a imagem: tema, ambiente, luz, câmera, cores. Um prompt que já descreve tudo vai como está. Ele é baixado uma vez (5,7 GB, com o botão ao lado da opção ou na página Modelos); ocupa a memória só para o prompt e depois é liberado. A descrição que ele escreveu aparece com a imagem.",
+   "download": "Baixar (5,7 GB)",
+   "downloading": "Baixando …",
+   "missing": "O ampliador de prompt ainda não foi baixado: baixe-o com o botão ao lado da opção ou desative a opção."
+  },
   "aiLabel": {
    "label": "Selo de IA da UE",
    "hint": "Coloca o ícone da UE para conteúdo de IA no canto inferior direito de cada imagem: “AI GENERATED” para imagens feitas a partir de um prompt, “AI MODIFIED” onde uma imagem sua é alterada (Imagem, Inpainting), ou o “AI” redondo. Preto em cantos claros, branco em escuros, a menos que você escolha. Toda imagem já leva a indicação no próprio arquivo; o ícone a torna visível quando ela é compartilhada. Ícones: Comissão Europeia, de uso livre.",
@@ -1572,7 +1579,8 @@
     "circlestone": "Modelo apenas para uso não comercial; as imagens geradas podem ser usadas para qualquer fim.",
     "ideogram": "Gerar imagens para produtos que geram receita ou para publicidade não é um fim não comercial.",
     "qwen": "Apenas pesquisa e avaliação; o uso comercial requer uma licença separada da Alibaba (Tongyi Lab).",
-    "krea": "Uso comercial apenas abaixo de USD 1 milhão de receita da empresa; medidas de filtro de conteúdo obrigatórias."
+    "krea": "Uso comercial apenas abaixo de USD 1 milhão de receita da empresa; medidas de filtro de conteúdo obrigatórias.",
+    "fluxKommunity": "Uso do modelo apenas não comercial. As imagens só podem ser usadas comercialmente por pessoas e empresas com menos de 5 milhões de USD de receita anual, com medidas de filtragem de conteúdo e a indicação de IA exigida por lei; todo o resto precisa de uma licença da Black Forest Labs."
    }
   },
   "report": {

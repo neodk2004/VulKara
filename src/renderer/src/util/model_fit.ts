@@ -47,6 +47,8 @@ export function guidanceHint(meta: ModelMeta | undefined, guidance: number, step
   const ignored = meta.arch === 'flux1_schnell'
     || (meta.arch === 'flux2_klein' && distilled && (meta.runtime !== 'mlx' || steps <= 8))
     || (meta.arch === 'z_image' && distilled && meta.runtime === 'mlx')
+    // FLUX 3 Image Klein distilled: 16 steps, no guidance (flux3-mlx samples it without)
+    || (meta.arch === 'flux3_klein' && made <= OFF)
   if (ignored) {
     if (meta.arch === 'flux1_schnell') return { text: t('generate.fit.noGuidance', { name: meta.label || 'FLUX.1 [schnell]' }), fix } // i18n-ok
     return { text: meta.label ? t('generate.fit.distilledNoGuidance', { name: meta.label }) : t('generate.fit.distilledModelNoGuidance'), fix }

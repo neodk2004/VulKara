@@ -63,6 +63,10 @@ LICENSES = {
         name="Qwen Research License Agreement", url="https://huggingface.co/Qwen/Qwen-Image-2.1/blob/main/LICENSE",
         model="no", outputs="no",
         note="Research and evaluation only; commercial use needs a separate licence from Alibaba (Tongyi Lab)."),
+    "flux-kommunity-license": dict(
+        name="FLUX Kommunity License v1.0", url="https://huggingface.co/black-forest-labs/flux-3-image-klein/blob/main/LICENSE.md",
+        model="no", outputs="limited",
+        note="Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs. Distributing the model needs Black Forest Labs' attribution notice."),
     "krea-2-community-license": dict(
         name="Krea 2 Community License",
         url="https://cdn.jsdelivr.net/gh/krea-ai/krea-2@db3984fbc6e13b34c0064990fc2d95ac64d00058/assets/hf_samples/LICENSE.pdf",
@@ -83,6 +87,7 @@ EXTRA = [
     ("Base models", "Tongyi-MAI/Z-Image", "Z-Image (base parts of Z-Image Base checkpoints)"),
     ("Base models", "black-forest-labs/FLUX.2-dev", "FLUX.2 [dev]"),
     ("Base models", "krea/Krea-2-Turbo", "Krea 2"),
+    ("Base models", "black-forest-labs/flux-3-image-klein", "FLUX 3 Image Klein"),
     ("Base models", "ideogram-ai/ideogram-4-fp8", "Ideogram 4"),
     ("Base models", "Qwen/Qwen-Image", "Qwen-Image"),
     ("Base models", "Qwen/Qwen-Image-2.1", "Qwen-Image 2.1"),
@@ -99,6 +104,7 @@ EXTRA = [
     ("Helper models", "yzd-v/DWPose", "DWPose (pose detection)"),
     ("Helper models", "depth-anything/Depth-Anything-V2-Small-hf", "Depth Anything V2 Small (depth maps)"),
     ("Helper models", "Comfy-Org/Real-ESRGAN_repackaged", "Real-ESRGAN x4plus (Upscale)"),
+    ("Helper models", "VisualInference/FLUX-3-Image-Klein-pup-MLX-4bit", "FLUX 3 prompt upsampler (MLX, 4 bit)"),
     ("Helper models", "piddnad/ddcolor_modelscope", "DDColor (colouring old photos, Restore)"),
     ("Helper models", "Falconsai/nsfw_image_detection", "NSFW image detection (content filter)"),
     ("Helper models", "dima806/facial_age_image_detection", "Facial age detection (content filter)"),

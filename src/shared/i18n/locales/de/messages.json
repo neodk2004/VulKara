@@ -151,6 +151,13 @@
    "noModel": "Für diese Seite ist noch kein Modell installiert.",
    "noModelLink": "Hol dir eines auf der Seite „Modelle“."
   },
+  "upsample": {
+   "label": "Prompt-Upsampler",
+   "hint": "FLUX 3 Image Klein ist auf ausführliche Szenenbeschreibungen trainiert. Der Upsampler (von Black Forest Labs, 4 Bit) schreibt vor dem Bild eine solche aus deinem Prompt: Motiv, Umgebung, Licht, Kamera, Farben. Ein Prompt, der schon alles beschreibt, geht unverändert. Er wird einmal geladen (5,7 GB, mit dem Button neben der Option oder auf der Seite Modelle); er belegt den Speicher nur für den Prompt und wird danach wieder freigegeben. Die Beschreibung, die er geschrieben hat, steht beim Bild.",
+   "download": "Laden (5,7 GB)",
+   "downloading": "Wird geladen …",
+   "missing": "Der Prompt-Upsampler ist noch nicht geladen: Lade ihn mit dem Button neben der Option, oder schalte die Option aus."
+  },
   "aiLabel": {
    "label": "EU-KI-Kennzeichnung",
    "hint": "Setzt das Symbol der EU für KI-Inhalte in die rechte untere Ecke jedes Bildes: „AI GENERATED“ für Bilder aus einem Prompt, „AI MODIFIED“, wo ein eigenes Bild verändert wird (Bild, Inpainting), oder das runde „AI“. Schwarz auf hellen Ecken, weiß auf dunklen, außer du legst es fest. Jedes Bild trägt den Hinweis ohnehin in seiner Datei; das Symbol macht ihn sichtbar, wenn das Bild geteilt wird. Symbole: Europäische Kommission, frei verwendbar.",
@@ -1572,7 +1579,8 @@
     "circlestone": "Das Modell nur für nicht kommerzielle Zwecke; erstellte Bilder dürfen für jeden Zweck genutzt werden.",
     "ideogram": "Bilder für umsatzbringende Produkte oder Werbung zu erstellen, ist kein nicht kommerzieller Zweck.",
     "qwen": "Nur für Forschung und Evaluierung; kommerzielle Nutzung erfordert eine gesonderte Lizenz von Alibaba (Tongyi Lab).",
-    "krea": "Kommerzielle Nutzung nur unter 1 Million USD Unternehmensumsatz; Inhaltsfilter-Maßnahmen erforderlich."
+    "krea": "Kommerzielle Nutzung nur unter 1 Million USD Unternehmensumsatz; Inhaltsfilter-Maßnahmen erforderlich.",
+    "fluxKommunity": "Nutzung des Modells nur nichtkommerziell. Bilder dürfen nur Personen und Unternehmen mit weniger als 5 Millionen USD Jahresumsatz kommerziell nutzen, mit Inhaltsfilter-Maßnahmen und der gesetzlich verlangten KI-Kennzeichnung; alles andere braucht eine Lizenz von Black Forest Labs."
    }
   },
   "report": {

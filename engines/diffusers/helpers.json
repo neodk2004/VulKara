@@ -68,6 +68,9 @@
      "preview": "controlnet_illusion", "description": "Hides a pattern or text in a picture with SDXL models (Illusion page)."},
     {"id": "realesrgan", "name": "Real-ESRGAN x4plus (Upscale)", "group": "Upscale", "kind": "upscaler",
      "repo": "Comfy-Org/Real-ESRGAN_repackaged", "folder": "upscalers", "size_mb": 64, "preview": "realesrgan",
-     "description": "Enlarges pictures two or four times with detail (Upscale page, ComfyUI runtime); rebuilds soft detail of old photos (Restore)."}
+     "description": "Enlarges pictures two or four times with detail (Upscale page, ComfyUI runtime); rebuilds soft detail of old photos (Restore)."},
+    {"id": "flux3_pup", "name": "FLUX 3 prompt upsampler (MLX, 4 bit)", "group": "Prompt", "kind": "pup",
+     "repo": "VisualInference/FLUX-3-Image-Klein-pup-MLX-4bit", "folder": "prompt_upsamplers/flux3_pup_mlx_4bit", "size_mb": 5694, "preview": "flux3_pup",
+     "description": "Writes the full scene caption FLUX 3 Image Klein is trained on from a short prompt (Text to image, option Prompt upsampler, MLX runtime). Black Forest Labs' flux-3-image-klein-pup (Apache-2.0), quantized to 4 bit."}
   ]
 }

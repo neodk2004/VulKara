@@ -174,6 +174,7 @@ export default {
       ideogram: 'Generating pictures for revenue-generating products or advertising is not a non-commercial purpose.',
       qwen: 'Research and evaluation only; commercial use needs a separate licence from Alibaba (Tongyi Lab).',
       krea: 'Commercial use only below USD 1 million company revenue; content filter measures required.',
+      fluxKommunity: 'Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs.',
     },
   },
   report: {

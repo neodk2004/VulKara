@@ -70,15 +70,15 @@ the network is only used to download runtimes, models and LoRA descriptions.
 <td width="33%" valign="top">
 
 ### <img src="docs/icons/boxes.svg" width="20" height="20" alt=""> Many models, one app
-SD 1.5 / 2.x, SDXL (also Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, Chroma, Qwen-Image, Z-Image, Krea 2,
-Ideogram 4, Anima and Wan 2.2 video. Choose from a tested list, or import any model from Hugging Face, Civitai or a file.
+SD 1.5 / 2.x, SDXL (also Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, FLUX 3 Image Klein, Chroma, Qwen-Image,
+Z-Image, Krea 2, Ideogram 4, Anima and Wan 2.2 video. Choose from a tested list, or import any model from Hugging Face, Civitai or a file.
 The app speaks English, German, Spanish and Portuguese (Brazil and Portugal); a new language is a folder of JSON files.
 
 </td>
 <td width="33%" valign="top">
 
 ### <img src="docs/icons/cpu.svg" width="20" height="20" alt=""> Three engines
-**Diffusers** (PyTorch on Metal), **MLX** (fast for FLUX, the only one for Krea 2 and Ideogram 4) and, optionally,
+**Diffusers** (PyTorch on Metal), **MLX** (fast for FLUX, the only one for Krea 2, Ideogram 4 and FLUX 3) and, optionally,
 **ComfyUI**. The app installs them itself and picks the right one for each model.
 
 </td>
@@ -375,7 +375,7 @@ The language of the app is chosen at the top right of the Start page or in **Set
 | Mac | Apple silicon (M1) | M2 Pro / Max or newer |
 | Memory | 8 GB (SD 1.5) | 24–32 GB or more (SDXL, FLUX, Qwen-Image, video); larger models stream from the SSD on smaller Macs |
 | Storage | 5 GB | 50 GB or more for several models; external drives work; a fast internal SSD for the streaming cache |
-| System | macOS on Apple silicon | current macOS |
+| System | macOS 14 (Sonoma) or newer | current macOS |
 
 Nothing has to be installed first: no Python, no Xcode command line tools, and Homebrew only if you install with it. VulKara downloads its own
 Python (with uv, at a checked version) and only ready-built packages into its runtimes folder; the Python of the
@@ -394,6 +394,7 @@ Mac is never used or changed.
 | Qwen-Image | Diffusers | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | yes (Apache 2.0) |
 | Qwen-Image 2.1 (GGUF or repository) | Diffusers (diffusers 0.41: Settings → Runtimes → Update) | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | no (research licence) |
 | Z-Image Turbo / Base (Turbo about 5½ min per picture on an M2 with MLX) | Diffusers, MLX | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | yes (Apache 2.0) |
+| FLUX 3 Image Klein (6 / 8 bit MLX or Black Forest Labs' files; about 6 min per picture on an M2; optional prompt upsampler) | MLX | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | model non-commercial; pictures below USD 5 M revenue |
 | Krea 2 | MLX | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | below USD 1 M revenue |
 | Ideogram 4 | MLX | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | no |
 | Anima | ComfyUI | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | model non-commercial, pictures free |

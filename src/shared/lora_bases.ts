@@ -34,6 +34,7 @@ export const LORA_BASES: LoraBase[] = [
   { id: 'flux2_dev', label: 'FLUX.2 [dev]', family: 'flux2', civitai: ['Flux.2 D'], hf: ['black-forest-labs/FLUX.2-dev'] },
   { id: 'flux2_klein4', label: 'FLUX.2 [klein] 4B', family: 'flux2', civitai: ['Flux.2 Klein 4B', 'Flux.2 Klein 4B-base'], hf: ['black-forest-labs/FLUX.2-klein-4B', 'black-forest-labs/FLUX.2-klein-base-4B'] },
   { id: 'flux2_klein9', label: 'FLUX.2 [klein] 9B', family: 'flux2', civitai: ['Flux.2 Klein 9B', 'Flux.2 Klein 9B-base'], hf: ['black-forest-labs/FLUX.2-klein-9B', 'black-forest-labs/FLUX.2-klein-base-9B'] },
+  { id: 'flux3_klein', label: 'FLUX 3 Image Klein', family: 'flux3', civitai: ['Flux.3 Klein', 'Flux.3 Klein-base', 'Flux.3'], hf: ['black-forest-labs/flux-3-image-klein', 'black-forest-labs/flux-3-image-klein-base'] },
   { id: 'qwen_image', label: 'Qwen-Image', family: 'qwen_image', civitai: ['Qwen'], hf: ['Qwen/Qwen-Image'] },
   { id: 'qwen_image21', label: 'Qwen-Image 2.1', family: 'qwen_image21', civitai: ['Qwen 2.1'], hf: ['Qwen/Qwen-Image-2.1'] },
   { id: 'z_image_turbo', label: 'Z-Image Turbo', family: 'z_image', civitai: ['ZImageTurbo'], hf: ['Tongyi-MAI/Z-Image-Turbo'] },
@@ -51,7 +52,7 @@ export const loraBase = (id: string): LoraBase | undefined => LORA_BASES.find((b
 const BY_ARCH: Record<string, string> = {
   sd15: 'sd15', sd15_inpaint: 'sd15', sd21: 'sd2', sd21_base: 'sd2', sdxl: 'sdxl', sd35_medium: 'sd35_medium',
   sd35_large: 'sd35_large', flux1_dev: 'flux1_dev', flux1_schnell: 'flux1_schnell', chroma: 'chroma', flux2_dev: 'flux2_dev',
-  flux2_klein: 'flux2_klein4', qwen_image: 'qwen_image', qwen_image21: 'qwen_image21', krea2: 'krea2', anima: 'anima',
+  flux2_klein: 'flux2_klein4', flux3_klein: 'flux3_klein', qwen_image: 'qwen_image', qwen_image21: 'qwen_image21', krea2: 'krea2', anima: 'anima',
   ideogram4: 'ideogram4', wan22_ti2v: 'wan22_5b', wan22_i2v_14b: 'wan22_14b', z_image: 'z_image_turbo',
 }
 
@@ -60,7 +61,7 @@ const BY_ARCH: Record<string, string> = {
 const BY_CIVITAI: [RegExp, string][] = [
   [/pony(?! ?v7)/i, 'pony'], [/illustrious/i, 'illustrious'], [/noob/i, 'noobai'],
   [/flux\.?1.*krea/i, 'flux1_krea'], [/flux\.?1.*kontext/i, 'flux1_kontext'], [/flux\.?1 ?s/i, 'flux1_schnell'], [/flux\.?1/i, 'flux1_dev'],
-  [/^chroma/i, 'chroma'], [/flux\.?2.*klein.*9b/i, 'flux2_klein9'], [/flux\.?2.*klein/i, 'flux2_klein4'], [/flux\.?2/i, 'flux2_dev'],
+  [/flux\.?3/i, 'flux3_klein'], [/^chroma/i, 'chroma'], [/flux\.?2.*klein.*9b/i, 'flux2_klein9'], [/flux\.?2.*klein/i, 'flux2_klein4'], [/flux\.?2/i, 'flux2_dev'],
   [/sd ?3\.5.*large/i, 'sd35_large'], [/sd ?3/i, 'sd35_medium'], [/sdxl/i, 'sdxl'], [/sd ?2/i, 'sd2'], [/sd ?1/i, 'sd15'],
   [/qwen ?2\.1/i, 'qwen_image21'], [/qwen/i, 'qwen_image'], [/krea ?2/i, 'krea2'], [/^anima/i, 'anima'], [/ideogram/i, 'ideogram4'],
   [/wan.*5b/i, 'wan22_5b'], [/wan.*14b/i, 'wan22_14b'],

@@ -36,7 +36,7 @@ module.exports = {
     target: [{ target: 'dmg', arch: ['arm64'] }],
     category: 'public.app-category.graphics-design',
     icon: 'build/icon.icns',
-    minimumSystemVersion: '13.0',
+    minimumSystemVersion: '14.0',  // torch, mlx and onnxruntime of the runtimes have wheels from macOS 14 on
     identity: null,
     notarize: false,
   },

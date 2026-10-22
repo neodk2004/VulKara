@@ -12,7 +12,7 @@ more time), so during encoding both are resident, just without the activations.
 RESERVE_FRACTION = 0.2
 MIN_RESERVE_GB = 4.0
 RUNTIME_OVERHEAD_GB = 1.0  # python + torch + app
-ACTIVATIONS_GB = {"sd1": 0.8, "sd2": 1.0, "sdxl": 1.5, "sd3": 2.0, "flux1": 2.5, "flux2": 3.0, "krea2": 3.0, "ideogram4": 2.5,
+ACTIVATIONS_GB = {"sd1": 0.8, "sd2": 1.0, "sdxl": 1.5, "sd3": 2.0, "flux1": 2.5, "flux2": 3.0, "flux3": 2.5, "krea2": 3.0, "ideogram4": 2.5,
                   "chroma": 2.5,  # FLUX.1's blocks; the guided and the unguided pass run one after the other
                   # Z-Image at 1024 px (4096 image + up to 512 caption tokens, 3840 wide); with guidance (Base)
                   # both passes run as one batch
@@ -68,7 +68,7 @@ def _gb(params_b, quant):
 
 
 def plan(components, denoiser, family, ram_gb, quant="auto", denoiser_fixed_gb=None, allow_staging=True,
-         activations_gb=None, text_quant_opts=None):
+         activations_gb=None, text_quant_opts=None, staging_frees_denoiser=False):
     """
     components:  {component_name: params_in_billion}
     denoiser:    name of the denoiser component ("unet" / "transformer")
@@ -77,6 +77,8 @@ def plan(components, denoiser, family, ram_gb, quant="auto", denoiser_fixed_gb=N
     activations_gb: activations at another resolution than 1024² (default: the family's value)
     text_quant_opts: what "auto" may pick for big text encoders (default AUTO_ORDER; SSD streaming's last resort
                      also allows 4 bit)
+    staging_frees_denoiser: staged, the prompt is encoded while the denoiser is not loaded (FLUX 3 on MLX), so the
+                     text encoder and the denoiser are never in memory together
 
     Returns a dict with quant per component, staged flag, peak estimate, fit and min RAM.
     """
@@ -111,7 +113,9 @@ def plan(components, denoiser, family, ram_gb, quant="auto", denoiser_fixed_gb=N
         den_gb = denoiser_gb(dq)
         te_gb = small_te_gb + sum(_gb(components[n], tq) for n in big_te)
         if staged:
-            return max(te_gb + den_gb + other_gb + RUNTIME_OVERHEAD_GB, denoise_peak(dq, tq, staged))
+            encoding = te_gb + other_gb + RUNTIME_OVERHEAD_GB if staging_frees_denoiser else \
+                te_gb + den_gb + other_gb + RUNTIME_OVERHEAD_GB
+            return max(encoding, denoise_peak(dq, tq, staged))
         return denoise_peak(dq, tq, staged)
 
     candidates = []

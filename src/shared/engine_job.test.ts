@@ -9,6 +9,14 @@ const BASE: Job = {
   restore: { correct: true, repair: false, colorize: false, colorStrength: 1, sharpen: false, sharpness: 0.25, lock: true, maxChange: 0.06, rules: [], checkFaces: true },
 }
 
+describe('the engine job', () => {
+  it('passes the prompt upsampler of FLUX 3 on, and nothing when it is off', () => {
+    const job: Job = { id: '2', page: 'text', prompt: 'a fox', modelId: 'm', modelDir: '/m', width: 1024, height: 1024, seed: 7 }
+    expect(toEngineJob({ ...job, upsample: true }).upsample).toBe(true)
+    expect('upsample' in toEngineJob(job)).toBe(false)
+  })
+})
+
 describe('Restore jobs for the engine', () => {
   it('fills in the defaults of the AI steps an older job or template does not have', () => {
     const r = toEngineJob(BASE).restore as Record<string, unknown>

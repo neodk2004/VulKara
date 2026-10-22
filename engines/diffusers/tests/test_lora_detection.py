@@ -156,6 +156,7 @@ def test_civitai_bases():
     assert civitai.family_of("Flux.2 Klein 4B") == ("flux2", "klein4b")
     assert civitai.family_of("Flux.2 D") == ("flux2", "dev")
     assert civitai.arch_of("Flux.3") == "unknown"
+    assert civitai.family_of("Flux.3 Klein") == ("flux3", None) and civitai.family_of("Flux.3 Klein-base") == ("flux3", None)
     assert civitai.arch_of("Wan Video 2.2 TI2V-5B") == "wan22_ti2v"
     assert civitai.family_of("Wan Video 14B t2v") == ("wan", "14b")
     assert civitai.family_of("ZImageTurbo") == ("z_image", None)
@@ -168,6 +169,8 @@ def test_hugging_face_bases():
     assert registry.family_of_repo("Qwen/Qwen-Image-2.1") == ("qwen_image21", None)
     assert registry.family_of_repo("Qwen/Qwen-Image") == ("qwen_image", None)
     assert registry.family_of_repo("stabilityai/stable-diffusion-xl-base-1.0") == ("sdxl", None)
+    assert registry.family_of_repo("black-forest-labs/flux-3-image-klein") == ("flux3", None)
+    assert registry.family_of_repo("black-forest-labs/flux-3-image-klein-base") == ("flux3", None)
     assert registry.family_of_repo("someone/my-merge") == (None, None)
 
 

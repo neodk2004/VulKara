@@ -290,6 +290,9 @@ h2 {
   display: grid;
   align-content: start;
   gap: 4px;
+  /* the picture takes the column's 150 px, not the width of a long caption (the figure's own column would grow
+     with it, and the picture with the column) */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .pictures img {
@@ -306,6 +309,14 @@ h2 {
   gap: 6px;
   font-size: 11.5px;
   white-space: nowrap;
+  min-width: 0;
+}
+
+/* a long caption is cut with an ellipsis; the large view shows it whole */
+.pictures figcaption strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* a tip picture, large, over the page */

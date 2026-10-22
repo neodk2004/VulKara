@@ -137,6 +137,39 @@
    "note": "The model only for non-commercial purposes; generated pictures may be used commercially."
   },
   {
+   "group": "Recommended: FLUX 3",
+   "id": "FLUX-3-Image-Klein-MLX-6bit",
+   "title": "FLUX 3 Image Klein (MLX, 6 bit)",
+   "source": "https://huggingface.co/VisualInference/FLUX-3-Image-Klein-MLX-6bit",
+   "license": "FLUX Kommunity License v1.0",
+   "license_url": "https://huggingface.co/black-forest-labs/flux-3-image-klein/blob/main/LICENSE.md",
+   "model": "no",
+   "outputs": "limited",
+   "note": "Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs. Distributing the model needs Black Forest Labs' attribution notice."
+  },
+  {
+   "group": "Recommended: FLUX 3",
+   "id": "FLUX-3-Image-Klein-MLX-8bit",
+   "title": "FLUX 3 Image Klein (MLX, 8 bit)",
+   "source": "https://huggingface.co/VisualInference/FLUX-3-Image-Klein-MLX-8bit",
+   "license": "FLUX Kommunity License v1.0",
+   "license_url": "https://huggingface.co/black-forest-labs/flux-3-image-klein/blob/main/LICENSE.md",
+   "model": "no",
+   "outputs": "limited",
+   "note": "Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs. Distributing the model needs Black Forest Labs' attribution notice."
+  },
+  {
+   "group": "Recommended: FLUX 3",
+   "id": "FLUX-3-Image-Klein",
+   "title": "FLUX 3 Image Klein (Black Forest Labs, 16 bit)",
+   "source": "https://huggingface.co/black-forest-labs/flux-3-image-klein",
+   "license": "FLUX Kommunity License v1.0",
+   "license_url": "https://huggingface.co/black-forest-labs/flux-3-image-klein/blob/main/LICENSE.md",
+   "model": "no",
+   "outputs": "limited",
+   "note": "Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs. Distributing the model needs Black Forest Labs' attribution notice."
+  },
+  {
    "group": "Recommended: FLUX.1",
    "id": "FLUX.1-schnell-Q4",
    "title": "FLUX.1 [schnell] (4 bit)",
@@ -612,6 +645,17 @@
   {
    "group": "Base models",
    "id": null,
+   "title": "FLUX 3 Image Klein",
+   "source": "https://huggingface.co/black-forest-labs/flux-3-image-klein",
+   "license": "FLUX Kommunity License v1.0",
+   "license_url": "https://huggingface.co/black-forest-labs/flux-3-image-klein/blob/main/LICENSE.md",
+   "model": "no",
+   "outputs": "limited",
+   "note": "Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs. Distributing the model needs Black Forest Labs' attribution notice."
+  },
+  {
+   "group": "Base models",
+   "id": null,
    "title": "Ideogram 4",
    "source": "https://huggingface.co/ideogram-ai/ideogram-4-fp8",
    "license": "Ideogram Non-Commercial Model Agreement",
@@ -788,6 +832,17 @@
   {
    "group": "Helper models",
    "id": null,
+   "title": "FLUX 3 prompt upsampler (MLX, 4 bit)",
+   "source": "https://huggingface.co/VisualInference/FLUX-3-Image-Klein-pup-MLX-4bit",
+   "license": "Apache License 2.0",
+   "license_url": "https://www.apache.org/licenses/LICENSE-2.0",
+   "model": "yes",
+   "outputs": "yes",
+   "note": ""
+  },
+  {
+   "group": "Helper models",
+   "id": null,
    "title": "DDColor (colouring old photos, Restore)",
    "source": "https://huggingface.co/piddnad/ddcolor_modelscope",
    "license": "Apache License 2.0",
@@ -827,26 +882,37 @@
    "license_url": "https://github.com/megvii-research/NAFNet/blob/main/LICENSE",
    "model": "yes",
    "outputs": "yes",
-   "note": ""
+   "note": "OpenCV's ONNX export stays the Sharpen tool: the original NAFNet-GoPro weights blow up on many picture crops (MEASUREMENTS.md), this export does not."
   },
   {
    "group": "Photo tools",
    "id": null,
    "title": "Denoise (SCUNet)",
-   "source": "https://huggingface.co/Heliosoph/scunet-onnx",
+   "source": "https://github.com/cszn/KAIR/releases/tag/v1.0",
    "license": "Apache License 2.0",
    "license_url": "https://github.com/cszn/SCUNet/blob/main/LICENSE",
    "model": "yes",
    "outputs": "yes",
-   "note": "The ONNX repository's licence file is MIT (from KAIR) while its model card says Apache-2.0 (SCUNet's code); both allow any use."
+   "note": "The original weights, published with KAIR (MIT) by SCUNet's author; SCUNet itself is Apache-2.0. Both allow any use."
   },
   {
    "group": "Photo tools",
    "id": null,
-   "title": "Upscale with detail (SwinIR ×4)",
-   "source": "https://huggingface.co/rocca/swin-ir-onnx",
+   "title": "Upscale ×4 (SwinIR)",
+   "source": "https://github.com/JingyunLiang/SwinIR/releases/tag/v0.0",
    "license": "Apache License 2.0",
    "license_url": "https://github.com/JingyunLiang/SwinIR/blob/main/LICENSE",
+   "model": "yes",
+   "outputs": "yes",
+   "note": ""
+  },
+  {
+   "group": "Photo tools",
+   "id": null,
+   "title": "JPEG cleanup (FBCNN)",
+   "source": "https://github.com/jiaxi-jiang/FBCNN/releases/tag/v1.0",
+   "license": "Apache License 2.0",
+   "license_url": "https://github.com/jiaxi-jiang/FBCNN/blob/main/LICENSE",
    "model": "yes",
    "outputs": "yes",
    "note": ""
