@@ -5,7 +5,7 @@
 # VulKara
 
 **Your local AI image generator with high privacy**<br>
-Text to image · Image to image · Inpainting · AI Canvas · Image to video · Upscale · Restore · Pose · Illusion · LoRAs · Training
+Text to image · Image to image · Inpainting · AI Canvas · Image to video · Upscale · Restore · Pose · Illusion · LoRAs · Training · Remote web UI
 
 [![Release](https://img.shields.io/github/v/release/revil-O/VulKara?label=release&color=c2662d)](https://github.com/revil-O/VulKara/releases/latest)
 ![macOS](https://img.shields.io/badge/macOS-Apple%20silicon-111?logo=apple&logoColor=white)
@@ -42,6 +42,16 @@ The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) ·
 > (tested on a Mac mini M4: FLUX.1 [dev], Krea 2, Qwen-Image 2.1). Automatic, nothing to set up.
 > [How it works](#big-models-on-small-macs-ssd-streaming)
 
+> [!NOTE]
+> **<img src="docs/icons/sparkles.svg" width="16" height="16" alt=""> New in 0.7.0: FLUX 3 Image Klein.** Black Forest Labs' newest model on the MLX runtime, for text to
+> image and edits with a reference picture, with LoRAs and an optional **prompt upsampler** that turns a short prompt
+> into the full scene description FLUX 3 is trained on. The 6 and 8 bit versions run on a Mac with 16 GB.
+> [Text to image](#text-to-image) · [Supported models](#supported-models)
+>
+> **<img src="docs/icons/tablet-smartphone.svg" width="16" height="16" alt=""> Since 0.6.0: VulKara in the browser of your phone.** Watch your pictures, start new ones and share
+> finished ones from an iPhone, iPad or another computer on your home network or over a VPN — encrypted (HTTPS) and
+> behind an access token. Only your Mac computes. [Remote access](#remote-access-in-the-browser)
+
 ## <img src="docs/icons/sparkles.svg" width="22" height="22" alt=""> Coming next: your own characters
 
 > [!IMPORTANT]
@@ -64,7 +74,8 @@ The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) ·
 
 ### <img src="docs/icons/monitor.svg" width="20" height="20" alt=""> Everything on the Mac
 Pictures, videos, photo restoration and LoRA training run on the Apple GPU. Prompts and pictures never leave the Mac;
-the network is only used to download runtimes, models and LoRA descriptions.
+the network is only used to download runtimes, models and LoRA descriptions. Phone, tablet or a second computer reach
+it over your own network, as a web UI in the browser.
 
 </td>
 <td width="33%" valign="top">
@@ -175,6 +186,13 @@ steps, guidance, seed and size, to compare models with the same settings; **Mode
 suggestions, and a chosen sampler stays chosen (a model without it runs its default and says so).
 
 ![Text to image](docs/screenshots/text.jpg)
+
+With **FLUX 3 Image Klein** the **Prompt upsampler** sits next to Generate: FLUX 3 is trained on full scene
+descriptions, and Black Forest Labs' own upsampler (4 bit, MLX) first writes one from your short prompt – subject,
+setting, light, camera, colours. It is downloaded once (5.7 GB), loaded only for the prompt (about 30 s), and the
+description it wrote becomes the picture's note.
+
+![Text to image with FLUX 3: the Prompt upsampler option next to Generate](docs/screenshots/generate_upsampler.jpg)
 
 ### Styles
 
@@ -325,6 +343,23 @@ screen. Use ←/→ to browse, and send a picture on to image to image, inpainti
 
 ![Large view](docs/screenshots/viewer.jpg)
 
+### Remote access in the browser
+
+Settings → **Remote access** serves VulKara to a browser on a phone, tablet or second computer in your home network or
+over a VPN: see the status of your pictures, type in and start new ideas while you are out, and look through,
+download or share finished pictures in the history. Only the Mac computes, and nothing goes to the internet.
+
+- **Off by default.** Switched on, the settings show one link per network with the access token already in it, and a
+  QR code to scan with the phone's camera. **Renew token** makes a new one at once.
+- **Encrypted (HTTPS)** with a certificate authority of the Mac's own, installed once per device from a link in the
+  settings (valid only for addresses in your local network). Plain HTTP can be chosen instead.
+- **Only the pages for generating and watching:** Text, Image, Video, Illusion, Inpaint, Pose, LoRA, History,
+  Favorites, Tips, Changelog. A browser can not change settings, install models or runtimes, or reach any file other
+  than the pictures it is shown. On the phone, **Share** opens its share sheet and **Copy picture** its clipboard.
+- The pages fit a phone screen, and each device keeps its own language.
+
+<img src="docs/screenshots/settings_remote.jpg" alt="Settings → Remote access: the switch, HTTPS, the links with the access token and the QR code" width="720">
+
 ### Light or dark
 
 The app follows macOS, or stays light or dark (Settings → Appearance). The screenshots here show the light mode.
@@ -339,7 +374,7 @@ The app follows macOS, or stays light or dark (Settings → Appearance). The scr
 <td width="25%"><img src="docs/screenshots/about.jpg" alt="About"></td>
 </tr>
 <tr>
-<td><b>Settings</b>: runtimes, folders (also on external drives, including the SSD streaming cache), memory, SSD streaming, appearance, content, privacy, tokens in the keychain.</td>
+<td><b>Settings</b>: runtimes, folders (also on external drives, including the SSD streaming cache), memory, SSD streaming, remote access, appearance, content, privacy, tokens in the keychain.</td>
 <td><b>Changelog</b>: what changed from version to version, the installed one marked.</td>
 <td><b>Licenses</b>: for every model, whether it and its pictures may be used commercially.</td>
 <td><b>About</b>: what runs where, licence requirements, content measures. <b>Hardware</b>: chip, cores, unified memory and the Metal budget, a resource monitor (memory of VulKara and its engines, CPU and GPU load, SSD streaming caches), and the guard rails; the same figures sit as chips in the status bar.</td>

@@ -19,7 +19,7 @@
   <meta name="theme-color" content="#0e1014" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/icon.png">
-  <link rel="stylesheet" href="style.css?v=52d64cd404">
+  <link rel="stylesheet" href="style.css?v=e3cff7dc54">
   <script src="theme.js?v=a1e4c4c746"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VulKara">
@@ -49,6 +49,7 @@
       <a class="brand" href="./"><img src="assets/icon.svg" width="30" height="30" alt="">VulKara</a>
       <nav aria-label="VulKara">
         <a href="#features">Features</a>
+        <a href="#models">Models</a>
         <a href="#why">Why VulKara</a>
         <a href="#screenshots">Screenshots</a>
         <a href="#start">Get started</a>
@@ -324,6 +325,84 @@
             <p>SD 1.5, SDXL (also Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, FLUX 3, Chroma, Qwen-Image, Z-Image, Krea 2, Ideogram 4, Anima and Wan 2.2 video. Download straight from a list of tested models, import from Hugging Face or Civitai (an API token may be needed) by link (URL or creator/model name), or from a model file you already downloaded.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section id="models" aria-labelledby="models-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">Supported models</span>
+          <h2 id="models-title">Every big model family, one app</h2>
+          <p>Install them from a list of tested models or import them from Hugging Face, Civitai or a file. VulKara picks the right runtime for each one and plans the memory for your Mac.</p>
+        </div>
+        <ul class="models">
+          <li class="card">
+            <h3>FLUX 3 Image Klein <span class="new">New</span></h3>
+            <p>Black Forest Labs' newest. The 6 and 8 bit versions run on a Mac with 16 GB.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Pictures</span><span>Edit with a reference</span><span>LoRAs</span><span>Prompt upsampler</span></p>
+          </li>
+          <li class="card">
+            <h3>FLUX.2 [klein] 4B / 9B, [dev]</h3>
+            <p>Takes your picture as a reference; [klein] also learns your own LoRAs.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Pictures</span><span>Edit with a reference</span><span>LoRAs</span><span>Training</span></p>
+          </li>
+          <li class="card">
+            <h3>FLUX.1 [schnell] / [dev]</h3>
+            <p>Detailed and photoreal; [schnell] needs only 4 steps.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Pictures</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Z-Image Turbo / Base</h3>
+            <p>Fast and photoreal – the gallery above was made with Z-Image Turbo.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Pictures</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Krea 2</h3>
+            <p>Aesthetic photos; runs on 16 GB with SSD streaming.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Pictures</span><span>LoRAs</span><span>Training</span></p>
+          </li>
+          <li class="card">
+            <h3>Qwen-Image, Qwen-Image 2.1</h3>
+            <p>Strong at lettering inside the picture; 2.1 as GGUF.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Pictures</span><span>Edit with a reference</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Ideogram 4</h3>
+            <p>Ideogram's model on the MLX runtime.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Pictures</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Chroma</h3>
+            <p>An open model built on FLUX.1, under Apache 2.0.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Pictures</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>SDXL (Turbo, Pony, Illustrious, NoobAI)</h3>
+            <p>The largest choice of fine-tunes and LoRAs: photo, anime, illustration.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Pictures</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span><span>Training</span></p>
+          </li>
+          <li class="card">
+            <h3>Stable Diffusion 3.5</h3>
+            <p>Stability AI's third generation.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Pictures</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Stable Diffusion 1.x / 2.x</h3>
+            <p>The classic with thousands of fine-tunes; runs with 8 GB.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Pictures</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Anima</h3>
+            <p>Anime and illustration.</p>
+            <p class="tags"><span class="rt">ComfyUI</span><span>Pictures</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Wan 2.2 5B / 14B</h3>
+            <p>Image to video: 1–5 seconds at 480p or 720p.</p>
+            <p class="tags"><span class="rt">ComfyUI</span><span>Video</span></p>
+          </li>
+        </ul>
+        <p class="models-fine">Models are never part of the app: they are downloaded when you choose them. Each one has its own licence, and the Licenses page in the app tells whether it and its pictures may be used commercially.</p>
       </div>
     </section>
 

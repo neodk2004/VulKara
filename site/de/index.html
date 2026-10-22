@@ -19,7 +19,7 @@
   <meta name="theme-color" content="#0e1014" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/icon.png">
-  <link rel="stylesheet" href="../style.css?v=52d64cd404">
+  <link rel="stylesheet" href="../style.css?v=e3cff7dc54">
   <script src="../theme.js?v=a1e4c4c746"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VulKara">
@@ -49,6 +49,7 @@
       <a class="brand" href="../de/"><img src="../assets/icon.svg" width="30" height="30" alt="">VulKara</a>
       <nav aria-label="VulKara">
         <a href="#features">Funktionen</a>
+        <a href="#models">Modelle</a>
         <a href="#why">Warum VulKara</a>
         <a href="#screenshots">Screenshots</a>
         <a href="#start">Loslegen</a>
@@ -324,6 +325,84 @@
             <p>SD 1.5, SDXL (auch Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, FLUX 3, Chroma, Qwen-Image, Z-Image, Krea 2, Ideogram 4, Anima und Wan 2.2 für Video. Aus einer Liste getesteter Modelle direkt herunterladbar, importieren von Hugging Face oder Civitai (ggf. API-Token benötigt) per Link (URL oder Creator/ModellName) oder aus einer bereits heruntergeladenen Modell-Datei.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section id="models" aria-labelledby="models-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">Unterstützte Modelle</span>
+          <h2 id="models-title">Alle großen Modellfamilien, eine App</h2>
+          <p>Installiere sie aus einer Liste getesteter Modelle oder importiere sie von Hugging Face, Civitai oder aus einer Datei. VulKara wählt für jedes die passende Runtime und plant den Speicher für deinen Mac.</p>
+        </div>
+        <ul class="models">
+          <li class="card">
+            <h3>FLUX 3 Image Klein <span class="new">Neu</span></h3>
+            <p>Das neueste von Black Forest Labs. Die 6- und 8-Bit-Fassungen laufen auf einem Mac mit 16 GB.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Bilder</span><span>Bearbeiten mit Referenz</span><span>LoRAs</span><span>Prompt-Upsampler</span></p>
+          </li>
+          <li class="card">
+            <h3>FLUX.2 [klein] 4B / 9B, [dev]</h3>
+            <p>Nimmt dein Bild als Referenz; [klein] lernt auch deine eigenen LoRAs.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Bilder</span><span>Bearbeiten mit Referenz</span><span>LoRAs</span><span>Training</span></p>
+          </li>
+          <li class="card">
+            <h3>FLUX.1 [schnell] / [dev]</h3>
+            <p>Detailreich und fotorealistisch; [schnell] braucht nur 4 Schritte.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Bilder</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Z-Image Turbo / Base</h3>
+            <p>Schnell und fotorealistisch – die Galerie oben ist mit Z-Image Turbo entstanden.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Bilder</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Krea 2</h3>
+            <p>Ästhetische Fotos; läuft mit SSD-Streaming auf 16 GB.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Bilder</span><span>LoRAs</span><span>Training</span></p>
+          </li>
+          <li class="card">
+            <h3>Qwen-Image, Qwen-Image 2.1</h3>
+            <p>Stark bei Schrift im Bild; 2.1 als GGUF.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Bilder</span><span>Bearbeiten mit Referenz</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Ideogram 4</h3>
+            <p>Das Modell von Ideogram auf der MLX-Runtime.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Bilder</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Chroma</h3>
+            <p>Ein offenes Modell auf Basis von FLUX.1, unter Apache 2.0.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Bilder</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>SDXL (Turbo, Pony, Illustrious, NoobAI)</h3>
+            <p>Die größte Auswahl an Fine-Tunes und LoRAs: Foto, Anime, Illustration.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Bilder</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span><span>Training</span></p>
+          </li>
+          <li class="card">
+            <h3>Stable Diffusion 3.5</h3>
+            <p>Die dritte Generation von Stability AI.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Bilder</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Stable Diffusion 1.x / 2.x</h3>
+            <p>Der Klassiker mit Tausenden Fine-Tunes; läuft mit 8 GB.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Bilder</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Anima</h3>
+            <p>Anime und Illustration.</p>
+            <p class="tags"><span class="rt">ComfyUI</span><span>Bilder</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Wan 2.2 5B / 14B</h3>
+            <p>Bild zu Video: 1–5 Sekunden in 480p oder 720p.</p>
+            <p class="tags"><span class="rt">ComfyUI</span><span>Video</span></p>
+          </li>
+        </ul>
+        <p class="models-fine">Modelle sind nie Teil der App: Sie werden geladen, wenn du sie auswählst. Jedes hat seine eigene Lizenz, und die Seite Lizenzen in der App sagt, ob es und seine Bilder kommerziell genutzt werden dürfen.</p>
       </div>
     </section>
 

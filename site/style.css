@@ -216,6 +216,15 @@ section { padding: 84px 0 0; }
 .why p + p { margin-top: 10px; }
 .why .fine { font-size: 0.86rem; }
 
+.models { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); padding: 0; margin: 0; list-style: none; }
+.models .card { display: flex; flex-direction: column; }
+.models h3 { font-size: 1.05rem; }
+.models .new { display: inline-block; vertical-align: 2px; margin-left: 6px; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--accent-tint); color: var(--accent-text); }
+.models .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 14px; }
+.models .tags span { font-size: 0.78rem; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--text); }
+.models .tags .rt { background: var(--bg-soft); font-weight: 600; }
+.models-fine { margin-top: 18px; max-width: 720px; color: var(--muted); font-size: 0.86rem; }
+
 .steps { display: grid; gap: 16px; grid-template-columns: repeat(3, 1fr); counter-reset: step; padding: 0; margin: 0; list-style: none; }
 .steps li { position: relative; padding: 24px 22px 22px 74px; }
 .steps li::before {

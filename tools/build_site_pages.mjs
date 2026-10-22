@@ -35,6 +35,23 @@ const GALLERY = [
   ['crystal_cat', 1024, 1024], ['gold_freckles', 1024, 1024], ['fox_mushroom', 1024, 1024], ['kitten_cloud', 1024, 1024],
 ]
 
+// the model families: key (notes in T.*.models), name, runtimes, what they do (keys of T.*.models.caps), new
+const MODELS = [
+  ['flux3', 'FLUX 3 Image Klein', ['MLX'], ['pic', 'edit', 'lora', 'pup'], true],
+  ['flux2', 'FLUX.2 [klein] 4B / 9B, [dev]', ['Diffusers', 'MLX'], ['pic', 'edit', 'lora', 'train']],
+  ['flux1', 'FLUX.1 [schnell] / [dev]', ['Diffusers', 'MLX'], ['pic', 'inpaint', 'cn', 'lora']],
+  ['zimage', 'Z-Image Turbo / Base', ['Diffusers', 'MLX'], ['pic', 'inpaint', 'lora']],
+  ['krea2', 'Krea 2', ['MLX'], ['pic', 'lora', 'train']],
+  ['qwen', 'Qwen-Image, Qwen-Image 2.1', ['Diffusers'], ['pic', 'edit', 'inpaint', 'lora']],
+  ['ideogram4', 'Ideogram 4', ['MLX'], ['pic', 'lora']],
+  ['chroma', 'Chroma', ['Diffusers'], ['pic', 'inpaint', 'lora']],
+  ['sdxl', 'SDXL (Turbo, Pony, Illustrious, NoobAI)', ['Diffusers'], ['pic', 'inpaint', 'cn', 'lora', 'train']],
+  ['sd35', 'Stable Diffusion 3.5', ['Diffusers'], ['pic', 'inpaint', 'cn', 'lora']],
+  ['sd15', 'Stable Diffusion 1.x / 2.x', ['Diffusers'], ['pic', 'inpaint', 'cn', 'lora']],
+  ['anima', 'Anima', ['ComfyUI'], ['pic', 'lora']],
+  ['wan', 'Wan 2.2 5B / 14B', ['ComfyUI'], ['video']],
+]
+
 const SHOTS = [
   ['text', 1100], ['canvas', 1100], ['inpaint', 1100], ['restore', 1500],
   ['video', 1100], ['pose', 1100], ['training', 1100], ['models_recommended', 1100],
@@ -70,6 +87,7 @@ const T = {
     galTitle: "Made on a Mac. Not in the cloud.",
     galLead: "Every picture here was made with VulKara on a MacBook Pro M2 with Z-Image Turbo, from one sentence each, in about five minutes per picture.",
     galCaps: {"greenhouse": "A glass greenhouse floating above a misty forest", "silver_gown": "A gown of liquid silver", "snow_leopard": "Snow leopard with morpho butterflies", "cat_astronaut": "Orange cat among glowing jellyfish", "crystal_cat": "Black cat on crystal books", "sky_koi": "Koi swimming through a neon city", "gold_freckles": "Freckles, gold leaf and white flowers", "fox_mushroom": "A fox asleep under a glowing mushroom", "hummingbird": "A hummingbird of stained glass", "kitten_cloud": "A white kitten asleep in a teacup on a cloud"},
+    models: {"nav": "Models", "eyebrow": "Supported models", "title": "Every big model family, one app", "lead": "Install them from a list of tested models or import them from Hugging Face, Civitai or a file. VulKara picks the right runtime for each one and plans the memory for your Mac.", "fine": "Models are never part of the app: they are downloaded when you choose them. Each one has its own licence, and the Licenses page in the app tells whether it and its pictures may be used commercially.", "new": "New", "caps": {"pic": "Pictures", "edit": "Edit with a reference", "inpaint": "Inpainting", "cn": "ControlNet", "lora": "LoRAs", "train": "Training", "video": "Video", "pup": "Prompt upsampler"}, "notes": {"sd15": "The classic with thousands of fine-tunes; runs with 8 GB.", "sdxl": "The largest choice of fine-tunes and LoRAs: photo, anime, illustration.", "sd35": "Stability AI's third generation.", "flux1": "Detailed and photoreal; [schnell] needs only 4 steps.", "chroma": "An open model built on FLUX.1, under Apache 2.0.", "flux2": "Takes your picture as a reference; [klein] also learns your own LoRAs.", "flux3": "Black Forest Labs' newest. The 6 and 8 bit versions run on a Mac with 16 GB.", "qwen": "Strong at lettering inside the picture; 2.1 as GGUF.", "zimage": "Fast and photoreal – the gallery above was made with Z-Image Turbo.", "krea2": "Aesthetic photos; runs on 16 GB with SSD streaming.", "ideogram4": "Ideogram's model on the MLX runtime.", "anima": "Anime and illustration.", "wan": "Image to video: 1–5 seconds at 480p or 720p."}},
     featEyebrow: 'Features',
     featTitle: 'One app, a whole studio',
     featLead: 'Pictures, edits, video and your own LoRAs – for creators, students, comic and anime fans and digital artists.',
@@ -176,6 +194,7 @@ const T = {
     galTitle: "Auf dem Mac gemacht. Nicht in der Cloud.",
     galLead: "Jedes Bild hier ist mit VulKara auf einem MacBook Pro M2 mit Z-Image Turbo entstanden, aus jeweils einem Satz, in etwa fünf Minuten pro Bild.",
     galCaps: {"greenhouse": "Ein Glas-Gewächshaus schwebt über dem Nebelwald", "silver_gown": "Ein Kleid aus flüssigem Silber", "snow_leopard": "Schneeleopard mit Morphofaltern", "cat_astronaut": "Rote Katze zwischen leuchtenden Quallen", "crystal_cat": "Schwarze Katze auf Kristallbüchern", "sky_koi": "Kois schwimmen durch eine Neonstadt", "gold_freckles": "Sommersprossen, Blattgold und weiße Blüten", "fox_mushroom": "Ein Fuchs schläft unter einem leuchtenden Pilz", "hummingbird": "Ein Kolibri aus Buntglas", "kitten_cloud": "Ein weißes Kätzchen schläft in einer Teetasse auf einer Wolke"},
+    models: {"nav": "Modelle", "eyebrow": "Unterstützte Modelle", "title": "Alle großen Modellfamilien, eine App", "lead": "Installiere sie aus einer Liste getesteter Modelle oder importiere sie von Hugging Face, Civitai oder aus einer Datei. VulKara wählt für jedes die passende Runtime und plant den Speicher für deinen Mac.", "fine": "Modelle sind nie Teil der App: Sie werden geladen, wenn du sie auswählst. Jedes hat seine eigene Lizenz, und die Seite Lizenzen in der App sagt, ob es und seine Bilder kommerziell genutzt werden dürfen.", "new": "Neu", "caps": {"pic": "Bilder", "edit": "Bearbeiten mit Referenz", "inpaint": "Inpainting", "cn": "ControlNet", "lora": "LoRAs", "train": "Training", "video": "Video", "pup": "Prompt-Upsampler"}, "notes": {"sd15": "Der Klassiker mit Tausenden Fine-Tunes; läuft mit 8 GB.", "sdxl": "Die größte Auswahl an Fine-Tunes und LoRAs: Foto, Anime, Illustration.", "sd35": "Die dritte Generation von Stability AI.", "flux1": "Detailreich und fotorealistisch; [schnell] braucht nur 4 Schritte.", "chroma": "Ein offenes Modell auf Basis von FLUX.1, unter Apache 2.0.", "flux2": "Nimmt dein Bild als Referenz; [klein] lernt auch deine eigenen LoRAs.", "flux3": "Das neueste von Black Forest Labs. Die 6- und 8-Bit-Fassungen laufen auf einem Mac mit 16 GB.", "qwen": "Stark bei Schrift im Bild; 2.1 als GGUF.", "zimage": "Schnell und fotorealistisch – die Galerie oben ist mit Z-Image Turbo entstanden.", "krea2": "Ästhetische Fotos; läuft mit SSD-Streaming auf 16 GB.", "ideogram4": "Das Modell von Ideogram auf der MLX-Runtime.", "anima": "Anime und Illustration.", "wan": "Bild zu Video: 1–5 Sekunden in 480p oder 720p."}},
     featEyebrow: 'Funktionen',
     featTitle: 'Eine App, ein ganzes Studio',
     featLead: 'Bilder, Bearbeitung, Video und eigene LoRAs – für Creator, Studierende, Comic- und Anime-Fans und Digital Artists.',
@@ -282,6 +301,7 @@ const T = {
     galTitle: "Hecho en un Mac. No en la nube.",
     galLead: "Cada imagen se creó con VulKara en un MacBook Pro M2 con Z-Image Turbo, a partir de una sola frase, en unos cinco minutos por imagen.",
     galCaps: {"greenhouse": "Un invernadero de cristal flota sobre un bosque con niebla", "silver_gown": "Un vestido de plata líquida", "snow_leopard": "Leopardo de las nieves con mariposas morfo", "cat_astronaut": "Gato naranja entre medusas luminosas", "crystal_cat": "Gato negro sobre libros de cristal", "sky_koi": "Kois nadando por una ciudad de neón", "gold_freckles": "Pecas, pan de oro y flores blancas", "fox_mushroom": "Un zorro dormido bajo una seta luminosa", "hummingbird": "Un colibrí de vidriera", "kitten_cloud": "Un gatito blanco dormido en una taza sobre una nube"},
+    models: {"nav": "Modelos", "eyebrow": "Modelos compatibles", "title": "Todas las grandes familias de modelos, una sola app", "lead": "Instálalos desde una lista de modelos probados o impórtalos de Hugging Face, Civitai o un archivo. VulKara elige el runtime adecuado para cada uno y planifica la memoria de tu Mac.", "fine": "Los modelos nunca forman parte de la app: se descargan cuando los eliges. Cada uno tiene su propia licencia, y la página Licencias de la app indica si el modelo y sus imágenes pueden usarse comercialmente.", "new": "Nuevo", "caps": {"pic": "Imágenes", "edit": "Edición con referencia", "inpaint": "Inpainting", "cn": "ControlNet", "lora": "LoRAs", "train": "Entrenamiento", "video": "Vídeo", "pup": "Ampliador de prompts"}, "notes": {"sd15": "El clásico con miles de fine-tunes; funciona con 8 GB.", "sdxl": "La mayor selección de fine-tunes y LoRAs: foto, anime, ilustración.", "sd35": "La tercera generación de Stability AI.", "flux1": "Detallado y fotorrealista; [schnell] solo necesita 4 pasos.", "chroma": "Un modelo abierto basado en FLUX.1, bajo Apache 2.0.", "flux2": "Toma tu imagen como referencia; [klein] también aprende tus propios LoRAs.", "flux3": "Lo más nuevo de Black Forest Labs. Las versiones de 6 y 8 bits funcionan en un Mac con 16 GB.", "qwen": "Destaca con el texto dentro de la imagen; 2.1 en GGUF.", "zimage": "Rápido y fotorrealista: la galería de arriba se hizo con Z-Image Turbo.", "krea2": "Fotos estéticas; funciona con 16 GB gracias al streaming desde el SSD.", "ideogram4": "El modelo de Ideogram en el runtime MLX.", "anima": "Anime e ilustración.", "wan": "Imagen a vídeo: 1–5 segundos en 480p o 720p."}},
     featEyebrow: 'Funciones',
     featTitle: 'Una app, todo un estudio',
     featLead: 'Imágenes, edición, vídeo y tus propias LoRAs, para creadores, estudiantes, fans del cómic y del anime y artistas digitales.',
@@ -388,6 +408,7 @@ const T = {
     galTitle: "Feito num Mac. Não na nuvem.",
     galLead: "Cada imagem foi criada com o VulKara num MacBook Pro M2 com Z-Image Turbo, a partir de uma única frase, em cerca de cinco minutos por imagem.",
     galCaps: {"greenhouse": "Uma estufa de vidro flutua sobre uma floresta enevoada", "silver_gown": "Um vestido de prata líquida", "snow_leopard": "Leopardo-das-neves com borboletas morfo", "cat_astronaut": "Gato laranja entre águas-vivas luminosas", "crystal_cat": "Gato preto sobre livros de cristal", "sky_koi": "Carpas nadando por uma cidade neon", "gold_freckles": "Sardas, folha de ouro e flores brancas", "fox_mushroom": "Uma raposa dorme sob um cogumelo luminoso", "hummingbird": "Um beija-flor de vitral", "kitten_cloud": "Um gatinho branco dormindo numa xícara sobre uma nuvem"},
+    models: {"nav": "Modelos", "eyebrow": "Modelos compatíveis", "title": "Todas as grandes famílias de modelos, um só app", "lead": "Instale a partir de uma lista de modelos testados ou importe do Hugging Face, do Civitai ou de um arquivo. O VulKara escolhe o runtime certo para cada um e planeja a memória do seu Mac.", "fine": "Os modelos nunca fazem parte do app: são baixados quando você os escolhe. Cada um tem a sua licença, e a página Licenças do app diz se o modelo e as suas imagens podem ser usados comercialmente.", "new": "Novo", "caps": {"pic": "Imagens", "edit": "Edição com referência", "inpaint": "Inpainting", "cn": "ControlNet", "lora": "LoRAs", "train": "Treinamento", "video": "Vídeo", "pup": "Ampliador de prompt"}, "notes": {"sd15": "O clássico com milhares de fine-tunes; roda com 8 GB.", "sdxl": "A maior escolha de fine-tunes e LoRAs: foto, anime, ilustração.", "sd35": "A terceira geração da Stability AI.", "flux1": "Detalhado e fotorrealista; o [schnell] precisa de só 4 passos.", "chroma": "Um modelo aberto baseado no FLUX.1, sob Apache 2.0.", "flux2": "Usa a sua imagem como referência; o [klein] também aprende os seus próprios LoRAs.", "flux3": "O mais novo da Black Forest Labs. As versões de 6 e 8 bits rodam num Mac com 16 GB.", "qwen": "Forte em texto dentro da imagem; 2.1 em GGUF.", "zimage": "Rápido e fotorrealista: a galeria acima foi feita com o Z-Image Turbo.", "krea2": "Fotos estéticas; roda com 16 GB graças ao streaming do SSD.", "ideogram4": "O modelo da Ideogram no runtime MLX.", "anima": "Anime e ilustração.", "wan": "Imagem para vídeo: 1–5 segundos em 480p ou 720p."}},
     featEyebrow: 'Recursos',
     featTitle: 'Um app, um estúdio inteiro',
     featLead: 'Imagens, edição, vídeo e suas próprias LoRAs – para criadores, estudantes, fãs de HQ e anime e artistas digitais.',
@@ -494,6 +515,7 @@ const T = {
     galTitle: "Feito num Mac. Não na nuvem.",
     galLead: "Cada imagem foi criada com o VulKara num MacBook Pro M2 com o Z-Image Turbo, a partir de uma única frase, em cerca de cinco minutos por imagem.",
     galCaps: {"greenhouse": "Uma estufa de vidro flutua sobre uma floresta com nevoeiro", "silver_gown": "Um vestido de prata líquida", "snow_leopard": "Leopardo-das-neves com borboletas morfo", "cat_astronaut": "Gato laranja entre medusas luminosas", "crystal_cat": "Gato preto sobre livros de cristal", "sky_koi": "Carpas a nadar por uma cidade de néon", "gold_freckles": "Sardas, folha de ouro e flores brancas", "fox_mushroom": "Uma raposa a dormir sob um cogumelo luminoso", "hummingbird": "Um colibri de vitral", "kitten_cloud": "Um gatinho branco a dormir numa chávena sobre uma nuvem"},
+    models: {"nav": "Modelos", "eyebrow": "Modelos suportados", "title": "Todas as grandes famílias de modelos, uma só app", "lead": "Instala-os a partir de uma lista de modelos testados ou importa-os do Hugging Face, do Civitai ou de um ficheiro. O VulKara escolhe o runtime certo para cada um e planeia a memória do teu Mac.", "fine": "Os modelos nunca fazem parte da app: são descarregados quando os escolhes. Cada um tem a sua licença, e a página Licenças da app indica se o modelo e as suas imagens podem ser usados comercialmente.", "new": "Novo", "caps": {"pic": "Imagens", "edit": "Edição com referência", "inpaint": "Inpainting", "cn": "ControlNet", "lora": "LoRAs", "train": "Treino", "video": "Vídeo", "pup": "Ampliador de prompt"}, "notes": {"sd15": "O clássico com milhares de fine-tunes; funciona com 8 GB.", "sdxl": "A maior escolha de fine-tunes e LoRAs: fotografia, anime, ilustração.", "sd35": "A terceira geração da Stability AI.", "flux1": "Detalhado e fotorrealista; o [schnell] precisa de apenas 4 passos.", "chroma": "Um modelo aberto baseado no FLUX.1, sob Apache 2.0.", "flux2": "Usa a tua imagem como referência; o [klein] também aprende os teus próprios LoRAs.", "flux3": "O mais recente da Black Forest Labs. As versões de 6 e 8 bits funcionam num Mac com 16 GB.", "qwen": "Forte em texto dentro da imagem; 2.1 em GGUF.", "zimage": "Rápido e fotorrealista: a galeria acima foi feita com o Z-Image Turbo.", "krea2": "Fotografias estéticas; funciona com 16 GB graças ao streaming do SSD.", "ideogram4": "O modelo da Ideogram no runtime MLX.", "anima": "Anime e ilustração.", "wan": "Imagem para vídeo: 1–5 segundos em 480p ou 720p."}},
     featEyebrow: 'Funcionalidades',
     featTitle: 'Uma app, um estúdio completo',
     featLead: 'Imagens, edição, vídeo e LoRAs próprias – para criadores, estudantes, fãs de BD e anime e artistas digitais.',
@@ -642,6 +664,7 @@ ${ogAlts}
       <a class="brand" href="${up}${lang.dir || './'}"><img src="${up}assets/icon.svg" width="30" height="30" alt="">VulKara</a>
       <nav aria-label="VulKara">
         <a href="#features">${t.nav[0]}</a>
+        <a href="#models">${t.models.nav}</a>
         <a href="#why">${t.nav[1]}</a>
         <a href="#screenshots">${t.nav[2]}</a>
         <a href="#start">${t.nav[3]}</a>
@@ -777,6 +800,24 @@ ${t.feats.map(([ic, h, p], i) => `          <article class="card${i >= 8 ? ' wid
             <p>${p}</p>
           </article>`).join('\n')}
         </div>
+      </div>
+    </section>
+
+    <section id="models" aria-labelledby="models-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">${t.models.eyebrow}</span>
+          <h2 id="models-title">${t.models.title}</h2>
+          <p>${t.models.lead}</p>
+        </div>
+        <ul class="models">
+${MODELS.map(([key, name, runtimes, caps, isNew]) => `          <li class="card">
+            <h3>${name}${isNew ? ` <span class="new">${t.models.new}</span>` : ''}</h3>
+            <p>${t.models.notes[key]}</p>
+            <p class="tags">${runtimes.map((r) => `<span class="rt">${r}</span>`).join('')}${caps.map((c) => `<span>${t.models.caps[c]}</span>`).join('')}</p>
+          </li>`).join('\n')}
+        </ul>
+        <p class="models-fine">${t.models.fine}</p>
       </div>
     </section>
 

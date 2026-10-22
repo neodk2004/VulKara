@@ -19,7 +19,7 @@
   <meta name="theme-color" content="#0e1014" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/icon.png">
-  <link rel="stylesheet" href="../style.css?v=52d64cd404">
+  <link rel="stylesheet" href="../style.css?v=e3cff7dc54">
   <script src="../theme.js?v=a1e4c4c746"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VulKara">
@@ -49,6 +49,7 @@
       <a class="brand" href="../pt-BR/"><img src="../assets/icon.svg" width="30" height="30" alt="">VulKara</a>
       <nav aria-label="VulKara">
         <a href="#features">Recursos</a>
+        <a href="#models">Modelos</a>
         <a href="#why">Por que o VulKara</a>
         <a href="#screenshots">Capturas</a>
         <a href="#start">Começar</a>
@@ -324,6 +325,84 @@
             <p>SD 1.5, SDXL (também Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, FLUX 3, Chroma, Qwen-Image, Z-Image, Krea 2, Ideogram 4, Anima e Wan 2.2 para vídeo. Download direto de uma lista de modelos testados, importação do Hugging Face ou do Civitai (pode ser preciso um token de API) por link (URL ou criador/nome do modelo) ou de um arquivo de modelo já baixado.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section id="models" aria-labelledby="models-title">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">Modelos compatíveis</span>
+          <h2 id="models-title">Todas as grandes famílias de modelos, um só app</h2>
+          <p>Instale a partir de uma lista de modelos testados ou importe do Hugging Face, do Civitai ou de um arquivo. O VulKara escolhe o runtime certo para cada um e planeja a memória do seu Mac.</p>
+        </div>
+        <ul class="models">
+          <li class="card">
+            <h3>FLUX 3 Image Klein <span class="new">Novo</span></h3>
+            <p>O mais novo da Black Forest Labs. As versões de 6 e 8 bits rodam num Mac com 16 GB.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Imagens</span><span>Edição com referência</span><span>LoRAs</span><span>Ampliador de prompt</span></p>
+          </li>
+          <li class="card">
+            <h3>FLUX.2 [klein] 4B / 9B, [dev]</h3>
+            <p>Usa a sua imagem como referência; o [klein] também aprende os seus próprios LoRAs.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Imagens</span><span>Edição com referência</span><span>LoRAs</span><span>Treinamento</span></p>
+          </li>
+          <li class="card">
+            <h3>FLUX.1 [schnell] / [dev]</h3>
+            <p>Detalhado e fotorrealista; o [schnell] precisa de só 4 passos.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Imagens</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Z-Image Turbo / Base</h3>
+            <p>Rápido e fotorrealista: a galeria acima foi feita com o Z-Image Turbo.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span class="rt">MLX</span><span>Imagens</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Krea 2</h3>
+            <p>Fotos estéticas; roda com 16 GB graças ao streaming do SSD.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Imagens</span><span>LoRAs</span><span>Treinamento</span></p>
+          </li>
+          <li class="card">
+            <h3>Qwen-Image, Qwen-Image 2.1</h3>
+            <p>Forte em texto dentro da imagem; 2.1 em GGUF.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Imagens</span><span>Edição com referência</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Ideogram 4</h3>
+            <p>O modelo da Ideogram no runtime MLX.</p>
+            <p class="tags"><span class="rt">MLX</span><span>Imagens</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Chroma</h3>
+            <p>Um modelo aberto baseado no FLUX.1, sob Apache 2.0.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Imagens</span><span>Inpainting</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>SDXL (Turbo, Pony, Illustrious, NoobAI)</h3>
+            <p>A maior escolha de fine-tunes e LoRAs: foto, anime, ilustração.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Imagens</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span><span>Treinamento</span></p>
+          </li>
+          <li class="card">
+            <h3>Stable Diffusion 3.5</h3>
+            <p>A terceira geração da Stability AI.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Imagens</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Stable Diffusion 1.x / 2.x</h3>
+            <p>O clássico com milhares de fine-tunes; roda com 8 GB.</p>
+            <p class="tags"><span class="rt">Diffusers</span><span>Imagens</span><span>Inpainting</span><span>ControlNet</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Anima</h3>
+            <p>Anime e ilustração.</p>
+            <p class="tags"><span class="rt">ComfyUI</span><span>Imagens</span><span>LoRAs</span></p>
+          </li>
+          <li class="card">
+            <h3>Wan 2.2 5B / 14B</h3>
+            <p>Imagem para vídeo: 1–5 segundos em 480p ou 720p.</p>
+            <p class="tags"><span class="rt">ComfyUI</span><span>Vídeo</span></p>
+          </li>
+        </ul>
+        <p class="models-fine">Os modelos nunca fazem parte do app: são baixados quando você os escolhe. Cada um tem a sua licença, e a página Licenças do app diz se o modelo e as suas imagens podem ser usados comercialmente.</p>
       </div>
     </section>
 
