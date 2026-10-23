@@ -775,7 +775,7 @@ ihrer Downloadgröße. Ein Modell, das mehr Arbeitsspeicher braucht, als der Mac
 | Gruppe | Modelle |
 | --- | --- |
 | **Basismodelle** | Stable Diffusion 1.5 (+ Inpainting), SD 2.1, SDXL 1.0, SDXL Turbo, SD 3.5 Medium / Large, FLUX.1 schnell (4/8 Bit), FLUX.1 dev (16/4 Bit), Chroma1-HD, Chroma1-Flash (schnell), Z-Image-Turbo, FLUX.2 [klein] 4B / 9B, Wan 2.2 TI2V 5B / I2V 14B (Video) |
-| **Community-Modelle** | GonzaLomo Chroma, DreamShaper 8, Realistic Vision 5.1, epiCPhotoGasm, Counterfeit, DreamShaper XL Turbo, Juggernaut XL v7, epiCRealism XL, JANKU Illustrious XL, Anima Turbo … |
+| **Community-Modelle** | GonzaLomo Chroma, DreamShaper 8, Realistic Vision 5.1, Counterfeit, DreamShaper XL Turbo, Juggernaut XL v7, epiCRealism XL, JANKU Illustrious XL, Anima Turbo … |
 | **Explizite Modelle** | nur gelistet, wenn Nacktheit in den Einstellungen erlaubt ist |
 
 Manche Modelle brauchen ein Zugriffstoken (Einstellungen → Zugriffstoken) oder eine auf ihrer Hugging-Face-Seite

@@ -91,6 +91,14 @@ class StopRequested(Exception):
     pass
 
 
+def _meta_weights():
+    """A model built inside this has its weights on the meta device, to be filled from a cache. Only the weights: tensors
+    a module computes itself in __init__ stay real, as nothing fills them later (Qwen-Image 2.1 keeps its rotary
+    frequencies in a plain list; on the meta device they failed with "Cannot copy out of meta tensor")."""
+    from accelerate import init_empty_weights
+    return init_empty_weights(include_buffers=False)
+
+
 def _device():
     import torch
     if torch.backends.mps.is_available():
@@ -305,7 +313,6 @@ class LoadedModel:
         """A GGUF denoiser for streaming: unpacked into the stream cache on its first use (it is read into RAM once
         for that), later only the small rest of it is read from there."""
         import diffusers
-        import torch
         m = self.m
         cls = getattr(diffusers, self.spec["denoiser_class"])
 
@@ -316,7 +323,7 @@ class LoadedModel:
                                         quantization_config=diffusers.GGUFQuantizationConfig(compute_dtype=self.dtype))
 
         def empty():
-            with torch.device("meta"):
+            with _meta_weights():
                 return cls.from_config(cls.load_config(self._path(m["base_dir"]), subfolder=m["denoiser"]))
 
         return streaming.unpack_gguf(load, empty, self.stream_dir, self.dtype, m.get("sha256") or m["file"],
@@ -372,8 +379,7 @@ class LoadedModel:
         dtype = dtype or self.dtype
 
         def make_empty():
-            import torch
-            with torch.device("meta"):
+            with _meta_weights():
                 if hasattr(cls, "config_class") and hasattr(cls, "_from_config"):  # transformers
                     return cls._from_config(cls.config_class.from_pretrained(folder, subfolder=comp), dtype=dtype)
                 return cls.from_config(cls.load_config(folder, subfolder=comp))
@@ -403,8 +409,7 @@ class LoadedModel:
             kwargs["quantization_config"] = _quanto_configs({m["denoiser"]: q}, m["denoiser"])[m["denoiser"]]
 
             def make_empty():
-                import torch
-                with torch.device("meta"):
+                with _meta_weights():
                     return cls.from_config(cls.load_config(self._path(m["base_dir"]), subfolder=m["denoiser"]))
 
             model = quant_cache.load(self.model_dir, self._path(m["file"]), None, q, self.dtype, make_empty)
@@ -433,7 +438,8 @@ class LoadedModel:
             self.pipe = self._from_pretrained(skip=skip, with_denoiser=self._load_denoiser_single_file())
         else:
             self.pipe = self._from_pretrained(skip=skip)
-        self.default_scheduler = self.pipe.scheduler
+        self.default_scheduler = samplers.own_default(self.pipe.scheduler, self.spec["family"])
+        self.pipe.scheduler = self.default_scheduler
         self._setup_vae()
         denoiser = getattr(self.pipe, self.m["denoiser"], None)
         level = step_cache.threshold()
@@ -690,10 +696,8 @@ class LoadedModel:
             protocol.status("Loading ControlNet")
             model = cls.from_pretrained(str(folder), dtype=self.dtype)
         elif cn_spec["params_b"] * memory.BYTES_PER_PARAM["q8"] <= free:
-            import torch
-
             def make_empty():
-                with torch.device("meta"):
+                with _meta_weights():
                     return cls.from_config(cls.load_config(str(folder)))
 
             model = quant_cache.load(str(folder), str(folder), None, "q8", self.dtype, make_empty)

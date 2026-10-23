@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.7.1 – 2026-10-23
+
+- Qwen-Image 2.1 from its repository no longer fails at the first step with "Cannot copy out of meta tensor" when
+  its transformer comes from the quantized cache: what a model computes itself while it is built (Qwen-Image 2.1's
+  rotary frequencies) now stays real; only the weights wait on the meta device for the cache.
+- **Stable Diffusion 1.x fine-tunes no longer break faces and animals into coloured patches.** Without a chosen
+  sampler they ran with PNDM, the scheduler the SD 1.x/2.x base configuration names; the base model hides its
+  weakness, fine-tunes such as epiCPhotoGasm or animatrix do not. They now run with DPM++ 2M Karras, the default of
+  the tools their makers use. A sampler chosen in the form stays as it is.
+- **A model imported from a Hugging Face repository only takes over a file of another installed model when its
+  content is the same.** Until now the same path and size were enough, so Stable Diffusion 3.5 Medium could get
+  FLUX.1's VAE (both 167,666,902 bytes) and painted only a grid. Now the SHA-256 the Hub lists has to match as well;
+  without one the file is downloaded. A Stable Diffusion 3.5 imported next to FLUX.1 should be imported again.
+- epiCPhotoGasm is no longer among the recommended models: the copy offered (Yntec/epiCPhotoGasm) is a re-upload, not
+  the maker's file. The original is on Civitai (civitai.com/models/132632) and can be imported by its link.
+
 ## 0.7.0 – 2026-10-22
 
 - **FLUX 3 Image Klein** (Black Forest Labs, MLX runtime): text to image and edits with the input picture as a

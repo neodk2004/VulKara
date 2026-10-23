@@ -73,6 +73,18 @@ def for_family(family):
     return [s for s, v in SAMPLERS.items() if v[1] == kind and s not in bad]
 
 
+def own_default(scheduler, family):
+    """The scheduler a model runs with when no sampler is chosen. PNDM, which the SD 1.x/2.x base configurations name,
+    breaks faces and animals of fine-tunes into coloured patches (epiCPhotoGasm, animatrix; the base model hides it);
+    those get DPM++ 2M Karras, the default of the tools their makers use."""
+    if type(scheduler).__name__ != "PNDMScheduler":
+        return scheduler
+    try:
+        return make("dpmpp_2m", "karras", dict(scheduler.config), family)
+    except ValueError:  # a family DPM++ 2M does not work with keeps its own
+        return scheduler
+
+
 def make(sampler, sigmas, base_config, family):
     """A scheduler instance, or None for the model's default (sampler "default"/unknown)."""
     import inspect

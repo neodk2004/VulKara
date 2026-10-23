@@ -159,12 +159,24 @@ def _repo_plan_files(files, model_index):
     return sorted(set(wanted)), variant
 
 
+# (repo, file) -> SHA-256 the Hub lists for a large file, from _hf_repo_info: a file of another model is only taken
+# over when its content is the same (a path and a size can match by chance: FLUX.1's and SD 3.5's VAE)
+_LFS_SHA256 = {}
+
+
 def _hf_repo_info(repo, token):
     from huggingface_hub import HfApi
     api = HfApi(token=token)
     info = api.model_info(repo, files_metadata=True)
     sizes = {s.rfilename: (s.size or 0) for s in info.siblings}
+    for s in info.siblings:
+        if getattr(s, "lfs", None):
+            _LFS_SHA256[(repo, s.rfilename)] = s.lfs.sha256
     return api, sizes
+
+
+def _hashes(repo, files):
+    return {f: _LFS_SHA256[(repo, f)] for f in files if (repo, f) in _LFS_SHA256}
 
 
 NO_LAYOUT = "This repo has no diffusers layout (model_index.json)."
@@ -308,6 +320,7 @@ def inspect_flux3(source, ref, token=None):
         sizes = _hf_repo_info(ref, token)[1]
         files = flux3_files(list(sizes), config)
         info.update(layout="repo", files=files, file_sizes={f: sizes.get(f, 0) for f in files},
+                    file_sha256=_hashes(ref, files),
                     download_bytes=sum(sizes.get(f, 0) for f in files), components=_flux3_components(sizes, files))
     else:
         files = [str(p.relative_to(ref)) for p in Path(ref).rglob("*") if p.is_file() and not p.name.startswith("._")]
@@ -355,7 +368,7 @@ def inspect(source, ref, file=None, token=None, name_hint=""):
         params = _fill_params(_params_from_hf(api, ref, files), arch, comps)
         info.update(layout="repo", arch=arch, overrides=overrides, components=params, denoiser=den,
                     variant=variant, files=files, file_sizes={f: sizes.get(f, 0) for f in files},
-                    download_bytes=sum(sizes.get(f, 0) for f in files))
+                    file_sha256=_hashes(ref, files), download_bytes=sum(sizes.get(f, 0) for f in files))
         return info
 
     if source == "dir":
@@ -403,13 +416,15 @@ def inspect(source, ref, file=None, token=None, name_hint=""):
     spec = registry.ARCHS[arch]
     if layout == "comfy_files":
         base_files = (spec.get("comfy") or {}).get("base_files") or {}
-        repo_sizes, base_sizes = {}, {}
+        repo_sizes, base_sizes, base_sha256 = {}, {}, {}
         for part, value in base_files.items():
             repo, repo_file = base_file_source(spec["base_repo"], value)
             try:
                 if repo not in repo_sizes:
                     repo_sizes[repo] = _hf_repo_info(repo, token)[1]
                 base_sizes[part] = repo_sizes[repo].get(repo_file, 0)
+                if (repo, repo_file) in _LFS_SHA256:
+                    base_sha256[part] = _LFS_SHA256[(repo, repo_file)]
             except Exception as e:
                 info["base_warning"] = str(e)
         params = dict(spec["fallback_params"])
@@ -417,6 +432,7 @@ def inspect(source, ref, file=None, token=None, name_hint=""):
             params[spec["denoiser"]] = den_params
         info.update(layout=layout, arch=arch, overrides=overrides, components=params, denoiser=spec["denoiser"],
                     base_repo=spec["base_repo"], variant=None, base_files=base_files, base_sizes=base_sizes,
+                    base_sha256=base_sha256,
                     download_bytes=sum(base_sizes.values()) + (file_bytes if source == "hf" else 0))
         return info
     native_files = spec.get("native_files")
@@ -1153,17 +1169,17 @@ def base_file_source(base_repo, value):
     return (repo or base_repo), path
 
 
-def _existing_base_file(target, repo_file, size, folders=("base",)):
+def _existing_base_file(target, repo_file, size, sha256, folders=("base",)):
     """The same file already downloaded for another imported model (e.g. a shared text encoder): the same path in
-    the repo and the same size."""
-    if not size:
+    the repo, the same size and the same content (SHA-256 as the Hub lists it; without one nothing is taken over)."""
+    if not size or not sha256:
         return None
     for other in Path(target).parent.iterdir():
         if other == Path(target) or not other.is_dir():
             continue
         for folder in folders:
             p = other / folder / repo_file
-            if p.is_file() and p.stat().st_size == size:
+            if p.is_file() and p.stat().st_size == size and _sha256(str(p)) == sha256.lower():
                 return p
     return None
 
@@ -1172,11 +1188,12 @@ def _reuse_repo_files(info, target):
     """Copies (or links) the files of a repo import that another model already has, e.g. the text encoder a
     single-file import of the same model downloaded as its base; returns the files still to download."""
     sizes = info.get("file_sizes") or {}
+    hashes = info.get("file_sha256") or {}
     if not sizes:
         return info["files"]
     left = []
     for f in info["files"]:
-        found = _existing_base_file(target, f, sizes.get(f), folders=("base", "weights"))
+        found = _existing_base_file(target, f, sizes.get(f), hashes.get(f), folders=("base", "weights"))
         if found and f.endswith((".safetensors", ".bin")):
             dst = target / "weights" / f
             dst.parent.mkdir(parents=True, exist_ok=True)
@@ -1222,7 +1239,7 @@ def _materialize_comfy(info, target, token):
     for part, value in base.items():
         repo, repo_file = base_file_source(info["base_repo"], value)
         local = target / "base" / repo_file
-        found = _existing_base_file(target, repo_file, sizes.get(part))
+        found = _existing_base_file(target, repo_file, sizes.get(part), (info.get("base_sha256") or {}).get(part))
         if found:
             local.parent.mkdir(parents=True, exist_ok=True)
             _link_or_copy(str(found), local)

@@ -41,3 +41,15 @@ def test_karras_on_sdxl():
     pytest.importorskip("diffusers")
     s = samplers.make("DPM++ 2M", "Karras", {"_class_name": "EulerDiscreteScheduler", "num_train_timesteps": 1000}, "sdxl")
     assert type(s).__name__ == "DPMSolverMultistepScheduler" and s.config.use_karras_sigmas
+
+
+def test_a_model_with_pndm_runs_dpm_2m_karras_by_default():
+    """PNDM (SD 1.x/2.x base configurations) breaks faces of fine-tunes: their default becomes DPM++ 2M Karras."""
+    diffusers = pytest.importorskip("diffusers")
+    pndm = diffusers.PNDMScheduler(beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear", skip_prk_steps=True)
+    s = samplers.own_default(pndm, "sd1")
+    assert type(s).__name__ == "DPMSolverMultistepScheduler" and s.config.use_karras_sigmas
+    assert s.config.beta_end == 0.012
+    euler = diffusers.EulerDiscreteScheduler()
+    assert samplers.own_default(euler, "sdxl") is euler
+    assert samplers.own_default(pndm, "unknown") is pndm

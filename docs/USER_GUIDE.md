@@ -725,7 +725,7 @@ size. A model that needs more memory than the Mac has is marked so:
 | Group | Models |
 | --- | --- |
 | **Base models** | Stable Diffusion 1.5 (+ Inpainting), SD 2.1, SDXL 1.0, SDXL Turbo, SD 3.5 Medium / Large, FLUX.1 schnell (4/8 bit), FLUX.1 dev (16/4 bit), Chroma1-HD, Chroma1-Flash (fast), Z-Image-Turbo, FLUX.2 [klein] 4B / 9B, Wan 2.2 TI2V 5B / I2V 14B (video) |
-| **Community models** | GonzaLomo Chroma, DreamShaper 8, Realistic Vision 5.1, epiCPhotoGasm, Counterfeit, DreamShaper XL Turbo, Juggernaut XL v7, epiCRealism XL, JANKU Illustrious XL, Anima Turbo … |
+| **Community models** | GonzaLomo Chroma, DreamShaper 8, Realistic Vision 5.1, Counterfeit, DreamShaper XL Turbo, Juggernaut XL v7, epiCRealism XL, JANKU Illustrious XL, Anima Turbo … |
 | **Explicit models** | only listed when nudity is allowed in Settings |
 
 Some models need an access token (Settings → Access tokens) or a licence accepted on their Hugging Face page. The

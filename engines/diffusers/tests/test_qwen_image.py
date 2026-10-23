@@ -2,6 +2,8 @@
 # Copyright (C) 2026 Oliver Schmidt
 """Qwen-Image (20B MMDiT) and Qwen-Image 2.1 (7B): detection, GGUF headers, RAM plans, the import of single
 files from a Hugging Face repo and the prompt encoding. No network: the Hub is replaced by fakes."""
+import hashlib
+import shutil
 import types
 
 import numpy as np
@@ -304,15 +306,40 @@ def test_a_repo_import_takes_files_another_model_already_has(tmp_path, monkeypat
     other.mkdir(parents=True)
     (other / "model-00001-of-00002.safetensors").write_bytes(b"x" * 10)
     (other / "model-00002-of-00002.safetensors").write_bytes(b"y" * 7)
+    # FLUX.1's VAE: the same path and size as SD 3.5's, another content
+    vae = tmp_path / "FLUX.1-dev" / "weights" / "vae"
+    vae.mkdir(parents=True)
+    (vae / "diffusion_pytorch_model.safetensors").write_bytes(b"f" * 5)
     target = tmp_path / "Qwen-Image-2.1"
     target.mkdir()
+    sha = lambda b: hashlib.sha256(b).hexdigest()
     info = {"files": ["text_encoder/model-00001-of-00002.safetensors", "text_encoder/model-00002-of-00002.safetensors",
-                      "transformer/diffusion_pytorch_model.safetensors", "model_index.json"],
+                      "transformer/diffusion_pytorch_model.safetensors", "vae/diffusion_pytorch_model.safetensors",
+                      "model_index.json"],
             "file_sizes": {"text_encoder/model-00001-of-00002.safetensors": 10,
                            "text_encoder/model-00002-of-00002.safetensors": 8,  # another size: not the same file
-                           "transformer/diffusion_pytorch_model.safetensors": 99, "model_index.json": 1}}
+                           "transformer/diffusion_pytorch_model.safetensors": 99,
+                           "vae/diffusion_pytorch_model.safetensors": 5, "model_index.json": 1},
+            "file_sha256": {"text_encoder/model-00001-of-00002.safetensors": sha(b"x" * 10).upper(),
+                            "vae/diffusion_pytorch_model.safetensors": sha(b"s" * 5)}}
     left = importer._reuse_repo_files(info, target)
     assert (target / "weights" / "text_encoder" / "model-00001-of-00002.safetensors").read_bytes() == b"x" * 10
     assert left == ["text_encoder/model-00002-of-00002.safetensors", "transformer/diffusion_pytorch_model.safetensors",
-                    "model_index.json"]
+                    "vae/diffusion_pytorch_model.safetensors", "model_index.json"]
+    # without the Hub's checksum nothing is taken over
+    del info["file_sha256"]
+    shutil.rmtree(target / "weights")
+    assert len(importer._reuse_repo_files(info, target)) == 5
 
+
+
+def test_an_empty_model_keeps_what_it_computes_itself():
+    """Qwen-Image 2.1's rotary frequencies are a plain list made in __init__: a model built for the quantized cache
+    must keep them real ("Cannot copy out of meta tensor" at the first step otherwise)."""
+    torch = pytest.importorskip("torch")
+    rope = pytest.importorskip("diffusers.models.transformers.transformer_qwenimage21").QwenImage21Rope
+
+    with engine._meta_weights():
+        model = torch.nn.Sequential(torch.nn.Linear(4, 4), rope(10000, [16, 56, 56]))
+    assert model[0].weight.device.type == "meta"
+    assert all(f.device.type == "cpu" for f in model[1].freqs)
