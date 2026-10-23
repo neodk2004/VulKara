@@ -14,6 +14,7 @@ on:
       - 'docs/screenshots/**'
       - 'build/icon.*'
       - 'tools/build_site*.mjs'
+      - 'package.json'
       - 'tools/deploy_site.sh'
       - '.github/workflows/site.yml'
   workflow_dispatch:

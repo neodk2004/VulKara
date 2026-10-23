@@ -14,6 +14,8 @@ const BREW = 'brew install --cask revil-O/tap/vulkara'
 // theme.js too: it changes rarely, but a browser keeps it like the stylesheet
 const JS_V = createHash('sha256').update(readFileSync(join(SITE, 'theme.js'))).digest('hex').slice(0, 10)
 const CSS_V = createHash('sha256').update(readFileSync(join(SITE, 'style.css'))).digest('hex').slice(0, 10)
+// the released version beside the name: a release raises it in package.json, which also starts the deploy (site.yml)
+const VERSION = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version
 const BASE = 'https://www.vulkara.net/'
 const GH = 'https://github.com/revil-O/VulKara'
 const BLOB = `${GH}/blob/main`
@@ -661,7 +663,7 @@ ${ogAlts}
 
   <header class="top">
     <div class="wrap">
-      <a class="brand" href="${up}${lang.dir || './'}"><img src="${up}assets/icon.svg" width="30" height="30" alt="">VulKara</a>
+      <a class="brand" href="${up}${lang.dir || './'}"><img src="${up}assets/icon.svg" width="30" height="30" alt="">VulKara<span class="ver">v${VERSION}</span></a>
       <nav aria-label="VulKara">
         <a href="#features">${t.nav[0]}</a>
         <a href="#models">${t.models.nav}</a>
