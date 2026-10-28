@@ -91,10 +91,12 @@ def test_turbo_and_base_by_name():
     assert registry.ARCHS["z_image"]["defaults"]["num_steps"] == 9
 
 
-def test_lumina_omni_and_incomplete_files_are_refused():
+def test_lumina_is_its_own_model_omni_and_incomplete_files_are_refused():
     lumina = {k: [2304 if d == 3840 else d for d in v] for k, v in COMFY.items()}
-    with pytest.raises(registry.UnsupportedModel, match="Lumina"):
-        registry.detect_from_single_file(lumina, "lumina2.safetensors")
+    assert registry.detect_from_single_file(lumina, "lumina2.safetensors")[:2] == ("lumina2", "comfy_files")
+    other = {k: [2560 if d == 3840 else d for d in v] for k, v in COMFY.items()}
+    with pytest.raises(registry.UnsupportedModel, match="Lumina 2 and Z-Image"):
+        registry.detect_from_single_file(other, "nextdit.safetensors")
     with pytest.raises(registry.UnsupportedModel, match="Omni"):
         registry.detect_from_single_file(dict(COMFY, **{"siglip_embedder.1.weight": [3840, 1152]}), "z_image_omni.safetensors")
     with pytest.raises(registry.UnsupportedModel, match="Incomplete Z-Image"):
@@ -209,11 +211,78 @@ def test_memory_plans_with_mlx():
     mlx_main = _mlx_main()
     m = {"arch": "z_image", "denoiser": "transformer", "components": COMPONENTS}
     assert mlx_main.choose_quant(m, ram_gb=24)[0] == 8
+    # 16 GB: 8 bit with the text encoder dropped after encoding (measured on the M2 with the 16 GB plan: 7.5-8 GB for
+    # the steps; before, 4 bit with the encoder kept peaked at 12.9 GB and swapped on the Mac mini)
     bits, plan, quantize_te = mlx_main.choose_quant(m, ram_gb=16)
-    assert bits == 4 and plan["fits"] and not quantize_te
+    assert bits == 8 and plan["fits"] and plan["staged_text_encoder"] and not quantize_te
     assert mlx_main.choose_quant(m, ram_gb=48)[0] is None
     assert not mlx_main.z_image_guided({"defaults": {"guidance_scale": 0.0}})
     assert mlx_main.z_image_guided({"defaults": {"guidance_scale": 4.0}})
+
+
+def test_mlx_keeps_the_encoded_prompts_while_the_text_encoder_is_dropped(monkeypatch):
+    # staged: the text encoder is freed after the first prompt; the same prompt again needs no text encoder
+    import sys
+    monkeypatch.setitem(sys.modules, "mlx", types.ModuleType("mlx"))
+    monkeypatch.setitem(sys.modules, "mlx.core", types.SimpleNamespace(eval=lambda arrays: None))
+    calls = []
+
+    class Model:
+        def _encode_prompts(self, *, prompt, negative_prompt, guidance):
+            calls.append((prompt, negative_prompt))
+            return ("enc " + prompt, "neg " + negative_prompt if guidance > 1.0 else None)
+
+    model = Model()
+    _mlx_main().cache_prompt_encodings(model, keep=2)
+    assert model._encode_prompts(prompt="a", negative_prompt="x", guidance=0.0) == ("enc a", None)
+    assert model._encode_prompts(prompt="a", negative_prompt="y", guidance=0.0) == ("enc a", None)  # no guidance: no negative
+    assert model._encode_prompts(prompt="a", negative_prompt="x", guidance=4.0) == ("enc a", "neg x")
+    model._encode_prompts(prompt="b", negative_prompt="", guidance=0.0)
+    assert calls == [("a", "x"), ("a", "x"), ("b", "")]
+    model._encode_prompts(prompt="a", negative_prompt="z", guidance=0.0)  # the oldest went (keep=2)
+    assert len(calls) == 4
+
+
+def test_small_macs_decode_in_tiles_where_the_vae_allows_it(monkeypatch):
+    import sys
+    tiling = types.SimpleNamespace(TilingConfig=type("TilingConfig", (), {
+        "may_tile_implicitly": staticmethod(lambda m: getattr(m.vae, "supports_implicit_tiling", True))}))
+    monkeypatch.setitem(sys.modules, "mflux.models.common.vae.tiling_config", tiling)
+    mlx_main = _mlx_main()
+    z, flux2 = types.SimpleNamespace(vae=object(), tiling_config=None), types.SimpleNamespace(vae=types.SimpleNamespace(supports_implicit_tiling=False), tiling_config=None)
+    mlx_main.low_ram(z)
+    mlx_main.low_ram(flux2)
+    assert z.tiling_config is not None and flux2.tiling_config is None
+
+
+def test_a_mac_short_of_free_memory_decodes_in_tiles_and_the_job_says_so(monkeypatch):
+    import sys
+    import protocol
+    tiling = types.SimpleNamespace(TilingConfig=type("TilingConfig", (), {"may_tile_implicitly": staticmethod(lambda m: True)}))
+    monkeypatch.setitem(sys.modules, "mflux.models.common.vae.tiling_config", tiling)
+    mlx_main = _mlx_main()
+    sent = []
+    monkeypatch.setattr(protocol, "event", lambda name, **f: sent.append((name, f)))
+    monkeypatch.setattr(protocol, "footprint_gb", lambda: 8.0)
+    plan = memory.plan({"transformer": 6.0, "text_encoder": 4.0, "vae": 0.08}, "transformer", "z_image", 24)
+    eng = mlx_main.MlxEngine.__new__(mlx_main.MlxEngine)
+    eng.plan, eng.model = plan, types.SimpleNamespace(vae=object(), tiling_config=None)
+    peak = memory.peak_at(plan, 1024, 1024)
+    # enough free: in one piece, the decode counted in the plan
+    monkeypatch.setattr(memory, "free_gb", lambda held=0.0: 40.0)
+    eng._plan_job("z_image", 1024, 1024)
+    assert eng.model.tiling_config is None and protocol.PLANNED["gb"] == round(peak + mlx_main.DECODE_GB["z_image"], 2) and sent == []
+    # too little for the one-piece decode, enough without it: tiles, and a note
+    sent.clear()
+    monkeypatch.setattr(memory, "free_gb", lambda held=0.0: peak + 1.0)
+    eng._plan_job("z_image", 1024, 1024)
+    assert eng.model.tiling_config is not None and protocol.PLANNED["gb"] == round(peak, 2)
+    assert [f["message"] for n, f in sent if n == "note"] == ["Not enough memory free to decode the picture in one piece: decoded in tiles (no visible difference)"]
+    # short even so: the job tells how much is free
+    sent.clear()
+    monkeypatch.setattr(memory, "free_gb", lambda held=0.0: peak - 3.0)
+    eng._plan_job("z_image", 1024, 1024)
+    assert [f["message"] for n, f in sent if n == "note"][0].startswith("Only %.1f GB of memory free" % (peak - 3.0))
 
 
 def test_flow_samplers_and_guidance_off():
@@ -398,3 +467,20 @@ def test_recheck_takes_the_no_runtime_note_off_installed_z_image_loras(tmp_path)
     assert report[0]["changes"] == {"label": [label, "LoRA for Z-Image"]}
     assert json.loads((folder / "lora.json").read_text())["label"] == "LoRA for Z-Image"
     assert recheck.recheck(str(tmp_path / "models"), str(tmp_path / "loras")) == []
+
+
+def test_mlx_runs_z_image_on_its_own_fixed_shift(tmp_path):
+    # mflux shifts by the resolution (about 3.16 at 1024 px for Turbo); the model's config asks for a fixed 3 (Base 6)
+    mlx_main = _mlx_main()
+    turbo, base = {"defaults": {"guidance_scale": 0.0}}, {"defaults": {"guidance_scale": 4.0}}
+    assert mlx_main.z_image_shift(turbo, str(tmp_path)) == 3.0 and mlx_main.z_image_shift(base, str(tmp_path)) == 6.0
+    (tmp_path / "weights" / "scheduler").mkdir(parents=True)
+    (tmp_path / "weights" / "scheduler" / "scheduler_config.json").write_text('{"shift": 4.5}')
+    assert mlx_main.z_image_shift(dict(turbo, weights_dir="weights"), str(tmp_path)) == 4.5
+    # the reference: diffusers' FlowMatchEulerDiscreteScheduler with Z-Image-Turbo's config, 9 steps
+    s = torch.linspace(1.0, 1 / 9, 9)
+    ref = (3 * s / (1 + 2 * s)).tolist()
+    from diffusers import FlowMatchEulerDiscreteScheduler
+    d = FlowMatchEulerDiscreteScheduler(shift=3.0, use_dynamic_shifting=False)
+    d.set_timesteps(sigmas=s.tolist())
+    assert torch.allclose(d.sigmas[:-1], torch.tensor(ref), atol=1e-6)

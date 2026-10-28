@@ -17,7 +17,6 @@ export default {
   saveAs: 'Save as',
   showInFinder: 'Show in Finder',
   noPrompt: '(no prompt)',
-  negative: 'Not: {prompt}',
   reuseHint: 'Prompt, settings and seed back into the form',
   reuse: 'Use these settings',
   filesStay: 'The files stay where they are',
@@ -53,6 +52,8 @@ export default {
     controlnet: 'ControlNet',
     label: 'Label',
     note: 'Note',
+    prompt: 'Prompt',
+    negative: 'Negative prompt',
   },
   gallery: {
     fileMissing: 'File missing',

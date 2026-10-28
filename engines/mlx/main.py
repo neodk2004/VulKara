@@ -60,17 +60,41 @@ def model_class_and_config(m):
     if arch == "ideogram4":
         from mflux.models.ideogram4 import Ideogram4
         return Ideogram4, ModelConfig.ideogram4_fp8()
+    if arch == "ernie_image":
+        from mflux.models.ernie_image import ErnieImage
+        return ErnieImage, (ModelConfig.ernie_image() if ernie_guided(m) else ModelConfig.ernie_image_turbo())
     raise ValueError("The MLX runtime does not support %s models" % m.get("label", arch))
 
 
 FAMILIES = {"flux1_schnell": "flux1", "flux1_dev": "flux1", "flux2_klein": "flux2", "krea2": "krea2",
-            "ideogram4": "ideogram4", "z_image": "z_image", "flux3_klein": "flux3"}
+            "ideogram4": "ideogram4", "z_image": "z_image", "flux3_klein": "flux3", "ernie_image": "ernie"}
+
+
+def ernie_guided(m):
+    """ERNIE-Image (SFT) runs with guidance, Turbo without (mflux refuses any other guidance than 1 for Turbo); the
+    defaults the import chose tell which."""
+    return float((m.get("defaults") or {}).get("guidance_scale", 1.0)) > 1.0
 
 
 def z_image_guided(m):
     """Z-Image (Base) and its fine-tunes run with guidance (mflux's z_image config: CFG, Euler with shift); Turbo
     and distilled ones without (z_image_turbo: guidance forced to 0). The defaults the import chose tell which."""
     return float((m.get("defaults") or {}).get("guidance_scale", 0) or 0) > 1
+
+
+def z_image_shift(m, model_dir):
+    """The fixed shift of Z-Image's schedule: from a repository's scheduler config, else the maker's (Turbo 3, Base 6)."""
+    weights = m.get("weights_dir") or ""
+    path = os.path.join(weights if os.path.isabs(weights) else os.path.join(model_dir, weights), "scheduler",
+                        "scheduler_config.json")
+    try:
+        with open(path) as f:
+            cfg = json.load(f)
+        if not cfg.get("use_dynamic_shifting") and cfg.get("shift"):
+            return float(cfg["shift"])
+    except (OSError, ValueError):
+        pass
+    return 6.0 if z_image_guided(m) else 3.0
 
 
 # a LoRA of which fewer of its layers find their place in mflux's mapping does not fit the model (as in the
@@ -119,9 +143,16 @@ def z_image_lora(path, name):
 
 # models whose checkpoint mflux reads in its own (FP8) format from base/, next to the base components
 NATIVE_ARCHS = {"krea2", "ideogram4"}
-# may drop the text encoder after encoding a prompt (a new prompt reloads the model): Ideogram 4 and Krea 2 on
-# small Macs, where the transformer(s) and the Qwen3-VL text encoder do not fit next to each other
-STAGED_ARCHS = {"ideogram4", "krea2"}
+# may drop the text encoder after encoding a prompt (a new prompt reloads the model): Ideogram 4, Krea 2 and Z-Image on
+# small Macs, where the transformer(s) and the Qwen text encoder do not fit next to each other
+STAGED_ARCHS = {"ideogram4", "krea2", "z_image"}
+# Macs this small decode in tiles (low_ram)
+LOW_RAM_GB = 16
+# what decoding the picture in one piece adds to the plan at 1024 px (footprints measured on an M2 24 GB, MEASUREMENTS 7m);
+# in tiles it is gone, so a Mac that has not that much free decodes in tiles
+DECODE_GB = {"z_image": 2.5, "flux2": 1.0, "krea2": 2.0, "ernie": 2.5, "flux1": 4.5}
+# the most freed buffers MLX keeps for reuse (mflux's low-RAM value): without a limit they grew to 9.9 GB per picture
+CACHE_LIMIT_BYTES = 1000 ** 3
 # quantized once and saved in mflux's format (<model>/mlx_q<bits>): later loads read it directly
 # instead of decoding and quantizing the FP8 checkpoints again (Ideogram 4: 27 GB FP8 -> 14 GB; Krea 2, whose text
 # encoder is freed after each prompt on a 16 GB Mac, then reloads quickly for a new prompt)
@@ -370,6 +401,47 @@ def _mflux_version():
         return "?"
 
 
+def free_buffers(after="image"):
+    """MLX keeps freed buffers for reuse, by default without a limit: after one picture of FLUX.2 [klein] 4B at 512 px
+    9.9 GB of them beside 7.5 GB in use (footprint 17.9 GB), which pushed a 24 GB Mac into swap. They are limited to
+    1 GB and go back after loading and after each picture; the line in the log tells what the engine holds."""
+    import gc
+    import mlx.core as mx
+    mx.set_cache_limit(CACHE_LIMIT_BYTES)
+    gc.collect()
+    cached = mx.get_cache_memory()
+    mx.clear_cache()
+    protocol.log("[mlx] after %s: %.1f GB in use, %.1f GB of freed buffers given back, peak %.1f GB"
+                 % (after, mx.get_active_memory() / 1e9, cached / 1e9, mx.get_peak_memory() / 1e9))
+    mx.reset_peak_memory()
+
+
+def low_ram(model):
+    """As mflux's own low-RAM mode (its MemorySaver) on small Macs: the VAE decodes in tiles where that costs nothing
+    visually (the decode was the peak: Z-Image at 1024 px 13.8 GB against 7.5 GB for the steps)."""
+    from mflux.models.common.vae.tiling_config import TilingConfig
+    if getattr(model, "tiling_config", None) is None and TilingConfig.may_tile_implicitly(model):
+        model.tiling_config = TilingConfig()
+
+
+def cache_prompt_encodings(model, keep=8):
+    """Z-Image in mflux encodes the prompt for every picture; with the text encoder dropped (staged) the encodings of
+    the prompts it has seen are kept instead, like the prompt caches of mflux's other models."""
+    import mlx.core as mx
+    encode, cache = model._encode_prompts, {}
+
+    def cached(*, prompt, negative_prompt, guidance):
+        k = (prompt, negative_prompt if guidance > 1.0 else None)
+        if k not in cache:
+            out = encode(prompt=prompt, negative_prompt=negative_prompt, guidance=guidance)
+            mx.eval([o for o in out if o is not None])
+            if len(cache) >= keep:
+                cache.pop(next(iter(cache)))
+            cache[k] = out
+        return cache[k]
+    model._encode_prompts = cached
+
+
 class DropTextEncoder:
     """mflux callback for staged models: once the prompt is encoded (and in mflux's prompt cache),
     the text encoder is freed before denoising; a new prompt loads the model again."""
@@ -398,6 +470,9 @@ class MlxEngine:
         self.staged = False
         self.encoded = set()  # prompts in mflux's prompt cache while the text encoder is dropped
         self.encode_key = None
+        self.bit_sizes = []  # (part, "8 bit") of the loaded model, reported with each job
+        self.plan = None  # the memory plan of the loaded model (choose_quant)
+        self.flux3_peak = None
         IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
     def unload(self):
@@ -431,6 +506,7 @@ class MlxEngine:
             protocol.log("[mlx] computing in float16 (no bfloat16 hardware on this GPU), text encoder in bfloat16")
         cls, config = model_class_and_config(m)
         bits, plan, quantize_te = choose_quant(m)
+        self.plan = plan
         if not plan["fits"]:
             raise MemoryError("%s needs about %d GB RAM" % (m.get("label", m["arch"]), plan["min_ram_gb"]))
         folder = m["base_dir"] if native else m["weights_dir"]  # native: checkpoint sits in base/
@@ -459,8 +535,17 @@ class MlxEngine:
                          bake_lora=not loras)
         if cache and not cached and not loras:
             self._save_cache(m, cache)
+        free_buffers("loaded")
+        # mflux quantizes every part alike, except text encoders it keeps in 16 bit
+        own = "%d bit" % bits if bits else "16 bit"
+        self.bit_sizes = [(m["denoiser"], own), ("text_encoder", own if quantize_te or m["arch"] not in TEXT_ENCODER_16BIT
+                                                   or not bits else "16 bit")]
         self.key = key
         self.staged = bool(plan.get("staged_text_encoder")) and m["arch"] in STAGED_ARCHS
+        if self.staged and m["arch"] == "z_image":
+            cache_prompt_encodings(self.model)
+        if memory.total_ram_gb() <= LOW_RAM_GB:
+            low_ram(self.model)
         self.encoded = set()
         protocol.log("[mlx] loaded %s, quantize=%s%s" % (m["name"], bits, ", text encoder only for new prompts"
                                                           if self.staged else ""))
@@ -528,13 +613,19 @@ class MlxEngine:
         height = int(d.get("height") or defaults.get("height", 1024)) // 16 * 16
         if m.get("arch") == "flux3_klein":
             return self._generate_flux3(d, m, model_dir, loras, prompt, width, height)
-        encode_key = (prompt, width, height)  # what mflux caches encoded prompts by (Ideogram 4)
+        # what encoded prompts are cached by: Ideogram 4 (mflux) with the size, Z-Image (cache_prompt_encodings) with the
+        # negative prompt
+        encode_key = (prompt, d.get("negative_prompt") or "") if m["arch"] == "z_image" else (prompt, width, height)
         self._ensure(model_dir, m, loras, encode_key)
+        protocol.precision(self.bit_sizes)
+        self._plan_job(FAMILIES[m["arch"]], width, height)
 
         steps = int(d.get("num_steps") or defaults.get("num_steps", 4))
         guidance = float(d["guidance_scale"]) if d.get("guidance_scale") is not None else defaults.get("guidance_scale", 1.0)
         if m["arch"] == "flux2_klein" and steps <= 8:
             guidance = 1.0  # distilled klein models run without guidance
+        if m["arch"] == "ernie_image" and not ernie_guided(m):
+            guidance = 1.0
         model_prompt = prompt
         if m["arch"] == "ideogram4" and not prompt.strip().startswith("{"):
             model_prompt = ideogram_caption(prompt)  # JSON captions are passed on as they are
@@ -554,6 +645,9 @@ class MlxEngine:
             args = {"num_inference_steps": steps, "guidance": guidance, "warn_on_caption_issues": False}
         else:
             args = {"num_inference_steps": steps, "guidance": guidance}
+            if m["arch"] == "z_image":
+                import mlx_schedulers
+                args["scheduler"] = mlx_schedulers.static_shift(z_image_shift(m, model_dir))
             if d.get("negative_prompt") and "negative_prompt" in inspect.signature(self.model.generate_image).parameters:
                 args["negative_prompt"] = d["negative_prompt"]
 
@@ -571,11 +665,30 @@ class MlxEngine:
             path = IMAGES_DIR / ("%s_%s.png" % (stem, uuid.uuid4().hex[:12]))
             result.image.save(path)
             protocol.log("[mlx] image done in %.1fs" % (time.time() - t0))
+            free_buffers()
             if not d.get("_quiet"):
                 protocol.result(str(path))
             saved.append(str(path))
         return saved
 
+
+    def _plan_job(self, family, width, height):
+        """Reports the planned peak; decodes in tiles when the one-piece decode would not fit into the memory free now,
+        and notes when even that is short."""
+        need, held = memory.peak_at(self.plan, width, height), protocol.footprint_gb()
+        decode = DECODE_GB.get(family, 0) * max(0.25, width * height / (1024 * 1024))
+        if decode and getattr(self.model, "tiling_config", None) is None:
+            if need + decode > memory.free_gb(held):
+                low_ram(self.model)
+                if getattr(self.model, "tiling_config", None) is not None:
+                    protocol.note("Not enough memory free to decode the picture in one piece: decoded in tiles "
+                                  "(no visible difference)")
+            if getattr(self.model, "tiling_config", None) is None:
+                need += decode
+        protocol.planned(need)
+        short = memory.short_of(need, held)
+        if short:
+            protocol.note(short)
 
     def _generate_flux3(self, d, m, model_dir, loras, prompt, width, height):
         """FLUX 3 Image Klein (flux3.py): an input picture is its reference; the prompt upsampler on request."""
@@ -585,11 +698,19 @@ class MlxEngine:
         if key != self.key:
             self.unload()
             low_memory, peak = flux3.plan(weights)
+            self.flux3_peak = peak
             self._state("Loading model (MLX)")
             self.model = flux3.Flux3Model(weights, loras, low_memory, peak)
+            free_buffers("loaded")
+            self.bit_sizes = flux3.precision(weights)
             self.key = key
             protocol.log("[mlx] loaded %s with flux3-mlx (peak about %.0f GB%s)"
                          % (m["name"], peak, ", text encoder only for encoding" if low_memory else ""))
+        protocol.precision(self.bit_sizes)
+        protocol.planned(self.flux3_peak)
+        short = memory.short_of(self.flux3_peak, protocol.footprint_gb())
+        if short:
+            protocol.note(short)
         images = []
         if d.get("input_image"):
             import colour
@@ -647,6 +768,7 @@ class MlxEngine:
             path = IMAGES_DIR / ("%s_%s.png" % (stem, uuid.uuid4().hex[:12]))
             image.save(path)
             protocol.log("[mlx] image done in %.1fs" % (time.time() - t0))
+            free_buffers()
             if not quiet:
                 protocol.result(str(path))
             saved.append(str(path))
@@ -656,6 +778,7 @@ class MlxEngine:
 def serve(stream=None):
     reader = protocol.CommandReader(stream).start()
     engine = MlxEngine(reader)
+    footprint = protocol.Footprint()  # per job, for benchmarks
     protocol.state("loaded")
     if os.environ.get("VK_ANNOUNCE_READY") == "1":
         protocol.state("idle")
@@ -666,6 +789,7 @@ def serve(stream=None):
         op, job = item
         if op in ("generate", "preview"):
             protocol.state("busy")
+            footprint.start()
             # preview: a picture painted by a model (of itself or of a LoRA), see previews.paint
             target = job.get("target") or job.get("model_dir")
             try:
@@ -684,6 +808,7 @@ def serve(stream=None):
                     protocol.preview({"model": target, "error": str(e)[:300]})
                 else:
                     protocol.error(protocol.describe(e))
+            footprint.report()
             protocol.state("idle")
         elif op == "unload":
             try:

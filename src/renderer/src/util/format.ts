@@ -16,6 +16,7 @@ export function formatDuration(seconds: number): string {
 const PAGE_NAMES: Record<string, PlainKey> = {
   text: 'jobs.pages.text', image: 'jobs.pages.image', inpaint: 'jobs.pages.inpaint', canvas: 'jobs.pages.canvas', video: 'jobs.pages.video',
   upscale: 'jobs.pages.upscale', illusion: 'jobs.pages.illusion', lora: 'jobs.pages.lora', start: 'jobs.pages.start',
+  benchmark: 'jobs.pages.benchmark',
 }
 
 export const pageName = (page: string): string => (PAGE_NAMES[page] ? t(PAGE_NAMES[page]) : page)

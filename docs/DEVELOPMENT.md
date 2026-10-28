@@ -125,13 +125,13 @@ Concepts not built yet are in `docs/concepts/` ([Characters](concepts/CHARACTERS
 
 | Folder | What is there |
 | --- | --- |
-| `src/main` | Electron main process: windows (main, splash, viewer), engine processes, job queue, runtimes, imports, history, training, LoRA search and descriptions, licences, migrations |
+| `src/main` | Electron main process: windows (main, splash, viewer), engine processes, job queue, runtimes, imports, history, training, LoRA search and descriptions, licences, migrations, benchmarks of single models (`benchmark.ts`: queue snapshots + the monitor's samples, `benchmarks.json`) |
 | `src/preload` | The typed bridge between the pages and the main process (`window.vk`) |
 | `src/renderer` | The pages (`pages/`), shared components (`components/`), Pinia stores (`stores/`), helpers (`util/`), the splash picture (`assets/splash`) |
 | `src/shared` | Types, the page API (`api.ts`), the texts in four languages (`i18n/`), settings, content policy, styles, samplers, ControlNet kinds, LoRA bases and fit, licence terms, editions, data (recommended models, licences) |
-| `engines/diffusers` | PyTorch / diffusers engine and the architecture registry (`registry.py`); also imports, previews, pose detection, content filter, photo restoration (`restore.py`, DDColor, LaMa), SSD streaming, the LoRA / model recheck, SDXL training |
-| `engines/mlx` | MLX engine (mflux): FLUX, Krea 2, Ideogram 4; FLUX 3 Image Klein with flux3-mlx and its prompt upsampler with mlx-lm (`flux3.py`); training for FLUX.2 [klein] and Krea 2 |
-| `engines/comfy` | Runs ComfyUI as a background process for the models only it supports (Anima, Wan) and for upscaling |
+| `engines/diffusers` | PyTorch / diffusers engine and the architecture registry (`registry.py`); also imports, previews, pose detection, content filter, photo restoration (`restore.py`, DDColor, LaMa), SSD streaming, the LoRA / model recheck, SDXL training; on MPS attention heads the fused kernel does not take are padded to 64 (`fused_attention`) |
+| `engines/mlx` | MLX engine (mflux): FLUX, Krea 2, Ideogram 4, ERNIE-Image; FLUX 3 Image Klein with flux3-mlx and its prompt upsampler with mlx-lm (`flux3.py`); training for FLUX.2 [klein] and Krea 2; Z-Image on its reference schedule (`mlx_schedulers.py`: fixed shift instead of mflux's resolution shift); MLX's buffer cache limited to 1 GB and emptied after loading and each picture (`free_buffers`); on Macs with 16 GB or less, or when the one-piece decode (`DECODE_GB`) does not fit into the memory free before a picture (`_plan_job`, `memory.free_gb`), the VAE decodes in tiles (`low_ram`); every engine reports its footprint per job against its plan (`protocol.Footprint`, `protocol.planned`) |
+| `engines/comfy` | Runs ComfyUI as a background process for the models only it supports (Anima, Lumina 2, AuraFlow / Pony V7, Wan) and for upscaling; started with PyTorch attention, its node `vulkara_memory` pads attention heads the fused MPS kernel does not take to 64 keeps the VAE on split attention and FP8 models in 16 bit (MPS cannot cast FP8) |
 | `tools` | Release, dev bundle, licence data, notices, icon, the clean check |
 | `build` | Icon and entitlements |
 | `docs` | User guide, this guide, screenshots, sample pictures |
@@ -255,9 +255,12 @@ model or LoRA as `licence.json` (`licence_info.ts`).
 | `krea2` | `krea2` (`runtime: mlx`) | |
 | `ideogram4` | `ideogram4` (`runtime: mlx`) | |
 | `anima` | `anima` (`runtime: comfyui`) | |
+| `lumina` | `lumina2` (`runtime: comfyui`; the system prompt as `prompt_prefix` in its defaults) | |
+| `auraflow` | `auraflow` (`runtime: comfyui`, Pony V7; `t5_min_padding`; GGUF counted by its size), `auraflow_diffusers` (AuraFlowPipeline repositories; `max_sequence_length` 768; ComfyUI-named LoRAs converted in `lora_convert.py`) | |
+| `ernie` | `ernie_image` (`runtime: mlx`, repository layout; `pe/` not downloaded: `OPTIONAL_COMPONENTS`) | |
 | `wan` | `wan22_ti2v`, `wan22_i2v_14b` (`runtime: comfyui`, `kind: video`) | `5b`, `14b` |
 
-LoRA families without an architecture (`lumina`, `hidream`, `hunyuan_video`, `auraflow` …) are known by
+LoRA families without an architecture (`hidream`, `hunyuan_video`, `hunyuan_dit` …) are known by
 name (`FAMILY_TITLES` in `src/shared/lora_fit.ts`, `FOREIGN_FAMILIES` in the registry), so such LoRAs are filed
 correctly and shown, but `loraFits` offers them to no model. Their import label ends in `registry.NO_RUNTIME_LABEL`;
 `recheck.py` takes it off once the family has an architecture (as for `z_image`).
@@ -799,6 +802,9 @@ exist for a runtime (candidates for the next accepted update):
   The operator's name, address and e-mail for the legal pages are not in the repository: `site/legal.local.json`
   (git-ignored) or the secret `VK_LEGAL`. `tools/deploy_site.sh` uploads `site/` over FTPS (lftp) and refuses while a
   page has `{{…}}` placeholders; `.github/workflows/site.yml` runs it on GitHub when the site or its pictures change.
+  The changes page (`site/changes/`, git-ignored, English) is built from `CHANGELOG.md`: every released version with
+  its entries, in a technical look; the version beside the name in the header leads to it. A release raises the
+  version in `package.json` and changes the changelog, both deploy the site, so the page follows every release.
 - **Social preview** of the repository: `docs/images/social_preview.png` (1280 × 640, made by
   `marketing/make_social_preview.py` in the working repository).
 - **A published release** (`.github/workflows/release.yml`): `tools/announce_release.mjs` posts the version, the first

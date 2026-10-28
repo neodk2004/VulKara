@@ -4,6 +4,7 @@ import { computed, onActivated, reactive, ref } from 'vue'
 import { ArrowUpCircle, Check, Copy, Download, FolderOpen, Info, Monitor, Moon, RefreshCw, Sun, Trash2 } from 'lucide-vue-next'
 import PageFrame from '../components/PageFrame.vue'
 import LanguageSelect from '../components/LanguageSelect.vue'
+import HintBadge from '../components/HintBadge.vue'
 import { useRuntimesStore } from '../stores/runtimes'
 import { useSettingsStore } from '../stores/settings'
 import { useQueueStore } from '../stores/queue'
@@ -248,6 +249,13 @@ const THEMES: { id: 'system' | 'light' | 'dark'; title: PlainKey; icon: typeof M
               <option value="always">{{ t('settings.engine.always') }}</option>
               <option value="off">{{ t('settings.engine.never') }}</option>
             </select>
+          </label>
+          <label class="row">
+            <div class="grow">
+              <strong>{{ t('settings.engine.comfyStreaming') }} <HintBadge start :text="t('settings.engine.comfyStreamingDetails')" /></strong>
+              <p class="dim">{{ t('settings.engine.comfyStreamingHint') }}</p>
+            </div>
+            <input type="checkbox" :checked="settings.values.comfyStreaming" @change="settings.set('comfyStreaming', ($event.target as HTMLInputElement).checked)" />
           </label>
           <label class="row">
             <div class="grow">

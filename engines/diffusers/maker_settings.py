@@ -96,22 +96,24 @@ def _find(text, names):
 def _sampler(t):
     m = re.search(r"(?i)\b(?:sampler|sampling method|sampling(?! steps))\b\s*[:=]?\s*([^\n]{2,80})", t)
     if not m:
-        return None, None
+        return None, None, []
     line = m.group(1).lower()
     # several named ("Euler a / DPM++ 2M + Karras"): the one the maker marks as theirs, else the first
     parts = [p for p in re.split(r"\s*(?:/|\||,|\bor\b)\s*", line) if _find(p, SAMPLERS)]
     if not parts:
-        return None, None
+        return None, None, []
     part = next((p for p in parts if re.search(PREFERRED, p)), parts[0])
     sampler = _find(part, SAMPLERS)
     schedule = _find(part, SCHEDULES)
+    # the samplers the maker names, without repeats: the picker is held to these (the preferred one is the default)
+    allowed = list(dict.fromkeys(_find(p, SAMPLERS) for p in parts))
     if not schedule and len(parts) == 1:
         # a line of its own: "Scheduler: karras, exponential or beta" -> the first it names
         s = re.search(r"(?i)\bschedul(?:er|e)\b\s*[:=]?\s*([^\n]{2,60})", t)
         if s:
             first = re.split(r"\s*(?:/|\||,|\bor\b)\s*", s.group(1).lower())[0]
             schedule = _find(first, SCHEDULES)
-    return sampler, (None if sampler in NO_SCHEDULE else schedule)
+    return sampler, (None if sampler in NO_SCHEDULE else schedule), allowed
 
 
 def _negative(t):
@@ -153,11 +155,13 @@ def parse(text):
     cfg = _cfg(gen)
     if cfg is not None:
         out["guidance_scale"] = cfg
-    sampler, schedule = _sampler(gen)
+    sampler, schedule, allowed = _sampler(gen)
     if sampler:
         out["sampler"] = sampler
     if schedule:
         out["sigma_schedule"] = schedule
+    if len(allowed) >= 1:
+        out["samplers"] = allowed
     neg = _negative(t)
     if neg:
         out["negative_prompt"] = neg
@@ -170,8 +174,11 @@ def apply(manifest, settings, source):
     """The maker's settings into a model's manifest: kept as they were read, and over the guessed defaults."""
     if not settings:
         return manifest
-    manifest["maker"] = {**settings, "source": source}
-    manifest["defaults"] = {**(manifest.get("defaults") or {}), **settings}
+    scalar = {k: v for k, v in settings.items() if k != "samplers"}
+    manifest["maker"] = {**scalar, "source": source}
+    manifest["defaults"] = {**(manifest.get("defaults") or {}), **scalar}
+    if settings.get("samplers"):
+        manifest["samplers"] = settings["samplers"]
     return manifest
 
 

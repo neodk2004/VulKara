@@ -47,7 +47,8 @@ describe('the bases LoRAs are made for', () => {
     expect(baseOfModel({ arch: 'flux2_klein', family: 'flux2' }, { names: ['FLUX.2-klein-9B'] })?.id).toBe('flux2_klein9')
     expect(baseOfModel({ arch: 'flux1_dev', family: 'flux1' }, { baseModel: 'Flux.1 Krea' })?.id).toBe('flux1_krea')
     expect(baseOfAsset(model('sdxl', 'sdxl', { baseModel: 'NoobAI' }))?.id).toBe('noobai')
-    expect(baseOfCivitai('Pony V7')).toBeUndefined()  // AuraFlow, not SDXL
+    expect(baseOfCivitai('Pony V7')).toBe('auraflow')  // AuraFlow, not SDXL
+    expect(baseOfCivitai('Pony')).toBe('pony')
     expect(baseOfCivitai('Flux.2 Klein 9B-base')).toBe('flux2_klein9')
     expect(baseOfCivitai('Flux.3 Klein')).toBe('flux3_klein')
     expect(baseOfCivitai('Flux.3 Klein-base')).toBe('flux3_klein')

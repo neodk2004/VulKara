@@ -37,6 +37,10 @@ def _loaders(files, comfy, loras):
         "vae": {"class_type": "VAELoader", "inputs": {"vae_name": files["vae"]}},
     }
     model, clip = ["unet", 0], ["clip", 0]
+    if comfy.get("t5_min_padding"):  # AuraFlow / Pony V7: prompts padded as in the model's own workflow
+        n = int(comfy["t5_min_padding"])
+        g["t5"] = {"class_type": "T5TokenizerOptions", "inputs": {"clip": clip, "min_padding": n, "min_length": n}}
+        clip = ["t5", 0]
     for i, (name, strength) in enumerate(loras):
         node = "lora%d" % i
         g[node] = {"class_type": "LoraLoader", "inputs": {"lora_name": name, "strength_model": float(strength),

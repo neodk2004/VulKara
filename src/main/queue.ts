@@ -108,7 +108,7 @@ export class JobQueue<E = string> {
 
   snapshot(): QueuedJob[] {
     return this.entries.map((e) => ({
-      job: e.job, state: e.state, progress: e.progress, status: e.status, eta: e.eta, secondsPerStep: e.secondsPerStep,
+      job: e.job, state: e.state, progress: e.progress, status: e.status, eta: e.eta, secondsPerStep: e.secondsPerStep, precision: e.precision, waited: e.waited, footprint: e.footprint,
       results: [...e.results], error: e.error, addedAt: e.addedAt, startedAt: e.startedAt, finishedAt: e.finishedAt,
     }))
   }
@@ -144,6 +144,21 @@ export class JobQueue<E = string> {
       case 'status':
         if (!entry.cancelRequested) entry.status = engineLine(event.message)
         break
+      case 'precision':
+        entry.precision = event.message
+        break
+      case 'footprint':
+        entry.footprint = { peakGb: event.peak_gb, readGb: event.read_gb, ...(event.plan_gb ? { planGb: event.plan_gb } : {}) }
+        break
+      case 'waited': {
+        // one entry per kind, summed over the pictures of the job
+        const same = entry.waited?.find((w) => w.what === event.what)
+        if (same) {
+          same.seconds += event.seconds
+          same.gb += event.gb
+        } else entry.waited = [...(entry.waited ?? []), { what: event.what, seconds: event.seconds, gb: event.gb }]
+        break
+      }
       case 'note':
         // a job can be made differently in more than one way (Diffusers instead of MLX, step caching)
         if (!entry.job.note?.split('\n').includes(event.message))

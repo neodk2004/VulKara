@@ -14,6 +14,9 @@ export interface ModelMeta {
   /** what the model's maker recommends (its card), with where it was read; over the defaults (maker_settings.py) */
   maker?: Record<string, number | string>
   resolutions?: number[]
+  /** the app-sampler labels this model's maker names on its card; when set, the sampler picker shows only these
+   *  (plus "Default"), so a model its maker runs with DPM++ only does not offer Euler (maker_settings.py) */
+  samplers?: string[]
   negativePrompt?: boolean
   img2img?: boolean
   inpaint?: boolean
@@ -197,6 +200,13 @@ export type EngineEvent =
   | { event: 'progress'; value: number }
   | { event: 'status'; message: string }
   | { event: 'note'; message: string }
+  /** the bit size each part of the model runs in for this job: "transformer 8 bit, text encoder 4 bit" */
+  | { event: 'precision'; message: string }
+  /** time the steps waited for parts of the model read again (ssd_stream: blocks streamed from the SSD) */
+  | { event: 'waited'; what: string; seconds: number; gb: number }
+  /** the engine's own processes over the job: their peak footprint (with what the GPU holds), what they read from
+   *  disk, and what its memory plan expected (missing where it has none) */
+  | { event: 'footprint'; peak_gb: number; read_gb: number; plan_gb?: number | null }
   | { event: 'result'; path: string }
   | { event: 'error'; message: string }
   | { event: 'preview'; model: string; preview?: string; error?: string }

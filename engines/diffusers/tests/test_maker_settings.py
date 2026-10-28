@@ -23,17 +23,18 @@ def test_realvisxl_lightning_card():
     assert s["guidance_scale"] == 1.5
     assert s["sampler"] == "DPM++ SDE"
     assert s["sigma_schedule"] == "Karras"
+    assert s["samplers"] == ["DPM++ SDE"]  # named twice, once each
     assert s["negative_prompt"].startswith("octane render, render, drawing, anime, bad photo, bad photography, worst quality")
     assert ":1.3" not in s["negative_prompt"] and "(" not in s["negative_prompt"]
 
 
 def test_civitai_style_texts():
     s = ms.parse("<p>Steps: 4 (min) 6 (recommended), CFG 1.1, sampler: Euler a</p>")
-    assert s == {"num_steps": 6, "guidance_scale": 1.1, "sampler": "Euler a"}
+    assert s == {"num_steps": 6, "guidance_scale": 1.1, "sampler": "Euler a", "samplers": ["Euler a"]}
     s = ms.parse("Use 4-8 steps with CFG scale 2 and DPM++ 2M SDE Karras as the sampler")
     assert s["num_steps"] == 6 and s["guidance_scale"] == 2.0
     s = ms.parse("Sampler: DPM++ 2M SDE Karras\nSteps: 30\nCFG: 5-7")
-    assert s == {"num_steps": 30, "guidance_scale": 6.0, "sampler": "DPM++ 2M SDE", "sigma_schedule": "Karras"}
+    assert s == {"num_steps": 30, "guidance_scale": 6.0, "sampler": "DPM++ 2M SDE", "sigma_schedule": "Karras", "samplers": ["DPM++ 2M SDE"]}
 
 
 def test_nothing_clear_nothing_taken():
@@ -57,13 +58,13 @@ def test_apply_puts_them_over_the_guessed_defaults():
 
 def test_the_makers_own_choice_among_several():
     card = "Recommended Settings Steps: 25-30 (I use 30 normally)\nCFG: 3-5 ( I use 5 normally )\nSampler: Euler / Euler A (my go-to)\nScheduler: Normal or Simple"
-    assert ms.parse(card) == {"num_steps": 30, "guidance_scale": 5.0, "sampler": "Euler a"}
+    assert ms.parse(card) == {"num_steps": 30, "guidance_scale": 5.0, "sampler": "Euler a", "samplers": ["Euler", "Euler a"]}
 
 
 def test_the_first_sampler_named_and_a_scheduler_line():
     assert ms.parse("Sampler: Euler a / DPM++ 2M + Karras\nSampling Steps: 25–45")["sampler"] == "Euler a"
     got = ms.parse("Sampler: dpmpp2msde\nScheduler: karras, exponential or beta\nSteps: 25-40\nCFG: 3.5-5.5")
-    assert got == {"sampler": "DPM++ 2M SDE", "sigma_schedule": "Karras", "num_steps": 33, "guidance_scale": 4.5}
+    assert got == {"sampler": "DPM++ 2M SDE", "sigma_schedule": "Karras", "num_steps": 33, "guidance_scale": 4.5, "samplers": ["DPM++ 2M SDE"]}
 
 
 def test_code_example_and_quoted_negative():
@@ -71,8 +72,22 @@ def test_code_example_and_quoted_negative():
     assert ms.parse(card) == {"negative_prompt": "worst quality, low quality", "num_steps": 50, "guidance_scale": 3.5}
 
 
+def test_the_samplers_the_maker_names_become_the_allow_list():
+    # the whole line the maker names, so the picker can be held to them; the preferred one stays the default
+    assert ms.parse("Sampler: DPM++ 2M, DPM++ 2M SDE or UniPC")["samplers"] == ["DPM++ 2M", "DPM++ 2M SDE", "UniPC"]
+    assert "samplers" not in ms.parse("Steps: 20, CFG 7")  # no sampler named, no restriction
+
+
+def test_apply_keeps_the_allow_list_out_of_the_scalar_defaults():
+    m = {"defaults": {"num_steps": 4}}
+    ms.apply(m, {"num_steps": 5, "sampler": "DPM++ 2M", "samplers": ["DPM++ 2M", "UniPC"]}, "card")
+    assert m["samplers"] == ["DPM++ 2M", "UniPC"]
+    assert "samplers" not in m["defaults"] and "samplers" not in m["maker"]
+    assert m["defaults"] == {"num_steps": 5, "sampler": "DPM++ 2M"}
+
+
 def test_no_schedule_for_samplers_that_take_none_and_the_sweet_spot():
-    assert ms.parse("Sampler: LCM\nScheduler: karras, exponential or beta") == {"sampler": "LCM"}
+    assert ms.parse("Sampler: LCM\nScheduler: karras, exponential or beta") == {"sampler": "LCM", "samplers": ["LCM"]}
     assert ms.parse("Works best at minimum at 20 steps, the sweet spot is between 25-50.")["num_steps"] == 38
 
 

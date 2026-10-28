@@ -8,9 +8,13 @@ describe('what the remote web UI may call', () => {
     for (const c of ['queue:add', 'queue:snapshot', 'assets:list', 'history:list', 'files:writeImage']) expect(REMOTE_CHANNELS.has(c)).toBe(true)
   })
 
+  it('has finding and installing models', () => {
+    for (const c of ['loras:search', 'imports:inspect', 'imports:add', 'imports:list']) expect(REMOTE_CHANNELS.has(c)).toBe(true)
+  })
+
   it('has nothing that changes the Mac, its settings or its secrets', () => {
     for (const c of ['settings:set', 'settings:chooseFolder', 'tokens:set', 'files:choose', 'files:saveAs', 'files:reveal',
-      'assets:remove', 'imports:add', 'runtimes:install', 'training:start', 'app:openExternal', 'app:logs', 'dialog:ask']) {
+      'assets:remove', 'assets:rename', 'assets:exportSingle', 'runtimes:install', 'training:start', 'app:openExternal', 'app:logs', 'dialog:ask']) {
       expect(REMOTE_CHANNELS.has(c)).toBe(false)
     }
   })

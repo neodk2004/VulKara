@@ -9,8 +9,8 @@ import type { ImportRequest } from '@shared/api'
 import type { Asset } from '@shared/types'
 import { t } from '../i18n'
 
-// families only ComfyUI runs
-const COMFY_ONLY = ['Wan', 'Anima']
+// families only ComfyUI runs (i18n-ok: family names)
+const COMFY_ONLY = ['Wan', 'Anima', 'Lumina 2']
 
 export interface CuratedModel {
   id: string

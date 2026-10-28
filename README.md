@@ -82,7 +82,7 @@ it over your own network, as a web UI in the browser.
 
 ### <img src="docs/icons/boxes.svg" width="20" height="20" alt=""> Many models, one app
 SD 1.5 / 2.x, SDXL (also Pony, Illustrious, NoobAI), SD 3.5, FLUX.1, FLUX.2, FLUX 3 Image Klein, Chroma, Qwen-Image,
-Z-Image, Krea 2, Ideogram 4, Anima and Wan 2.2 video. Choose from a tested list, or import any model from Hugging Face, Civitai or a file.
+Z-Image, Krea 2, Ideogram 4, ERNIE-Image, Anima, Lumina 2, Pony V7 (AuraFlow) and Wan 2.2 video. Choose from a tested list, or import any model from Hugging Face, Civitai or a file.
 The app speaks English, German, Spanish and Portuguese (Brazil and Portugal); a new language is a folder of JSON files.
 
 </td>
@@ -433,10 +433,13 @@ Mac is never used or changed.
 | Krea 2 | MLX | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | below USD 1 M revenue |
 | Ideogram 4 | MLX | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | no |
 | Anima | ComfyUI | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | model non-commercial, pictures free |
+| Lumina 2 (NetaYume, Neta Lumina) | ComfyUI | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | yes (Apache 2.0) |
+| ERNIE-Image (Turbo 8 steps, text in pictures) | MLX | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | yes (Apache 2.0) |
+| AuraFlow, Pony V7 (GGUF; the repositories on Diffusers) | ComfyUI, Diffusers | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | | <img src="docs/icons/check.svg" width="14" height="14" alt="yes"> | | with conditions (Pony License) |
 | Wan 2.2 5B / 14B (video) | ComfyUI | video | | | | | yes (Apache 2.0) |
 
 Models are never part of the app. They are downloaded on demand from Hugging Face or Civitai, and their licences are
-shown on the Licenses page. LoRAs of families without a runtime in the app (Z-Image, HiDream, Lumina …) are shown
+shown on the Licenses page. LoRAs of families without a runtime in the app (HiDream, Hunyuan …) are shown
 under their family, but no page offers them.
 
 ## For developers

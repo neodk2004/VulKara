@@ -191,6 +191,8 @@ def place_adapters(module, device):
 
 class LoadedModel:
     """One imported model with the pipelines needed for the current RAM plan."""
+    stop = None  # whether the job was stopped (the engine's reader), for long one-time preparations
+
 
     def __init__(self, model_dir, device, ram_gb=None):
         self.model_dir = model_dir
@@ -254,6 +256,20 @@ class LoadedModel:
         self.lora_key = ()        # LoRAs currently loaded into the pipeline
         self.controlnet = None    # (id, model) of the loaded ControlNet
 
+    def precision(self):
+        """The bit size of each part as the plan loads it (benchmarks): a GGUF denoiser keeps its type, a streamed
+        one is unpacked to 16 bit on the SSD."""
+        names = {"none": "16 bit", "q8": "8 bit", "q4": "4 bit"}
+        parts = []
+        for c, q in self.plan["quant"].items():
+            label = names.get(q, q)
+            if c == self.m["denoiser"] and self.stream:
+                label = "16 bit, streamed from the SSD"
+            elif c == self.m["denoiser"] and self.m.get("file_format") == "gguf":
+                label = registry.file_precision(self._path(self.m["file"]))
+            parts.append((c, label))
+        return parts
+
     def _path(self, p):
         return p if os.path.isabs(p) else os.path.join(self.model_dir, p)
 
@@ -284,6 +300,15 @@ class LoadedModel:
             raise MemoryError("%s does not fit into this Mac's memory; streaming it from the SSD needs %d GB free "
                               "disk space (%d GB free)" % (self.spec["label"], need_gb + 5, free_gb))
 
+    def _stoppable(self, status):
+        """A report for a long one-time preparation (status with the percent): a stop ends it at the next block, the
+        blocks written so far are written again next time."""
+        def report(i, total):
+            protocol.status(status % (100 * i // total))
+            if self.stop is not None and self.stop():
+                raise StopRequested()
+        return report
+
     def _load_streamed_denoiser(self):
         """The denoiser memory-mapped on the CPU, its blocks moved to the SSD cache."""
         import diffusers
@@ -302,7 +327,7 @@ class LoadedModel:
             model = cls.from_single_file(self._path(m["file"]), config=self._path(m["base_dir"]),
                                          subfolder=m["denoiser"], dtype=self.dtype)
         n, kept = streaming.enable(model, self.device, self.dtype, self.stream_dir, resident_share=self.stream_keep,
-                                   report=lambda i, total: protocol.status("Preparing SSD streaming (one-time) %d%%" % (100 * i // total)))
+                                   report=self._stoppable("Preparing SSD streaming (one-time) %d%%"))
         protocol.log("[diffusers] streaming %d blocks of %s from %s, %d blocks (%.1f GB) kept in memory%s"
                      % (n, m["denoiser"], self.stream_dir, kept, streaming.kept_gb(model),
                         ", making room for each new prompt" if self.stream_release else ""))
@@ -327,8 +352,7 @@ class LoadedModel:
                 return cls.from_config(cls.load_config(self._path(m["base_dir"]), subfolder=m["denoiser"]))
 
         return streaming.unpack_gguf(load, empty, self.stream_dir, self.dtype, m.get("sha256") or m["file"],
-                                     report=lambda i, total: protocol.status("Unpacking the GGUF file for SSD streaming "
-                                                                             "(one-time) %d%%" % (100 * i // total)))
+                                     report=self._stoppable("Unpacking the GGUF file for SSD streaming (one-time) %d%%"))
 
     @property
     def text_components(self):
@@ -459,6 +483,8 @@ class LoadedModel:
         vae = getattr(self.pipe, "vae", None)
         if vae is None or not hasattr(vae, "enable_tiling"):
             return
+        if self.decode_self:
+            _bf16_vae(vae)
         try:
             vae.enable_tiling()
             if getattr(vae, "tile_sample_min_size", 0) > 512:
@@ -671,12 +697,10 @@ class LoadedModel:
         return True
 
     def controlnet_room(self, width=1024, height=1024):
-        """GB left for the ControlNet's weights next to this model at a picture size. The plan's activations are for
-        1024² (memory.py); they grow and shrink with the pixels (not below a quarter), and the ControlNet runs a copy
-        of the first blocks at every step: about twice the activations on top."""
-        act_1024 = self.plan.get("activations_gb", 2.5)
-        act = act_1024 * max(0.25, (width * height) / (1024 * 1024))
-        denoise = self.plan["denoise_peak_gb"] - act_1024 + act
+        """GB left for the ControlNet's weights next to this model at a picture size (activations as memory.peak_at
+        counts them); the ControlNet runs a copy of the first blocks at every step: about twice the activations on top."""
+        planned, act = memory.activations_at(self.plan, width, height)
+        denoise = self.plan["denoise_peak_gb"] - planned + act
         return self.plan["budget_gb"] - denoise - 2 * act
 
     def ensure_controlnet(self, cn_spec, width=1024, height=1024):
@@ -887,6 +911,14 @@ def _encode(pipe, spec, prompt, negative, guidance, device):
                 npe, nmask = pipe.encode_prompt(prompt=negative or spec.get("empty_negative", ""), device=device)[:2]
                 out.update(negative_prompt_embeds=npe, negative_prompt_embeds_mask=nmask)
             return out
+        if family == "auraflow":
+            pe, mask, npe, nmask = pipe.encode_prompt(prompt=prompt, negative_prompt=negative or "", device=device,
+                                                      do_classifier_free_guidance=guidance > 1,
+                                                      max_sequence_length=spec["call_kwargs"]["max_sequence_length"])
+            out = {"prompt_embeds": pe, "prompt_attention_mask": mask}
+            if guidance > 1:
+                out.update(negative_prompt_embeds=npe, negative_prompt_attention_mask=nmask)
+            return out
     raise ValueError("Staged encoding is not supported for %s" % family)
 
 
@@ -1021,6 +1053,20 @@ def _blend_into(original, painted, mask):
     return Image.composite(painted, original.convert("RGB"), soft)
 
 
+def _bf16_vae(vae):
+    """SDXL's VAE on MPS in bfloat16 for good, encoding too: the img2img and inpaint pipelines would otherwise move it
+    to float32 for every input picture and back (force_upcast), and the weights moved in the middle of a job land
+    between the job's buffers, where the Metal cache can not give them back afterwards (1.8 GB after an img2img job
+    at 1024 px, measured 2026-10-26). bfloat16 has float32's range, so nothing overflows."""
+    import torch
+    if vae.dtype != torch.bfloat16:
+        vae.to(torch.bfloat16)
+    if vae.config.get("force_upcast"):
+        vae.register_to_config(force_upcast=False)
+        encode = vae.encode
+        vae.encode = lambda x, *a, **k: encode(x.to(torch.bfloat16), *a, **k)
+
+
 def _free_memory():
     import torch
     gc.collect()
@@ -1028,6 +1074,29 @@ def _free_memory():
         torch.mps.empty_cache()
     elif torch.cuda.is_available():
         torch.cuda.empty_cache()
+
+
+# head sizes the fused attention kernel of MPS takes (torch 2.14); others run a slow path that holds the whole attention
+# matrix: SD 1.5's 40 (8 heads at 64x64 latents) took 3.5 GB more and 6 times as long
+FUSED_HEAD_DIMS = (32, 64)
+
+
+def fused_attention():
+    """On MPS, attention with a head size below 64 the fused kernel does not take is padded with zeros to 64 (same
+    result: the zeros add nothing to the scores, the padded output is cut off again)."""
+    import torch.nn.functional as F
+    sdpa = F.scaled_dot_product_attention
+    if getattr(sdpa, "vk_padded", False):
+        return
+
+    def padded(query, key, value, *args, scale=None, **kwargs):
+        d = query.shape[-1]
+        if query.device.type != "mps" or d >= 64 or d in FUSED_HEAD_DIMS or key.shape[-1] != d or value.shape[-1] != d:
+            return sdpa(query, key, value, *args, scale=scale, **kwargs)
+        pad = lambda t: F.pad(t, (0, 64 - d))
+        return sdpa(pad(query), pad(key), pad(value), *args, scale=d ** -0.5 if scale is None else scale, **kwargs)[..., :d]
+    padded.vk_padded = True
+    F.scaled_dot_product_attention = padded
 
 
 class DiffusersEngine:
@@ -1038,11 +1107,14 @@ class DiffusersEngine:
         self.ram_gb = ram_gb
         self.model = None
         self.device = _device()
+        if self.device == "mps":
+            fused_attention()
 
     def unload(self):
         if self.model is not None:
             self.model.destroy()
             self.model = None
+            _free_memory()  # what only the model object still held (its transformer, a streamed model)
 
     def _state(self, state):
         protocol.progress(-1)
@@ -1066,6 +1138,7 @@ class DiffusersEngine:
             protocol.log("[diffusers] base parts of %s completed" % os.path.basename(model_dir))
         self._state("Loading model")
         model = LoadedModel(model_dir, self.device, self.ram_gb)
+        model.stop = self.reader.stop_requested if self.reader is not None else None
         model.load()
         self.model = model
         return model
@@ -1085,6 +1158,7 @@ class DiffusersEngine:
             raise ValueError(manifest.get("unsupported") or "%s models can not run in VulKara yet"
                              % (manifest.get("label") or manifest.get("arch") or "These"))
         model = self._ensure_model(model_dir)
+        protocol.precision(model.precision())
         spec, m = model.spec, model.m
         defaults = m.get("defaults", spec["defaults"])
 
@@ -1100,6 +1174,11 @@ class DiffusersEngine:
         if d.get("input_image"):
             init_image = colour.open_rgb(d["input_image"])  # in sRGB, whatever profile it carries
         width, height = self._size(d, spec, defaults, init_image)
+        need = memory.peak_at(model.plan, width, height)
+        protocol.planned(need)
+        short = memory.short_of(need, protocol.footprint_gb())
+        if short:
+            protocol.note(short)
 
         call = {"num_inference_steps": steps, "guidance_scale": pipeline_guidance(spec, guidance), "width": width,
                 "height": height}
@@ -1216,9 +1295,10 @@ class DiffusersEngine:
                 call["negative_prompt"] = negative
 
         # above ~1536² the UNet's attention maps alone take GBs: compute them in slices; SD 1.5 / 2 (whose first
-        # attention runs at a quarter of the latent's width) already above 512² (768² took 16 GB and swapped, 2026-10-14)
+        # attention runs at a quarter of the latent's width) already above 512² (768² took 16 GB and swapped, 2026-10-14).
+        # On MPS the fused kernel (fused_attention) never holds the maps, slices would only be slower
         if hasattr(pipe, "enable_attention_slicing") and spec["family"] in ("sdxl", "sd1", "sd2"):
-            if width * height > (SLICE_ABOVE_PIXELS if spec["family"] == "sdxl" else 512 * 512):
+            if self.device != "mps" and width * height > (SLICE_ABOVE_PIXELS if spec["family"] == "sdxl" else 512 * 512):
                 pipe.enable_attention_slicing()
             else:
                 pipe.disable_attention_slicing()
@@ -1456,8 +1536,12 @@ class DiffusersEngine:
         del out
         _free_memory()  # give cached GPU memory back between images
         protocol.log("[diffusers] image done in %.1fs" % (time.time() - t0))
-        if model is not None and model.stream and streaming.PROFILE:
-            protocol.log("[diffusers] stream profile: " + streaming.report())
+        if model is not None and model.stream:
+            protocol.waited("ssd_stream", streaming.STATS["wait"], streaming.STATS["read_gb"])
+            if streaming.PROFILE:
+                protocol.log("[diffusers] stream profile: " + streaming.report())
+            else:
+                streaming.reset()
         return img
 
     def _save(self, img, prompt):

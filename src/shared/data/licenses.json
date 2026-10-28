@@ -247,6 +247,17 @@
    "note": ""
   },
   {
+   "group": "Recommended: ERNIE-Image",
+   "id": "ERNIE-Image-Turbo",
+   "title": "ERNIE-Image-Turbo",
+   "source": "https://huggingface.co/baidu/ERNIE-Image-Turbo",
+   "license": "Apache License 2.0",
+   "license_url": "https://www.apache.org/licenses/LICENSE-2.0",
+   "model": "yes",
+   "outputs": "yes",
+   "note": ""
+  },
+  {
    "group": "Recommended: SD 3.5",
    "id": "SD3.5-Medium",
    "title": "Stable Diffusion 3.5 Medium",
@@ -317,17 +328,6 @@
    "id": "Realistic-Vision-5.1",
    "title": "Realistic Vision 5.1",
    "source": "https://huggingface.co/SG161222/Realistic_Vision_V5.1_noVAE",
-   "license": "CreativeML Open RAIL-M",
-   "license_url": "https://huggingface.co/spaces/CompVis/stable-diffusion-license",
-   "model": "yes",
-   "outputs": "yes",
-   "note": "Use-based restrictions (Attachment A) apply to the model and its outputs."
-  },
-  {
-   "group": "Recommended: SD 1.x",
-   "id": "epiCPhotoGasm",
-   "title": "epiCPhotoGasm",
-   "source": "https://huggingface.co/Yntec/epiCPhotoGasm",
    "license": "CreativeML Open RAIL-M",
    "license_url": "https://huggingface.co/spaces/CompVis/stable-diffusion-license",
    "model": "yes",
@@ -443,6 +443,17 @@
    "model": "no",
    "outputs": "no",
    "note": "Civitai permissions: RentCivit. Selling generated pictures: not allowed. Sharing merges / derivatives: not allowed. The license of the base model applies as well."
+  },
+  {
+   "group": "Recommended: Lumina 2",
+   "id": "NetaYume-Lumina-v4",
+   "title": "NetaYume Lumina v4",
+   "source": "https://huggingface.co/duongve/NetaYume-Lumina-Image-2.0",
+   "license": "Apache License 2.0",
+   "license_url": "https://www.apache.org/licenses/LICENSE-2.0",
+   "model": "yes",
+   "outputs": "yes",
+   "note": ""
   },
   {
    "group": "Recommended: SD 1.x",

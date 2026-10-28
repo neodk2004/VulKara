@@ -70,7 +70,7 @@ La página Inicio muestra tres pasos. Cada paso recibe una marca de verificació
 1. **Instala un runtime** (Ajustes → Runtimes). Un runtime es el software que ejecuta los modelos. Empieza con
    **Diffusers (Apple GPU)**: ejecuta la mayoría de los modelos y también el importador, la detección de poses y el
    filtro de contenido. **MLX** es más rápido para los modelos FLUX y Z-Image y es el único runtime para Krea 2,
-   Ideogram 4 y FLUX 3 Image Klein. **ComfyUI** es opcional y hace falta para vídeo, ampliación y modelos Anima.
+   Ideogram 4 y FLUX 3 Image Klein. **ComfyUI** es opcional y hace falta para vídeo, ampliación y modelos Anima, Lumina 2 y Pony V7.
 2. **Consigue un modelo** (Modelos → Recomendados). Para una primera prueba, usa *SDXL 1.0* o *DreamShaper XL v2
    Turbo* en un Mac con 16 GB de memoria, o *Stable Diffusion 1.5* en uno con 8 GB.
 3. **Crea tu primera imagen** (Texto). Describe la imagen y pulsa **Generar** o ⌘↩. El paso se marca cuando la
@@ -187,6 +187,9 @@ los ajustes, para poder comparar modelos con los mismos:
   que lo hayas cambiado entretanto.
 - **Sampler**: el sampler elegido sigue elegido. Un modelo que no lo tiene se ejecuta con su predeterminado; una **!**
   naranja junto a *Sampler* lo indica al pasar el puntero. Al volver, regresa.
+- **Solo los samplers del creador**: si la ficha del modelo nombra los samplers con los que su creador lo usa, la lista
+  muestra solo esos, con *Estándar* (el recomendado) primero; un (i) junto a *Sampler* lo indica. Si la ficha no nombra
+  ninguno, se mantiene la lista completa.
 - Lo que el modelo nuevo no admite se quita: LoRAs de otra familia y un tipo de control que no tiene. El prompt
   negativo propio de un modelo solo se rellena si el campo está vacío.
 - Un modelo que la app ha reconocido pero aún no puede ejecutar lo indica en la página antes de enviar nada.
@@ -636,7 +639,9 @@ Al terminar, **Comparar intensidades** abre la LoRA nueva en la comparación. Ti
 modelo que solo cabe mediante streaming desde el SSD muestra *streaming desde el SSD* con un **!**.
 
 La página Modelos tiene tres pestañas: **Instalados**, **Recomendados** y **Añadir**. Las descargas e importaciones se
-ejecutan una tras otra y se muestran arriba de la página con su progreso.
+ejecutan una tras otra y se muestran arriba de la página con su progreso. Los modelos y LoRAs solo se instalan mientras
+el disco de modelos tenga al menos 50 GB libres; con menos, la importación se rechaza e indica cuánto queda libre (los
+buscadores marcan esas tarjetas y no las instalan).
 
 ### Instalados
 
@@ -706,6 +711,9 @@ se identifican por la memoria para la que se hizo su plan.
 | FLUX 3 Image Klein (destilado, Base) | MLX (flux3-mlx) | el repositorio de Black Forest Labs (18,9 GB de descarga, unos 19 GB de RAM) o los repositorios MLX de VisualInference en 6 bits (8,4 GB, funciona en Macs de 16 GB) y 8 bits (9,6 GB); destilado: 16 pasos sin guía, Base: 50 pasos con guía 3,5; imagen a imagen toma la imagen como referencia; LoRAs con los nombres de Black Forest Labs, diffusers y kohya; unos 6 minutos por imagen a 1024 px en un M2 con 24 GB | no / con condiciones (menos de 5 millones de USD de ingresos, filtro de contenido e indicación de IA) |
 | Ideogram 4 | MLX | rechaza los desnudos por sí mismo | no / no |
 | Anima | ComfyUI | | no / sí |
+| Lumina 2 (NetaYume, Neta Lumina) | ComfyUI | el prompt de sistema que espera el modelo se añade solo delante del prompt (los fine-tunes de anime usan el suyo); unos 30 s por paso a 1024 px en un M2 con 24 GB | sí / sí (Apache 2.0) |
+| ERNIE-Image (Turbo, SFT) | MLX | fuerte con texto en imágenes, pósteres y cómics; Turbo 8 pasos sin guidance, unos 6 minutos por imagen a 1024 px (4 bits) en un M2 con 24 GB; el prompt enhancer del repositorio (7 GB) no se descarga; texto a imagen | sí / sí (Apache 2.0) |
+| AuraFlow, Pony V7 | ComfyUI; el repositorio Diffusers | en ComfyUI el transformer como GGUF (Q8_0 / Q4_0 de Pony); los prompts se rellenan hasta 768 tokens como en el workflow de Pony; unos 50 s por paso a 1024 px en un M2 con 24 GB; los repositorios (fal/AuraFlow-v0.3, purplesmartai/pony-v7-base) en Diffusers, allí en 8 bits con 16 GB; los LoRA para ComfyUI funcionan en ambos | con condiciones (Pony License) |
 | Wan 2.2 5B / 14B (vídeo) | ComfyUI | Imagen a vídeo | sí / sí (Apache 2.0) |
 
 La página Licencias contiene las condiciones completas. *Runtime preferido* en Ajustes decide entre Diffusers y MLX
@@ -744,6 +752,25 @@ Con los desnudos permitidos, las vistas previas marcadas como para adultos se di
 Las listas se leen de las páginas públicas de ambos sitios sin token y se conservan diez minutos; una búsqueda no envía
 nada más que la base y las palabras buscadas.
 
+### Buscar modelos
+
+![Buscar modelos](../screenshots/es/model_finder.jpg)
+
+**Buscar modelos** sobre las tarjetas busca en Civitai o Hugging Face modelos completos hechos a partir de un modelo
+base: checkpoints en Civitai, fine-tunes en Hugging Face (un repositorio con la estructura de diffusers se toma
+entero; si no, el archivo de checkpoint de su nivel superior; el menú de la tarjeta elige otro archivo). El menú
+junto al selector de fuente elige la base, ordenada en los grupos de modelos principales (Stable Diffusion, SDXL,
+FLUX, Qwen-Image, Z-Image, Krea · Ideogram · ERNIE, Anima · Lumina · Pony V7, Wan); la lista de LoRAs usa los mismos grupos. *Todos los modelos base*, la primera entrada y donde empieza *Buscar modelos*, busca en todo Civitai o Hugging Face sin base; las palabras de búsqueda acotan. Se omiten los
+ControlNets, IP-Adapters, upscalers y LoRAs que Hugging Face también lista como fine-tunes. *Formatos de archivo* sobre las tarjetas explica qué significan en un Mac bf16, fp8, GGUF, fp32, NF4 y
+similares, y cómo los trata la importación.
+
+Las tarjetas son las mismas que para las LoRAs: vista previa, autores, base, descargas, me gusta, tamaño y licencia.
+La comprobación de la importación se ejecuta
+para cada tarjeta y añade la memoria que necesita el modelo; un modelo demasiado grande para la memoria de este Mac
+va marcado con *streaming desde el SSD* (la **!** naranja lo explica): se ejecuta en streaming desde el SSD, más
+lento, con calidad completa. **Instalar** pone el modelo en las descargas de arriba. El contenido para adultos se trata como en las
+LoRAs.
+
 ### Recomendados
 
 ![Modelos recomendados](../screenshots/es/models_recommended.jpg)
@@ -753,8 +780,8 @@ de descarga. Un modelo que necesita más memoria de la que tiene el Mac se marca
 
 | Grupo | Modelos |
 | --- | --- |
-| **Modelos base** | Stable Diffusion 1.5 (+ Inpainting), SD 2.1, SDXL 1.0, SDXL Turbo, SD 3.5 Medium / Large, FLUX.1 schnell (4/8 bits), FLUX.1 dev (16/4 bits), Chroma1-HD, Chroma1-Flash (rápido), Z-Image-Turbo, FLUX.2 [klein] 4B / 9B, Wan 2.2 TI2V 5B / I2V 14B (vídeo) |
-| **Modelos de la comunidad** | GonzaLomo Chroma, DreamShaper 8, Realistic Vision 5.1, Counterfeit, DreamShaper XL Turbo, Juggernaut XL v7, epiCRealism XL, JANKU Illustrious XL, Anima Turbo … |
+| **Modelos base** | Stable Diffusion 1.5 (+ Inpainting), SD 2.1, SDXL 1.0, SDXL Turbo, SD 3.5 Medium / Large, FLUX.1 schnell (4/8 bits), FLUX.1 dev (16/4 bits), Chroma1-HD, Chroma1-Flash (rápido), Z-Image-Turbo, ERNIE-Image-Turbo, FLUX.2 [klein] 4B / 9B, Wan 2.2 TI2V 5B / I2V 14B (vídeo) |
+| **Modelos de la comunidad** | GonzaLomo Chroma, DreamShaper 8, Realistic Vision 5.1, Counterfeit, DreamShaper XL Turbo, Juggernaut XL v7, epiCRealism XL, JANKU Illustrious XL, Anima Turbo, NetaYume Lumina v4 … |
 | **Modelos explícitos** | solo aparecen cuando los desnudos están permitidos en Ajustes |
 
 Algunos modelos necesitan un token de acceso (Ajustes → Tokens de acceso) o una licencia aceptada en su página de Hugging
@@ -825,8 +852,10 @@ Todas las tareas terminadas, de la más reciente a la más antigua, con todos su
 - **Abrir**: doble clic, ↩ o Espacio abre la vista grande.
 - **⌫** traslada las entradas seleccionadas **a la Papelera**, con sus archivos, tras una confirmación.
 
-El panel de una entrada muestra la imagen con **Guardar como**, **Mostrar en el Finder**, **Compartir** y **Copiar
-imagen**, el prompt y todos los ajustes. Tiene tres botones:
+El panel de una entrada muestra la imagen en grande (hasta la mitad del ancho de la ventana; una imagen vertical solo tan alta como una cuadrada) y, debajo, en el tercio izquierdo,
+todos sus botones, uno bajo otro: **Favorito**, **Guardar como**, **Mostrar en el Finder**, **Compartir** y **Copiar imagen** para
+cada imagen, y luego los tres botones de la entrada. Al lado, tras una línea, están los ajustes y luego el prompt y el prompt negativo, cada uno con su título.
+Mientras la vista grande está abierta, el panel muestra solo los botones.
 
 - **Usar estos ajustes** devuelve el prompt, el modelo, el estilo, el tamaño, la seed, las LoRAs y todos los demás
   ajustes a la página de la que vino la tarea. El modelo se vuelve a encontrar aunque su carpeta se haya movido.
@@ -879,14 +908,14 @@ el vídeo de Wan 2.2.
 
 ![Vista grande](../screenshots/es/viewer.jpg)
 
-Al hacer clic en un resultado, se abre en una **ventana propia**. Puedes tener varias vistas grandes abiertas junto a la
-app. Cuando la app está en pantalla completa, la vista grande se abre como ventana sobre ella en el mismo espacio (en
+Al hacer clic en un resultado, se abre en una **ventana propia**. Puede haber varias vistas grandes abiertas a la vez;
+al volver a la ventana principal se cierran todas. Cuando la app está en pantalla completa, la vista grande se abre como ventana sobre ella en el mismo espacio (en
 lugar de en un espacio de pantalla completa propio sin barra de título), así que nunca deja la app fuera de alcance.
 
 - **←/→** (o las flechas de los lados) van a la imagen anterior o siguiente de la misma página.
 - La **×** de la esquina superior derecha, o **Esc**, cierra la ventana; tiene su propio botón de cierre porque una
   ventana sobre una app en pantalla completa no tiene barra de título.
-- El panel lateral muestra el prompt, el modelo, el tamaño, los pasos, la seed y el estilo.
+- El panel lateral solo tiene botones; el prompt y los ajustes están en el historial.
 - **Guardar como**, **Mostrar en el Finder**, **Compartir** (el menú de compartir de macOS) y **Copiar imagen** (al
   portapapeles).
 - **Usar estos ajustes**: devuelve el prompt, los ajustes y la seed al formulario.
@@ -903,7 +932,7 @@ lugar de en un espacio de pantalla completa propio sin barra de título), así q
 | --- | --- | --- |
 | **Diffusers (Apple GPU)** | ~0,9 GB | SD 1.x/2.x, SDXL, SD 3.5, FLUX.1, Chroma, FLUX.2, Qwen-Image y Qwen-Image 2.1, Z-Image, archivos GGUF y FP8, LoRAs, ControlNet; además el importador, la detección de poses, la restauración de fotos y el filtro de contenido. Qwen-Image 2.1 necesita diffusers 0.41: un runtime instalado antes lo indica y lo obtiene con **Actualizar** |
 | **MLX** | ~1 GB | Modelos FLUX y Z-Image (como repositorio, texto a imagen), normalmente más rápido y ligero; Krea 2, Ideogram 4 y FLUX 3 Image Klein |
-| **ComfyUI** | ~1,5 GB | opcional: Anima, vídeo Wan, ampliación |
+| **ComfyUI** | ~1,5 GB | opcional: Anima, Lumina 2, Pony V7, vídeo Wan, ampliación |
 
 Cada runtime es un entorno de Python independiente en la carpeta de los runtimes. **Actualizar** lo vuelve a instalar
 con los paquetes con los que se probó esta versión de VulKara: cada paquete en una versión fija, así que una nueva
@@ -953,6 +982,12 @@ de establecer una carpeta; **Predeterminada** vuelve a la carpeta estándar.
 - **Cargar modelos grandes por partes desde el SSD**: *Si es necesario* (predeterminado), *Siempre* o *Nunca*. Permite
   ejecutar modelos que no caben en la memoria, a menor velocidad; consulta [streaming desde el SSD](#añadir). Dónde van los
   bloques se establece en Carpetas → *Caché del streaming desde el SSD*.
+- **ComfyUI: cargar modelos GGUF por partes desde el SSD**: activado (predeterminado). Un modelo de ComfyUI en GGUF
+  (Pony V7, Wan 2.2 14B) que no cabe en la memoria junto a su codificador de texto, como en los Mac con 16 GB, guarda
+  solo una parte en la memoria y lee el resto de su archivo en cada paso. Medido con Pony V7 (Q8_0, 1024 px): en 16 GB
+  unos 88 s por paso en lugar de 225 s con el modelo entero en memoria (macOS usa el intercambio); en 24 GB el modelo
+  cabe y se carga entero (44 s; por partes tardaría 50 s). A los modelos que caben no les afecta; los safetensors se
+  leen siempre enteros.
 - **Caché de pasos**: *Desactivada* (predeterminado), *Ligera* o *Fuerte*. Los pasos que apenas cambian la imagen
   reutilizan el paso anterior en lugar de calcularse por completo; un modelo en streaming ni siquiera lee esos bloques
   del SSD. FLUX.1 [dev] con 28 pasos: *Ligera* reutiliza unos 5 pasos (aproximadamente 1,2× más rápido, la imagen
@@ -1019,9 +1054,11 @@ descargar imágenes terminadas en el historial. Solo este Mac hace el cálculo; 
   enlace.
 
 Un navegador muestra solo las páginas para generar y observar: Texto, Imagen, Vídeo, Ilusión, Inpainting, Pose, LoRA,
-Historial (ver, marcar como favorito, eliminar), Favoritos, Consejos, Cambios. Las páginas que pertenecen al Mac se
-quedan ahí (Ajustes, Modelos, Entrenamiento, Mejorar, Ampliar, Restaurar, Lienzo, Hardware, Registros, Licencias,
-Acerca de): un navegador no puede cambiar ajustes, instalar modelos ni runtimes, ni acceder a ningún archivo del Mac
+Modelos, Historial (ver, marcar como favorito, eliminar), Favoritos, Consejos, Cambios. En **Modelos** elige, busca
+(*Buscar modelos*, *Buscar LoRAs*) e instala modelos y LoRAs de *Recomendados*, Hugging Face y Civitai; añadir archivos
+del Mac, renombrar, exportar y quitar se queda en el Mac, igual que los modelos auxiliares. Las demás páginas que
+pertenecen al Mac se quedan ahí (Ajustes, Entrenamiento, Mejorar, Ampliar, Restaurar, Lienzo, Hardware, Registros,
+Licencias, Acerca de): un navegador no puede cambiar ajustes, instalar runtimes ni acceder a ningún archivo del Mac
 aparte de las imágenes que se le muestran. Cada dispositivo conserva su propio idioma, elegido en el navegador; el
 idioma del Mac no se toca. En el navegador, **Compartir** abre el menú de compartir del móvil (WhatsApp, Signal,
 Telegram, Threema, Mail …) y **Copiar imagen** también está disponible, ambos solo por HTTPS; con HTTPS desactivado
@@ -1066,10 +1103,29 @@ Todos los ajustes se conservan entre reinicios.
 - **Hardware**: este Mac tal como lo ven los motores. El chip con sus núcleos de rendimiento y de eficiencia, la memoria
   unificada y la parte de ella que Metal permite usar a un proceso (el presupuesto de GPU, unas tres cuartas partes),
   los núcleos de GPU, un
-  **monitor de recursos** (la memoria que ocupan VulKara y sus motores, la que usa el sistema, la CPU y la GPU según informa su controlador, cada dos segundos),
+  **monitor de recursos** (la memoria que ocupan VulKara y sus motores, la que usa el sistema, la CPU y la GPU según informa su controlador, el swap en el SSD, cada dos segundos),
   las cachés del streaming desde el SSD con el espacio libre en su disco y los **límites de seguridad** de Ajustes →
   Motor: memoria reservada, streaming desde el SSD, caché de pasos, runtime preferido. **Copiar información** lo pone
   todo en el portapapeles, para un informe de error.
+  **Benchmark** mide un modelo en este Mac: elige el modelo, un tamaño (el suyo, 512, 768 o 1024 px) y de una a tres
+  imágenes, y pulsa **Medir**. Las imágenes pasan por la cola con los pasos, la guía y el sampler del modelo y el mismo
+  prompt y la misma semilla para todos los modelos; la primera también carga el modelo. La tabla muestra los segundos por
+  paso, la imagen entera (la primera con la carga), la memoria máxima de VulKara con sus motores (como la cuenta macOS,
+  con lo que ocupa la GPU) y del sistema y el swap que
+  añadió la imagen (resaltado desde 0,5 GB: faltó memoria y cada paso es más lento), y en una columna propia las
+  fases por las que pasó el motor (paso a Diffusers, preparación del streaming desde el SSD, cuantización, carga,
+  generación), cada una con su tiempo; un porcentaje que sube queda en una sola línea. *Bits* muestra en qué tamaño
+  corrió cada parte del modelo (transformer 8 bits, codificador de texto 4 bits, un tipo GGUF como Q8_0, en streaming
+  desde el SSD). Las insignias (i) indican los límites: MLX cuenta la mayor parte de su carga en *Generando*, Diffusers
+  solo nombra las partes de su plan de memoria. También aparece lo que hubo que volver a leer mientras se hacía la
+  imagen: en *Memoria*, cuánto leyó el Mac de sus discos y de vuelta del swap, y entre las fases el tiempo que los pasos
+  esperaron bloques de un modelo en streaming desde el SSD. *Motor como máximo* es el pico propio del motor para la imagen (tal como macOS lo cuenta para sus procesos) junto a lo que esperaba su plan de memoria (*previsto*); más de 0,5 GB por encima del plan se marca. Antes de cada imagen los motores comparan su plan con la memoria libre en ese momento: MLX decodifica la imagen en mosaicos cuando no cabría de una pieza (sin diferencia visible), y una imagen a la que aun así le falta memoria indica en su trabajo cuánta había libre.
+  Cada medición es un bloque propio con tamaño y bits, tiempo,
+  memoria y fases uno al lado del otro. **Detener** (o Cancelar en la barra de trabajos) detiene todas las imágenes del
+  benchmark; las mediciones detenidas salen de la lista, porque no midieron nada completo. **Copiar como tabla** pone las mediciones en el portapapeles como tabla Markdown con el chip
+  y su memoria. Cada medición indica la versión de la app y el estado del código con que se compiló (commit, + con
+  cambios sin confirmar, hora de compilación), así se distinguen las mediciones de versiones distintas. Las imágenes se
+  guardan en el historial.
 
 - **Registros**: lo que informan los motores y los instaladores, cada línea con fecha y hora. Las descargas terminadas
   muestran su tamaño y su velocidad. **Copiar todo** copia las líneas de esta sesión tal como están. Cada inicio de

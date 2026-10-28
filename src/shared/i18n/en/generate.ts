@@ -69,6 +69,7 @@ export default {
     controlNoPose: 'The selected model takes no pose as control picture. Choose an SD 1.5, SDXL or FLUX.1 model, then set Control to Pose.',
     sampler: 'Sampler',
     samplerMissingHint: '{name} is not available for this model; it uses its default. Switching back to a model that has it brings it back.',
+    samplerMakerOnly: 'Its maker runs this model with certain samplers only, so the picker shows just those. “Default” is the recommended one.',
     noiseSchedule: 'Noise schedule',
     seed: 'Seed',
     random: 'Random',

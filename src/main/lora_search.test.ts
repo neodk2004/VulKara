@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
 import { beforeEach, describe, expect, it } from 'vitest'
-import { loraBase } from '@shared/lora_bases'
+import { ALL_BASES, BASE_GROUPS, LORA_BASES, loraBase } from '@shared/lora_bases'
 import type { Asset } from '@shared/types'
 import {
   allowedHost, civitaiThumb, civitaiUrl, clearSearchCache, decodeCursor, encodeCursor, hfNextCursor, hfUrl, parseCivitai,
-  parseHf, pickLoraFile, previewPicture, readLimited, searchLoras, type FetchLike,
+  parseHf, pickLoraFile, pickModelFile, previewPicture, readLimited, searchLoras, type FetchLike,
 } from './lora_search'
 
 const sdxl = loraBase('sdxl')!
@@ -205,6 +205,70 @@ describe('Hugging Face', () => {
       source: { type: 'hf', ref: 'someone/flux-style', file: 'my_lora.safetensors' },
     }
     expect(parseHf([hfModel('someone/flux-style')], flux, true, [installed])[0].installed).toBe(true)
+  })
+})
+
+describe('models', () => {
+  beforeEach(clearSearchCache)
+  const meta = { arch: '', family: 'sdxl', label: '', runtime: 'diffusers', kind: 'image' } as const
+
+  it('asks Civitai for checkpoints and Hugging Face for fine-tunes of the base', () => {
+    expect(new URL(civitaiUrl(sdxl, undefined, undefined, true, 'model')).searchParams.get('types')).toBe('Checkpoint')
+    expect(new URL(hfUrl('stabilityai/stable-diffusion-xl-base-1.0', undefined, undefined, 'model')).searchParams.getAll('filter'))
+      .toEqual(['base_model:finetune:stabilityai/stable-diffusion-xl-base-1.0'])
+  })
+
+  it('reads checkpoints, not LoRAs, and marks an installed model, not an installed LoRA of the same page', () => {
+    const body = { items: [civitaiModel(1, { type: 'Checkpoint' }), civitaiModel(2)] }
+    const asset = (type: 'model' | 'lora'): Asset => ({ id: `${type}:a`, title: 'a', name: 'a', folder: '/m/a', type, meta,
+      source: { type: 'civitai', ref: 'https://civitai.com/models/1?modelVersionId=10' } })
+    expect(parseCivitai(body, sdxl, true, [], 'model').hits.map((h) => h.ref)).toEqual(['https://civitai.com/models/1?modelVersionId=10'])
+    expect(parseCivitai(body, sdxl, true, [asset('model')], 'model').hits[0].installed).toBe(true)
+    expect(parseCivitai(body, sdxl, true, [asset('lora')], 'model').hits[0].installed).toBe(false)
+  })
+
+  it('takes a diffusers repository whole, else a checkpoint at its top; LoRAs tagged as fine-tunes are left out', () => {
+    expect(pickModelFile(['model_index.json', 'unet/diffusion_pytorch_model.safetensors'])).toEqual({})
+    expect(pickModelFile(['README.md', 'my-merge-v2.safetensors', 'extra_lora.safetensors', 'sub/x.safetensors']))
+      .toEqual({ file: 'my-merge-v2.safetensors', files: ['my-merge-v2.safetensors'] })
+    expect(pickModelFile(['README.md'])).toBeNull()
+    const hits = parseHf([
+      hfModel('a/whole', { tags: ['diffusers'], siblings: [{ rfilename: 'model_index.json' }] }),
+      hfModel('a/single', { tags: [], siblings: [{ rfilename: 'single.safetensors' }] }),
+      hfModel('a/lora-really'),
+      hfModel('a/FLUX.1-dev-Controlnet-Canny', { tags: [], siblings: [{ rfilename: 'model_index.json' }] }),
+      hfModel('a/adapter', { tags: ['IP-Adapter'], siblings: [{ rfilename: 'model_index.json' }] }),
+    ], sdxl, true, [], 'model')
+    expect(hits.map((h) => [h.ref, h.file])).toEqual([['a/whole', undefined], ['a/single', 'single.safetensors']])
+  })
+
+  it('keeps model and LoRA answers apart', async () => {
+    const asked: string[] = []
+    const fetcher: FetchLike = async (url) => (asked.push(url), response({ items: [] }, { url }))
+    await searchLoras({ base: 'sdxl', source: 'civitai' }, { fetcher, safe: true, assets: [] })
+    await searchLoras({ base: 'sdxl', source: 'civitai', kind: 'model' }, { fetcher, safe: true, assets: [] })
+    expect(asked.map((u) => new URL(u).searchParams.get('types'))).toEqual(['LORA', 'Checkpoint'])
+  })
+
+  it('searches without a base: no base filter, the newest version, pictures models on Hugging Face', () => {
+    expect(loraBase('all')).toBe(ALL_BASES)
+    const u = new URL(civitaiUrl(ALL_BASES, 'castle', undefined, true, 'model'))
+    expect(u.searchParams.getAll('baseModels')).toEqual([])
+    expect(u.searchParams.get('query')).toBe('castle')
+    const h = new URL(hfUrl('', 'castle', undefined, 'model'))
+    expect(h.searchParams.get('pipeline_tag')).toBe('text-to-image')
+    expect(h.searchParams.getAll('filter')).toEqual([])
+    expect(new URL(hfUrl('', undefined, undefined, 'lora')).searchParams.getAll('filter')).toEqual(['lora'])
+    // the newest version whatever its base (here the Pony one, listed first)
+    expect(parseCivitai({ items: [civitaiModel(1)] }, ALL_BASES, true, []).hits[0].baseModel).toBe('Pony')
+    const named = parseHf([hfModel('a/b', { tags: ['lora', 'base_model:adapter:black-forest-labs/FLUX.1-dev'] })], ALL_BASES, true, [])
+    expect(named[0].baseModel).toBe('FLUX.1 [dev]')
+  })
+
+  it('lists every base exactly once under a model group', () => {
+    const grouped = BASE_GROUPS.flatMap((g) => g.bases.map((b) => b.id))
+    expect(grouped.sort()).toEqual(LORA_BASES.map((b) => b.id).sort())
+    expect(BASE_GROUPS.map((g) => g.label).slice(0, 3)).toEqual(['Stable Diffusion', 'SDXL', 'FLUX'])
   })
 })
 

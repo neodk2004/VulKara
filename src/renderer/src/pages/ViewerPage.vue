@@ -8,7 +8,6 @@ import { Check, ChevronLeft, ChevronRight, Clapperboard, Copy, Download, Eraser,
 import { EDITION } from '@shared/edition'
 import type { ViewerAction, ViewerItem } from '@shared/api'
 import { t } from '../i18n'
-import { styleLabel } from '../util/labels'
 
 // inline: over the page in the remote web UI (no window). Given the items, it closes and acts by events, not natively.
 const props = defineProps<{ inline?: { items: ViewerItem[]; index: number } }>()
@@ -96,13 +95,6 @@ function act(type: 'reuse' | 'continue', page: string): void {
       <button class="close" :title="t('viewer.close')" @click="close"><X :size="16" /></button>
     </div>
     <aside v-if="item" class="side">
-      <p class="dim count">{{ t('viewer.count', { n: index + 1, total: items.length }) }}</p>
-      <p class="prompt selectable">{{ item.job.prompt || t('viewer.noPrompt') }}</p>
-      <p v-if="item.job.negativePrompt" class="dim selectable">{{ t('viewer.negative', { prompt: item.job.negativePrompt }) }}</p>
-      <p class="dim selectable">
-        {{ item.model || item.job.modelDir.split('/').pop() }} · {{ item.job.width }}×{{ item.job.height }}<template v-if="item.job.steps"> · {{ t('viewer.steps', { n: item.job.steps }) }}</template> · {{ t('viewer.seed', { seed: item.job.seed }) }}<template v-if="item.job.style"> · {{ styleLabel(item.job.style) }}</template>
-      </p>
-      <p v-if="item.job.note" class="dim selectable">{{ item.job.note }}</p>
       <div class="actions">
         <button class="btn" @click="saveAs"><Download :size="14" /> {{ t('viewer.saveAs') }}</button>
         <button v-if="!props.inline" class="btn" @click="reveal"><FolderSearch :size="14" /> {{ t('viewer.showInFinder') }}</button>
@@ -225,19 +217,9 @@ function act(type: 'reuse' | 'continue', page: string): void {
   border-left: 1px solid var(--line);
 }
 
-.count {
-  font-variant-numeric: tabular-nums;
-}
-
-.prompt {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
 .actions {
   display: grid;
   gap: 6px;
-  margin-top: 6px;
 }
 
 .actions .btn {

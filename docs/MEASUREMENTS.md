@@ -363,6 +363,294 @@ Krea 2 141 s / 15.4 GB, with a LoRA 154 s, Ideogram 4 12 steps 345 s / 15.0 GB).
 budget Krea 2 ran (13.3 GB); FLUX.2 [klein] 9B and Ideogram 4 are refused by MLX there and go to Diffusers, as before.
 LoRA training (FLUX.2 [klein] 4B, 3 pictures, 6 steps, 256 px) finished with both runtimes in 82–83 s.
 
+## 7g. New model types: Lumina 2, ERNIE-Image, Pony V7 (2026-10-24, M2 24 GB, own test instance)
+
+1024 × 1024, one picture each, the app's queue (engine log / ComfyUI log). A run beside another busy engine (9 GB held)
+swapped and took 67–400 s per step; these are the runs alone:
+
+| Model | Runtime | Steps | Per step | Per picture |
+| --- | --- | --- | --- | --- |
+| NetaYume Lumina v4 (2.6B, bf16, CFG 5.5) | ComfyUI | 20 | 30 s (PyTorch attention) / 34 s (ComfyUI's default sub-quadratic) | about 10 min |
+| ERNIE-Image-Turbo (8B, 4 bit, no guidance) | MLX | 8 | 42 s | 5.7 min (load 36 s) |
+| Pony V7 base (6.8B, GGUF Q8_0, CFG 3.5) | ComfyUI | 30 | 50 s | about 25 min |
+
+ComfyUI allows Lumina 2 only in bf16 or fp32 (no fp16 on M1/M2). The attention option is within 10 %, so ComfyUI keeps
+its default. ComfyUI keeps the text encoder in RAM until memory runs short (Lumina: Gemma 2 2B, 5 GB, on the CPU).
+
+## 7h. ComfyUI on the Mac without the whole model in memory (2026-10-25, M2 24 GB, ComfyUI 0.38.0)
+
+Pony V7 base GGUF Q8_0 (7.3 GB on the external USB SSD), 1024 × 1024, 3 steps, CFG 3.5, a private ComfyUI started
+beside the app (scratchpad `cfexp/run.py`); *footprint* is the peak of macOS' `footprint` for the ComfyUI process
+(memory macOS can not drop; file pages mapped from the model file do not count). ComfyUI forces its memory mode to
+SHARED on MPS (`--lowvram` / `--novram` are ignored, PR #15998 open); the experiment set the mode from a custom node.
+comfy-aimdo (Dynamic VRAM) logs "unsupported operating system: Darwin". 16 GB simulation here: 8 GB locked with
+`mlock` (wired), as the 12 GB reserve of the app does not limit ComfyUI.
+
+| Memory mode | RAM | Per step | Footprint | Resident transformer |
+| --- | --- | --- | --- | --- |
+| SHARED (ComfyUI's Mac default) | 24 GB | 44 s | 15.0 GB | 7.1 GB, text encoder kept |
+| NO_VRAM | 24 GB | 50 s | 7.7 GB | none, every layer copied in per step |
+| SHARED | 16 GB simulated | 225 s (swapping) | 14.0 GB | 7.1 GB, "0 models unloaded" |
+| NO_VRAM | 16 GB simulated | 97 s | 6.8 GB | none |
+| LOW_VRAM | 16 GB simulated | 88 s | 8.9 GB | 2.0 GB, 5.0 GB from the file |
+
+The GGUF loader maps the file (numpy memmap) and ComfyUI copies each offloaded layer to the GPU for its turn, so in
+NO_VRAM / LOW_VRAM the model streams from the file through the macOS file cache. On 24 GB that costs 14 % per step; on
+16 GB the SHARED default swaps and is 2.5 times slower than LOW_VRAM.
+
+In the app (Settings → *ComfyUI: load GGUF models piece by piece from the SSD*, the engine switching ComfyUI to
+LOW_VRAM through `custom_nodes/vulkara_memory`): Pony V7 Q8_0 with 12 GB kept free on the M2 (so LOW_VRAM was chosen,
+24 GB physically), 30 steps at 1024 px: 45 s per step, 1396 s per picture, the picture as expected.
+
+## 7i. SDXL and the Metal memory between jobs (2026-10-26, M2 24 GB, Diffusers runtime)
+
+JuggernautXL v7 (single file, 16 bit, 6.95 GB of weights), 8 to 12 steps, one engine running job after job;
+`torch.mps.current_allocated_memory()` (alloc), `driver_allocated_memory()` (driver) after each job and the driver's
+peak sampled every 0.1 s during it.
+
+| Job | alloc after | driver after | driver peak |
+| --- | --- | --- | --- |
+| text to image 1024 px (eight jobs, also 1536 px and 832 × 1216 × 2 between them) | 6.95 GB | 7.68 GB each time | 8.96 GB (1536 px: 10.12, two pictures: 10.18) |
+| LoRA A, B, A + B, A, none | 7.18 / 7.41 / 6.95 GB | up to 8.15 GB, 7.68 again without LoRA | 9.45 GB |
+| img2img 1024 px, before | 6.96 GB | **8.76 GB** (kept until the model changed) | 10.21 GB |
+| img2img 1024 px, after the fix (twice, then inpaint) | 6.95 GB | 7.67 GB | 8.96 GB |
+| a job stopped after 3 steps, before | 6.95 GB | **8.69 GB** until the next job ended | 8.76 GB |
+| a job stopped after 3 steps, after the fix | 6.95 GB | 7.61 GB | 8.76 GB |
+
+Text to image does not grow: the cache is emptied after every picture. Two leaks were found and closed:
+
+- img2img and inpaint moved SDXL's VAE to float32 for every input picture and back to float16 (`force_upcast`); the
+  weights moved in the middle of a job land between its buffers, and 1.8 GB of the Metal cache could not be given back.
+  The VAE now stays in bfloat16 (float32's range) for encoding too: no move, 1.25 GB less peak, pictures as before.
+- A stopped or failed job skipped the cleanup after its picture: the engine now empties the cache after every job.
+
+The process footprint (CPU side) still grows slowly with LoRA changes: 7.7 to 8.6 GB over ten jobs with four LoRA
+changes and a model change; not traced further.
+
+## 7j. AuraFlow on the Diffusers runtime (2026-10-26, M2 24 GB, planned as on 16 GB)
+
+fal/AuraFlow-v0.3 (repository, fp16 files, 15.7 GB download), the engine planning with 16 GB: transformer in 8 bit
+(quantized once, 32 s, then from the cache), text encoder loaded per prompt; guidance 3.5, prompts padded to 768 tokens.
+
+- 1024 px, 20 steps: 889 s per picture (44 s per step), footprint about 9.8 GB; the fox in snow as asked.
+- 768 px, 16 steps with an AuraFlow LoRA for ComfyUI (p1atdev's PVC style, original layer names, converted on loading):
+  433 s; the figure clearly in the LoRA's style.
+- With the 24 GB plan (transformer in 16 bit, 18.7 GB estimated) the M2 swapped while other engines held 5 GB: the
+  first step took minutes, stopped.
+
+## 7k. MLX: compiling, the noise schedule, the VAE (2026-10-26, M2 24 GB, mflux 0.23.0)
+
+**Noise schedules against diffusers (the reference, with each model's scheduler_config.json), 1024 px:** FLUX.1 [dev]
+(25 steps), FLUX.1 [schnell] (4), FLUX.2 [klein] 4B (4) and ERNIE-Image Turbo (8) match to four decimals. Z-Image does
+not: mflux shifts by the resolution (Turbo: 3.16 at 1024 px), its configs ask for a fixed shift (Turbo 3, Base 6). Turbo,
+9 steps: mflux 0.9619, 0.9170, … 0.2830; reference 0.9600, 0.9130, … 0.2727. VulKara now hands mflux the reference
+schedule (`mlx_schedulers.py`, equal to diffusers' to 1e-7).
+
+| Z-Image Turbo, 1024 px, 9 steps, seed 11 | per picture | per step | peak |
+| --- | --- | --- | --- |
+| mflux's schedule (before) | 310 s | 30.6 s | 17.95 GB |
+| reference schedule | 300 s | 30.4 s | 17.95 GB |
+| reference schedule + `mx.compile` forced on | stopped: 130 to 185 s per step | | |
+
+The pictures with the two schedules differ slightly (34.8 dB PSNR, same subject and layout); the same settings twice give
+the same picture (168 dB).
+
+**`mx.compile`:** mflux already compiles the denoising step of Z-Image, FLUX.2 [klein], Krea 2, Ideogram 4 and ERNIE-Image
+on M3 and newer, and deliberately not on M1/M2 (`AppleSiliconUtil.is_m1_or_m2`). Forced on the M2 it makes each step
+four to six times slower. FLUX.1 is not compiled by mflux on any chip. The M4 (Mac mini) compiles already; not measured.
+
+**VAE decoding:** encoding the prompt, decoding and saving take about 25 s of the 300 s per Z-Image picture together. A
+tiny VAE (TAESD / TAEF1) would save a few seconds per picture at a visible loss of detail; it is only worth it for live
+previews during the steps.
+
+## 7l. Z-Image on MLX on a 16 GB Mac (2026-10-26, M2 24 GB with the 16 GB plan, mflux 0.23.0)
+
+The user's Mac mini M4 (16 GB) made Z-Image Turbo on MLX at 1024 px with 92.9 s and then 104 s per step; the M2 needs
+about 30 s. Measured on the M2 with the memory plan of a 16 GB Mac (`choose_quant` with 16 GB), 1024 px, 9 steps, seed 11,
+MLX's own peaks (`mx.get_peak_memory`) per phase:
+
+| Plan | per step | per picture | steps | VAE decode (whole peak) |
+| --- | --- | --- | --- | --- |
+| before: 4 bit, text encoder kept | 30.9 s | 304 s | | 12.9 GB |
+| 8 bit, text encoder dropped after the prompt | 30.2–30.6 s | 345 s, again 286 s | 7.5–8.0 GB | 12.3–13.8 GB |
+| as above + mflux's low-RAM settings (VAE in tiles, 1 GB buffer cache) | 29.8 s | 298 s, again 272 s | 7.5–8.0 GB | 8.8 GB |
+
+The peak was never the steps but the VAE decoding the picture. With 12.9 GB for MLX alone (Metal lets one process use
+about 11.8 GB of 16 GB) and macOS and the app beside it, the Mac mini swapped. Now a 16 GB Mac loads Z-Image in 8 bit,
+drops the text encoder after encoding (the encoded prompts stay cached, the same prompt again loads nothing), decodes in
+tiles (`low_ram`, as mflux's MemorySaver does) and keeps at most 1 GB of freed buffers (`free_buffers`, below): 8.8 GB at
+most. The tiled
+picture against the untiled one: 38.6 dB PSNR, no seam visible at full size. Not yet measured on the M4 itself (Hardware
+→ Benchmark there).
+
+**MLX's buffer cache, every model and Mac.** The first benchmark in the test instance (FLUX.2 [klein] 4B, 512 px, two
+pictures) showed the MLX engine with a footprint of 17.9 GB for a peak of 10.1 GB: MLX keeps freed buffers for reuse
+without a limit, 9.9 GB of them after each picture beside 7.5 GB in use, and the M2 swapped (4 GB added). The resident
+size the status bar counts showed 0.8–2.4 GB of it. Now the cache is limited to 1 GB (mflux's low-RAM value) and emptied
+after loading and after each picture; each picture logs what it gave back:
+
+| FLUX.2 [klein] 4B, 512 px, 2 pictures (M2 under load from other apps) | per picture | footprint at most | swap added |
+| --- | --- | --- | --- |
+| cache without a limit | 90 s, 116 s | 17.9 GB | 4.1 GB, 0.7 GB |
+| emptied after each picture | 71 s, 71 s | 11.2 GB, 10.6 GB | 2.5 GB, 0 |
+| limited to 1 GB and emptied | 87 s (with loading), 69 s | 9.1 GB, 10.3 GB | 0, 0 |
+
+## 7m. The memory plan against what the engines used (2026-10-26, M2 24 GB)
+
+Every engine now measures its own peak per job (macOS's footprint of its processes, with what the GPU holds, reset at
+the start of the job: `proc_pid_rusage`, `interval_max_phys_footprint`) and reports what its memory plan expected for
+the picture size. Benchmarks at 1024 px, 3 steps, 2 pictures per model, seed 11; the second picture (no loading)
+counts. The Mac had 10 to 18 GB in swap throughout (other apps), so the seconds per step are not comparable; the
+footprints are.
+
+| Model (runtime, bit size) | engine at most | planned | over the plan |
+| --- | --- | --- | --- |
+| Z-Image Turbo (MLX, 8 bit) | 16.8 GB | 14.9 GB | +1.9 |
+| FLUX.2 [klein] 4B (MLX, 8 bit) | 13.3 GB | 12.5 GB | +0.8 |
+| FLUX.2 [klein] 9B (MLX, 4 bit) | 14.3 GB | 14.5 GB | -0.2 |
+| Krea 2 Turbo (MLX, 4 bit) | 18.2 GB | 14.7 GB | +3.5 |
+| ERNIE-Image Turbo (MLX, 4 bit) | 13.7 GB | 11.2 GB | +2.5 |
+| FLUX 3 Image Klein (MLX, 6 bit) | 13.1 GB | 12.5 GB | +0.6 |
+| FLUX.1 dev (MLX, 4 bit) | 18.1 GB | 13.9 GB | +4.2 |
+| JuggernautXL v7 (Diffusers, 16 bit) | 8.8 GB | 9.4 GB | -0.6 |
+| epiCPhotoGasm, SD 1.5 (Diffusers, 16 bit) | 8.8 GB | 3.9 GB | +4.9 |
+| SD3.5 Medium (Diffusers) | 14.0 GB | 14.7 GB | -0.7 |
+| Chroma1 Flash (Diffusers, 8 bit) | 11.9 GB | 15.5 GB | -3.6 |
+| Qwen-Image 2.1 (Diffusers, streamed from the SSD) | 15.7 GB | 13.0 GB | +2.7 |
+| AuraFlow v0.3 (Diffusers, 8 bit) | 14.6 GB | 13.3 GB | +1.3 |
+| Pony V7 Q8_0 (ComfyUI) | 14.9 GB | (no plan) | |
+
+The first picture after a change of model counts the old model as well (it is unloaded inside the job): AuraFlow 20.8 GB.
+MLX's own peaks (`mx.get_peak_memory`) were 10 to 12 GB over the weights for every mflux model: as with Z-Image (7l)
+it is the VAE decoding the picture in one piece. The Diffusers runtime decodes in tiles anyway, its plan holds.
+
+**What changed.** The MLX plan counts the one-piece decode per family (`DECODE_GB`: Z-Image 2.5, FLUX.2 1, Krea 2 2,
+ERNIE 2.5, FLUX.1 4.5 GB at 1024 px), but not for choosing the bit size, so 16 GB Macs keep theirs (they decode in tiles
+anyway). Before each picture the engine holds the plan against what macOS has available plus what the engine itself
+holds: if the one-piece decode does not fit, it decodes in tiles (no visible difference, 7l) and the job says so; if
+the picture is short even then, the job says how much was free (also Diffusers and FLUX 3). The Diffusers runtime now
+also empties the Metal cache after it dropped the old model object (its transformer or streamed model stayed until the
+next job).
+
+| After (same Mac, same load) | engine at most | planned | per step |
+| --- | --- | --- | --- |
+| FLUX.1 dev, decoded in tiles (free memory short) | 13.0 GB (was 18.1) | 13.9 GB | 46 s (was 175 s) |
+| Krea 2 Turbo, decoded in tiles | 15.6–16.6 GB (was 18.2) | 14.7 GB | 78–85 s (was 211–214 s) |
+| Z-Image Turbo, in one piece (enough free) | 17.0–17.5 GB | 16.9 GB (was 14.9) | 76–92 s |
+
+Open: SD 1.5 uses 7.3 GB at 512 px too (2.6 GB when idle, 2 GB of 16 bit weights; plan 3.3 GB), also right after a
+fresh load, so it is not the model before; the cause is not found yet, and on 16 GB it still fits. Krea 2 stays 1.9 GB
+over its plan when tiled; raising its activations would make it not fit 16 GB at all, so the plan stays. AuraFlow's
+1.3 GB over the plan: raising it made Pony V7 (GGUF) not fit 16 GB, so it stays too. Qwen-Image 2.1 streamed: 2.7 GB
+over, the blocks in flight while streaming; not changed without a measurement of its own.
+
+## 7n. Attention on MPS: head sizes the fused kernel does not take (2026-10-27, M2 24 GB, torch 2.14.1)
+
+SD 1.5 used 7.3 GB at 512 px for 2 GB of weights (7m). Sampling the engine's footprint and the MPS allocations through
+a job: idle 2.5 GB, the first step jumps to 7.1 GB, inside the UNet's first down block. `scaled_dot_product_attention`
+on MPS runs a fused kernel only for some head sizes; for the others it holds the whole attention matrix:
+
+| head size, 2 x 8 heads, 4096 tokens | extra MPS memory | time |
+| --- | --- | --- |
+| 32, 64, 72, 80, 96, 128, 160, 256 | 0 | 31 ms (64) |
+| 8, 16, 24, 40, 48, 56, 60, 65, 70 | 2.5 to 3.5 GB | 193 ms (40) |
+| 40 at 8192 tokens | 10 GB | 898 ms |
+| 40 padded with zeros to 64 | 0.03 GB | 31 ms, same result (max. difference 6e-5) |
+
+SD 1.5's first attention level has a head size of 40. The Diffusers runtime now pads such heads with zeros to 64 on MPS
+(`fused_attention`; zeros add nothing to the scores, the padded output is cut off) and no longer slices the attention
+of SD 1.5/2 and SDXL on MPS (`enable_attention_slicing` above 512² or 1536²), as the fused kernel never holds the maps.
+The picture against the unpadded one: 49.0 dB PSNR.
+
+| Measured (engine probe and Hardware → Benchmark) | before | after |
+| --- | --- | --- |
+| epiCPhotoGasm (SD 1.5), 512 px, 25 steps | 1.55 s/step, 7.3 GB | 0.72 s/step, 3.7 GB |
+| epiCPhotoGasm (SD 1.5), 1024 px (was sliced) | 9.4 s/step, 9.8 GB | 4.8 s/step, 5.0 GB |
+| JuggernautXL (SDXL), 2048 px, 3 steps (was sliced) | 111 s/step, 17.4 GB | 28 s/step, 12.1 GB |
+| JuggernautXL (SDXL), 1024 px | 4.9 s/step, 9.0 GB | 5.0 s/step, 8.8 GB |
+
+SD 1.5's plan (3.3 GB at 512 px, 3.9 GB at 1024 px) is now close at 512 and 1.1 GB under at 1024; it stays, since a
+bigger activation figure would let it not fit an 8 GB Mac at all. ComfyUI's attention: 7o.
+
+## 7o. ComfyUI's attention on MPS (2026-10-28, M2 24 GB, ComfyUI runtime, torch fp16)
+
+ComfyUI turns on PyTorch's attention only on NVIDIA, Intel, Ascend and some AMD cards; on the Mac it used its
+sub-quadratic attention (log: "Using sub quadratic optimization for attention"), which computes in chunks with plain
+tensor operations. Its attention functions alone (`attention_sub_quad`, `attention_pytorch`), 5 runs each:
+
+| case (batch, heads, head size, tokens) | sub-quadratic | PyTorch (SDPA) |
+| --- | --- | --- |
+| SD 1.5 at 512 px (2, 8, 40, 4096) | 108 ms, +3.0 GB | 189 ms, +3.0 GB; padded to 64: 32 ms, 0 GB |
+| SD 1.5 at 1024 px (2, 8, 40, 16384) | 2337 ms, +2.0 GB | ends the process (16 GB buffer); padded: 494 ms, 0 GB |
+| SDXL at 1024 px (2, 10, 64, 4096) | 118 ms, +2.5 GB | 39 ms, 0 GB |
+| SDXL at 2048 px (2, 10, 64, 16384) | 2396 ms, +3.2 GB | 624 ms, 0 GB |
+| FLUX at 1024 px (1, 24, 128, 4608) | 239 ms, +2.7 GB | 122 ms, 0 GB |
+| AuraFlow at 1024 px (2, 12, 256, 4352) | 283 ms, +2.6 GB | 344 ms, 0 GB |
+
+ComfyUI now starts with `--use-pytorch-cross-attention`; its node `vulkara_memory` pads heads the fused kernel does not
+take to 64, as the Diffusers runtime does (7n), and keeps the VAE on split attention: an MPS allocation that does not
+fit ends the process instead of raising, so ComfyUI's fallback to slices would not run. Whole pictures (Hardware →
+Benchmark, 1024 px, 6 steps, 2 pictures each, the Mac swapping 7 to 16 GB of other programs):
+
+| model | before | after | picture against before |
+| --- | --- | --- | --- |
+| Anima-Turbo | 12.1 s/step, engine 10.0 GB | 11.8 s/step, 10.0 GB | 31.5 dB, same picture |
+| NetaYume v4 (Lumina 2) | 31.9–33.0 s/step, 15.5–16.2 GB | 28.7 s/step, 14.1–15.3 GB | 37.0 dB |
+| Pony V7 Q8 GGUF (AuraFlow) | 46.0–46.1 s/step, 14.8–15.9 GB | 46.7 s/step, 12.3–13.7 GB | 55.7 dB |
+
+The attention is a small part of a step of these models: Lumina 2 gets 10 % faster, all of them use up to 2.2 GB less.
+Wan and upscaling (same day, test instance, the ComfyUI files before and after in turn): Wan 2.2 I2V 14B Q4_K (both
+experts streamed from the SSD, text encoder FP8), 832 × 480, 1 s, 4 steps: 210.5 s per step and 669 s before, 148.3 s
+per step and 515 s after (30 % less per step), engine at most 12.7 and 12.9 GB, 44 and 30 GB read; the last frame
+against before 43.2 dB, the same video. Upscale × 2 (Real-ESRGAN, no attention): 20.7 and 21.9 s, 7.7 and 7.6 GB.
+
+## 7p. Plans brought to the measurements (2026-10-28)
+
+**SD 1.5.** With fused attention (7n) SD 1.5 used 3.7 GB at 512 px and 5.0 GB at 1024 px; the plan said 3.3 and 3.9.
+Its activations at 1024 px are now 1.9 GB (were 0.8), and whether SD 1.5 (and SD 2) fits is judged at its own size
+(512 and 768 px, `NATIVE_SIDE`), not at 1024 px: plan 3.6 GB at 512 px, 5.0 GB at 1024 px. It still fits an 8 GB Mac
+(budget 4 GB) at 512 px, in 16 bit. A plan stores the size its activations are for (`activations_side`); older plans
+without it are for 1024 px as before.
+
+**ComfyUI.** Its jobs now report the plan of a model held whole in memory (the one that chooses SHARED or LOW_VRAM), so
+the benchmark shows it beside the engine's peak; streamed models and videos report none. Against 7o at 1024 px:
+Anima-Turbo 9.1 GB planned / 10.0 GB used, NetaYume v4 14.1 / 14.1–15.3, Pony V7 Q8 13.9 / 12.3–13.7.
+
+**Left as they are.** Krea 2 tiled (+1.9 GB) and AuraFlow on Diffusers (+1.3 GB): a higher figure makes them or Pony V7
+not fit 16 GB (7m). Qwen-Image 2.1 streamed (+2.7 GB): needs a streamed measurement of its own.
+
+## 7q. FP8 files on ComfyUI (2026-10-28, M2 24 GB, torch 2.14.1)
+
+The memory plan counts an FP8 safetensors file of a ComfyUI model as 16 bit. That is what the Mac holds: ComfyUI
+loads FP8 weights in 16 bit where they fit (`unet_dtype`), MPS has no FP8 compute. Where 16 bit does not fit (more
+parameters x 2 than 88 % of the memory less a reserve: Pony V7 in FP8 on 16 GB) ComfyUI keeps the weights in FP8 and
+casts them per layer, which MPS cannot do. Anima-Turbo converted to FP8 and loaded as on a Mac too small for it: weights
+in FP8 (3.0 GB), the first layer stops with "Undefined type Float8_e4m3fn". `vulkara_memory` now keeps such a model in
+16 bit on MPS (same probe: bfloat16, 4.9 GB, runs): a Mac short of memory swaps instead of stopping the job.
+
+## 7r. Stopping while SSD streaming is prepared (2026-10-28, M2 24 GB)
+
+Writing the blocks into the SSD streaming cache (and unpacking a GGUF file for it) did not look at a stop: a job
+stopped there said "Stopping" until the whole preparation was done. Chroma1 Flash streamed (VK_SSD_STREAMING=always,
+empty cache), stopped at 21 % of the preparation: before 84.9 s from the stop to the end of the job (the preparation
+went on, the model was loaded), now 0.0 s (it ends at the next block; the blocks written are written again next
+time). Loading the checkpoint before the preparation (36 s here) still runs to its end.
+
+## 7s. Qwen-Image 2.1 streamed with the 16 GB plan (2026-10-28, M2 24 GB, memory kept free 12 GB)
+
+Benchmark, 1024 px, two pictures, Diffusers runtime, transformer streamed from the SSD, text encoder in 4 bit.
+
+| Picture | s/step | whole | peak (engine) | plan | read from the SSD | swap |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1st (text encoder quantized) | 40.7 | 10 971 s | 14.5 GB | 9.1 GB | 69.8 GB | 7.8 → 12.0 GB |
+| 2nd (from the quantized cache) | 51.7 | 221 s | 11.8 GB | 9.1 GB | 37.4 GB | 7.3 → 8.5 GB |
+
+The 16 GB plan quantizes the 8.8B text encoder to 4 bit (on 24 GB it stays in 16 bit), once per model: 10 766 s on the
+CPU here, with the Mac swapping (12 GB kept free). The quantized copy is kept (`quant_cache`), the second picture
+started generating within seconds. The peak of a cached run is 2.7 GB over the plan, as in 7m: the blocks streamed in
+and read ahead are not in the plan. Left as it is until the streamed blocks are planned (16 GB still falls back to
+streaming more of the model). Open: quantizing the text encoder took three hours on a Mac short of memory.
+
 ## 8. Earlier references (from the user guide and the changelog)
 
 - Training on the M2 (2025–26): SDXL about 2.5 s per step at 768 px, FLUX.2 [klein] 4B about 15 s, 9B about 30 s,

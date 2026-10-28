@@ -78,7 +78,8 @@
    "upscale": "Ampliar",
    "illusion": "Ilusão",
    "lora": "Comparação de LoRAs",
-   "start": "Página inicial"
+   "start": "Página inicial",
+   "benchmark": "Benchmark"
   },
   "upscaleTo": "{from} para {to}",
   "steps": "{n} passos",
@@ -205,6 +206,7 @@
    "controlNoPose": "O modelo selecionado não aceita pose como imagem de controle. Escolha um modelo SD 1.5, SDXL ou FLUX.1 e depois defina Controle como Pose.",
    "sampler": "Sampler",
    "samplerMissingHint": "{name} não está disponível para este modelo; ele usa o padrão. Voltar para um modelo que o tenha o traz de volta.",
+   "samplerMakerOnly": "O criador usa este modelo só com certos samplers, então a lista mostra apenas esses. “Padrão” é o recomendado.",
    "noiseSchedule": "Scheduler",
    "seed": "Seed",
    "random": "Aleatório",
@@ -907,6 +909,23 @@
   },
   "finder": {
    "titleFor": "LoRAs para {model}",
+   "modelsTitle": "Encontrar modelos",
+   "allBases": "Todos os modelos base",
+   "introAll": "LoRAs para qualquer modelo base, as mais baixadas primeiro; as palavras de busca restringem a lista. Só dá para usar LoRAs de uma base que este app executa.",
+   "modelsIntroAll": "Modelos de todo tipo, os mais baixados primeiro; as palavras de busca restringem a lista. Cada cartão diz se este Mac consegue executar o modelo e a memória que ele precisa; um grande demais fica marcado: ele roda em streaming a partir do SSD.",
+   "modelsIntro": "Modelos feitos a partir de {base} (checkpoints, fine-tunes), os mais baixados primeiro. Cada cartão mostra a memória que o modelo precisa; um grande demais para a memória deste Mac fica marcado: ele roda em streaming a partir do SSD.",
+   "modelsBaseHint": "O modelo base do qual são feitos",
+   "modelsAdultsLeftOut": "Modelos e imagens para adultos ficam de fora (Ajustes → Permitir nudez nos resultados).",
+   "formats": {
+    "title": "Formatos de arquivo: o que significam bf16, fp8, GGUF …",
+    "f16": "16 bits, a precisão em que os modelos são feitos: as melhores imagens. A GPU da Apple calcula os dois. A importação os escolhe primeiro.",
+    "fp8": "8 bits, metade do tamanho de 16 bits, imagens quase iguais. A GPU da Apple não calcula fp8: a importação o converte uma vez para GGUF de 8 bits (FLUX, Chroma, Z-Image, SD 3.5); modelos executados pelo MLX (Krea 2, Ideogram 4) o leem como está.",
+    "gguf": "Pesos comprimidos. Q8_0 fica perto de 16 bits com cerca de metade do tamanho; Q5 e Q4 são ainda menores, com pequenas perdas de detalhe. Bons para Macs com pouca memória; também rodam em streaming a partir do SSD.",
+    "fp32": "32 bits: o dobro do tamanho de 16 bits sem imagens melhores, já que o app calcula em 16 bits. Só vale a pena quando não há outra opção.",
+    "nvidia": "Formatos para placas de vídeo NVIDIA (bitsandbytes, ComfyUI com CUDA, AWQ). Um Mac não consegue calculá-los; um modelo assim não pode ser instalado, e o cartão avisa.",
+    "pruned": "Pruned deixa de fora o que só o treino precisa (pesos EMA): menor, mesmas imagens. A importação o prefere.",
+    "pickle": ".safetensors contém apenas números. .ckpt e .pt são pickles do Python que podem executar código ao serem carregados, por isso o app não os carrega."
+   },
    "title": "Encontrar LoRAs",
    "intro": "LoRAs feitas para {base}, as mais baixadas primeiro. “Instalar” as adiciona aos downloads acima.",
    "close": "Fechar",
@@ -1021,6 +1040,8 @@
    "helpers": "Auxiliares",
    "findLorasHint": "LoRAs no Civitai e no Hugging Face",
    "findLoras": "Encontrar LoRAs",
+   "findModelsHint": "Checkpoints e fine-tunes no Civitai e no Hugging Face, por grupo de modelos",
+   "findModels": "Encontrar modelos",
    "search": "Buscar",
    "nothingFound": "Nada encontrado.",
    "nothingYet": "Nada instalado ainda. Veja Recomendados.",
@@ -1157,7 +1178,6 @@
   "saveAs": "Salvar como",
   "showInFinder": "Mostrar no Finder",
   "noPrompt": "(sem prompt)",
-  "negative": "Fora: {prompt}",
   "reuseHint": "Prompt, ajustes e seed de volta ao formulário",
   "reuse": "Usar estes ajustes",
   "filesStay": "Os arquivos ficam onde estão",
@@ -1192,7 +1212,9 @@
    "loras": "LoRAs",
    "controlnet": "ControlNet",
    "label": "Rótulo",
-   "note": "Nota"
+   "note": "Nota",
+   "prompt": "Prompt",
+   "negative": "Prompt negativo"
   },
   "gallery": {
    "fileMissing": "Arquivo ausente",
@@ -1210,11 +1232,6 @@
   "previous": "Anterior (←)",
   "next": "Próxima (→)",
   "close": "Fechar (Esc)",
-  "count": "{n} de {total}",
-  "noPrompt": "(sem prompt)",
-  "negative": "Fora: {prompt}",
-  "steps": "{n} passos",
-  "seed": "seed {seed}",
   "saveAs": "Salvar como",
   "showInFinder": "Mostrar no Finder",
   "reuseHint": "Prompt, ajustes e seed de volta ao formulário",
@@ -1283,6 +1300,9 @@
    "reserveHint": "0 = automático (20 %, pelo menos 4 GB).",
    "streaming": "Carregar modelos grandes parte por parte do SSD",
    "streamingHint": "Permite executar modelos que não cabem na memória, com velocidade menor.",
+   "comfyStreaming": "ComfyUI: carregar modelos GGUF por partes a partir do SSD",
+   "comfyStreamingHint": "Para o Pony V7 e outros modelos do ComfyUI em GGUF que não cabem na memória junto com o codificador de texto, como em Macs com 16 GB. Modelos que cabem não são afetados.",
+   "comfyStreamingDetails": "Medido com o Pony V7 (GGUF Q8_0, 1024 px): em 16 GB cerca de 88 s por passo em vez de 225 s com o modelo inteiro na memória (o macOS usa a troca). Em 24 GB o modelo cabe e é carregado inteiro (44 s por passo); carregado por partes levaria 50 s. Só arquivos GGUF: os safetensors são lidos inteiros na memória.",
    "stepCache": "Cache de passos",
    "stepCacheHint": "Passos que mal mudam a imagem reaproveitam o passo anterior em vez de serem calculados por inteiro: mais rápido (também com streaming do SSD), a imagem fica um pouco diferente. Modelos FLUX.1 com o runtime Diffusers; os outros modelos são calculados por inteiro.",
    "off": "Desativado",
@@ -1379,7 +1399,8 @@
    "system": "Sistema em uso",
    "of": "de {total}",
    "streamCaches": "Caches de streaming no SSD",
-   "freeThere": "Livre lá"
+   "freeThere": "Livre lá",
+   "swap": "Swap no SSD"
   },
   "guard": {
    "title": "Limites de segurança",
@@ -1404,7 +1425,42 @@
    "strong": "Forte"
   },
   "copied": "Copiado",
-  "copyInfo": "Copiar informações"
+  "copyInfo": "Copiar informações",
+  "bench": {
+   "title": "Benchmark",
+   "hint": "Quão rápido um modelo é neste Mac e quanta memória ele precisa. As imagens passam pela fila como qualquer outra, com os passos, a orientação e o sampler do próprio modelo e o mesmo prompt e a mesma seed para todos os modelos. Swap adicionado: o que o macOS moveu para o SSD enquanto a imagem era feita; aí a memória ficou curta e cada passo fica mais lento.",
+   "model": "Modelo",
+   "size": "Tamanho",
+   "ownSize": "O tamanho dele",
+   "pictures": "Imagens",
+   "start": "Medir",
+   "stop": "Parar",
+   "how": "A primeira imagem também carrega o modelo; as seguintes mostram a velocidade com ele carregado. As imagens ficam no histórico.",
+   "sizeBits": "Tamanho e bits",
+   "time": "Tempo",
+   "memory": "Memória",
+   "perStep": "Por passo",
+   "total": "Imagem inteira",
+   "peakApp": "VulKara no máximo",
+   "peakSystem": "Sistema no máximo",
+   "swap": "Swap adicionado",
+   "enginePeak": "Motor no máximo",
+   "planned": "previsto {gb}",
+   "diskRead": "Lido do disco",
+   "swapRead": "Lido de volta do swap",
+   "memoryHint": "A memória máxima do VulKara com seus motores (como o macOS a conta, com o que a GPU ocupa) e do Mac inteiro enquanto a imagem era feita. Swap adicionado: o que o macOS moveu para o SSD; lido do disco e lido de volta do swap: o que foi lido de novo nesse tempo, arquivos do modelo (mapeados, em streaming, carregados) e memória em swap. São valores do Mac inteiro e incluem outros apps; o tempo deles está nas etapas.",
+   "waitedSsd": "Esperando blocos do SSD durante os passos ({gb})",
+   "waitedHint": "Medido pelo motor: o tempo em que os passos ficaram parados até os próximos blocos de um modelo em streaming do SSD serem lidos. Faz parte de Gerando, não é somado. O streaming do ComfyUI e o MLX não informam isso; o que leem aparece em Memória como lido do disco.",
+   "phases": "Etapas",
+   "phasesHint": "O que o motor fez, uma coisa após a outra, cada uma com seu tempo; uma porcentagem que sobe fica numa só linha. Textos que os motores informam sem tradução ficam em inglês.",
+   "mlxLoading": "O MLX lê e quantiza os pesos só quando o primeiro passo precisa deles: a maior parte do tempo de carregamento conta na etapa seguinte (Gerando).",
+   "bitsHint": "Em que tamanho rodou cada parte do modelo, como o motor informa a cada imagem: MLX e FLUX 3 pela quantização, Diffusers pelo plano de memória, arquivos GGUF pelo tipo (Q8_0, Q4_K), partes em streaming do SSD marcadas.",
+   "bitsPartial": "O Diffusers só cita as partes que seu plano de memória conta (no SDXL a UNet); os codificadores de texto e o VAE rodam em 16 bits.",
+   "running": "Medindo",
+   "failed": "Falhou",
+   "copy": "Copiar como tabela",
+   "clear": "Limpar"
+  }
  },
  "app": {
   "about": {
@@ -1580,7 +1636,8 @@
     "ideogram": "Gerar imagens para produtos que geram receita ou para publicidade não é um fim não comercial.",
     "qwen": "Apenas pesquisa e avaliação; o uso comercial requer uma licença separada da Alibaba (Tongyi Lab).",
     "krea": "Uso comercial apenas abaixo de USD 1 milhão de receita da empresa; medidas de filtro de conteúdo obrigatórias.",
-    "fluxKommunity": "Uso do modelo apenas não comercial. As imagens só podem ser usadas comercialmente por pessoas e empresas com menos de 5 milhões de USD de receita anual, com medidas de filtragem de conteúdo e a indicação de IA exigida por lei; todo o resto precisa de uma licença da Black Forest Labs."
+    "fluxKommunity": "Uso do modelo apenas não comercial. As imagens só podem ser usadas comercialmente por pessoas e empresas com menos de 5 milhões de USD de receita anual, com medidas de filtragem de conteúdo e a indicação de IA exigida por lei; todo o resto precisa de uma licença da Black Forest Labs.",
+    "pony": "O modelo e as imagens podem ser usados comercialmente, exceto para oferecer o modelo como serviço de inferência ou app, por empresas com receita acima de 1 milhão de USD ou em produção profissional de vídeo; para isso é preciso a permissão da PurpleSmartAI."
    }
   },
   "report": {
@@ -1819,7 +1876,8 @@
    "gated": "Este modelo tem acesso restrito: aceite a licença na página dele no Hugging Face e salve um token de acesso em Ajustes.",
    "noSuchFile": "O repositório não tem esse arquivo.",
    "hfUnreachable": "Não foi possível acessar o Hugging Face. Verifique a conexão com a internet.",
-   "serverUnreachable": "Não foi possível acessar o servidor. Verifique a conexão com a internet."
+   "serverUnreachable": "Não foi possível acessar o servidor. Verifique a conexão com a internet.",
+   "notEnoughSpace": "Há apenas {free} GB livres no disco dos modelos. Modelos e LoRAs só são instalados com pelo menos 50 GB livres: libere espaço ou escolha outra pasta de modelos nos Ajustes."
   },
   "helpers": {
    "installing": "Um runtime está sendo instalado: baixe modelos auxiliares quando terminar.",

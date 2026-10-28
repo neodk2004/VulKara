@@ -56,6 +56,12 @@ export function makeApi(call: Call, on: On, extra: BridgeExtra): VulkaraApi {
       onExportProgress: (fn) => on('assets:exportProgress', fn),
       onChange: (fn) => on('assets:change', fn),
     },
+    benchmark: {
+      start: (job, count, model) => call('benchmark:start', job, count, model),
+      list: () => call('benchmark:list'),
+      clear: () => call('benchmark:clear'),
+      onChange: (fn) => on('benchmark:change', fn),
+    },
     system: {
       stats: () => call('system:stats'),
       hardware: () => call('system:hardware'),
@@ -98,6 +104,7 @@ export function makeApi(call: Call, on: On, extra: BridgeExtra): VulkaraApi {
       payload: () => call('viewer:payload'),
       act: (action) => call('viewer:act', action),
       onAction: (fn) => on('viewer:action', fn),
+      onOpen: (fn) => on('viewer:opened', fn),
     },
     licences: {
       get: (id, refresh) => call('licences:get', id, refresh),

@@ -69,3 +69,16 @@ def test_a_big_text_encoder_goes_to_4_bit_when_only_that_lets_the_model_stream(t
     # with enough memory the text encoder stays in 8 bit
     m = engine.LoadedModel(str(tmp_path), "cpu", ram_gb=24)
     assert m.plan["quant"]["text_encoder"] == "q8"
+
+
+def test_a_stop_ends_the_one_time_streaming_preparation_at_the_next_block(tmp_path, monkeypatch):
+    monkeypatch.setattr(engine.protocol, "status", lambda message: None)
+    m = engine.LoadedModel(_model(tmp_path, 8), "cpu", ram_gb=24)
+    report = m._stoppable("Preparing SSD streaming (one-time) %d%%")
+    report(0, 10)  # no reader: runs to the end
+    stopped = []
+    m.stop = lambda: bool(stopped)
+    report(1, 10)
+    stopped.append(True)
+    with pytest.raises(engine.StopRequested):
+        report(2, 10)

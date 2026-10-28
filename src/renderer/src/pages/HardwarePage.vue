@@ -8,6 +8,7 @@ import { Check, Copy } from 'lucide-vue-next'
 import PageFrame from '../components/PageFrame.vue'
 import HintBadge from '../components/HintBadge.vue'
 import LevelMeter from '../components/LevelMeter.vue'
+import BenchmarkPanel from '../components/BenchmarkPanel.vue'
 import { useSettingsStore } from '../stores/settings'
 import { gb, useSystemStore } from '../stores/system'
 import { num, t, type PlainKey } from '../i18n'
@@ -53,7 +54,7 @@ async function copyInfo(): Promise<void> {
     `VulKara on ${info.value?.mac ?? ''} · ${info.value?.os ?? ''}`, // i18n-ok
     `Chip: ${h.chip} (${h.arch}), ${h.performanceCores} performance + ${h.efficiencyCores} efficiency cores, ${h.gpuCores ?? '?'} GPU cores`, // i18n-ok
     `Memory: ${h.ramGb} GB unified, Metal budget about ${h.metalBudgetGb} GB, kept free ${reserveText(true)}`, // i18n-ok
-    s ? `Now: VulKara ${gb(s.appGb)}, system ${gb(s.usedGb)} of ${gb(s.totalGb)}, CPU ${s.cpuPercent.toFixed(1)} %${s.gpuPercent >= 0 ? `, GPU ${s.gpuPercent} %` : ''}` : '', // i18n-ok
+    s ? `Now: VulKara ${gb(s.appGb)}, system ${gb(s.usedGb)} of ${gb(s.totalGb)}, swap ${gb(s.swapGb)}, CPU ${s.cpuPercent.toFixed(1)} %${s.gpuPercent >= 0 ? `, GPU ${s.gpuPercent} %` : ''}` : '', // i18n-ok
     s ? `Streaming caches: ${gb(s.streamCacheGb)} in ${s.streamWhere}, ${gb(s.streamFreeGb)} free` : '', // i18n-ok
     `Settings: SSD streaming ${en(STREAMING[settings.values.ssdStreaming])}, step caching ${en(CACHE[settings.values.stepCache])}, runtime ${settings.values.runtime}`, // i18n-ok
   ].filter(Boolean)
@@ -104,6 +105,7 @@ async function copyInfo(): Promise<void> {
             <div class="meter"><i :style="{ width: pct(st.appGb, st.totalGb) + '%' }" /></div>
             <div class="row"><span>{{ t('hardware.monitor.system') }}</span><strong>{{ gb(st.usedGb) }} <span class="dim">{{ t('hardware.monitor.of', { total: gb(st.totalGb) }) }}</span></strong></div>
             <div class="meter"><i class="soft" :style="{ width: pct(st.usedGb, st.totalGb) + '%' }" /></div>
+            <div class="row"><span>{{ t('hardware.monitor.swap') }}</span><strong>{{ gb(st.swapGb) }}</strong></div>
           </div>
           <div class="card rows">
             <!-- i18n-ok -->
@@ -134,6 +136,8 @@ async function copyInfo(): Promise<void> {
           <div class="row end"><button class="btn small" @click="router.push('/settings')">{{ t('hardware.guard.change') }}</button></div>
         </div>
       </section>
+
+      <BenchmarkPanel />
 
       <div class="actions">
         <button class="btn" @click="copyInfo"><component :is="copied ? Check : Copy" :size="14" /> {{ copied ? t('hardware.copied') : t('hardware.copyInfo') }}</button>

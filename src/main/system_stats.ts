@@ -51,6 +51,19 @@ export function usedFromVmStat(text: string): number {
   return ((pages('Pages active') + pages('Pages wired down') + pages('Pages occupied by compressor')) * page) / GB
 }
 
+/** GB read since the Mac started, from `vm_stat`'s count of pages (name: "Pageins" from files, "Swapins" from the swap). */
+export function pagesInGb(text: string, name: 'Pageins' | 'Swapins'): number {
+  const page = Number(/page size of (\d+) bytes/.exec(text)?.[1] ?? 16384)
+  return (Number(new RegExp(`${name}:\\s+(\\d+)`).exec(text)?.[1] ?? 0) * page) / GB
+}
+
+/** GB of swap in use, from `sysctl -n vm.swapusage` ("total = 2048.00M  used = 1162.25M  free = …", with a decimal
+ *  comma in some languages). */
+export function swapFromSysctl(text: string): number {
+  const m = /used\s*=\s*([\d.,]+)([KMGT])/.exec(text)
+  return m ? (Number(m[1].replace(',', '.')) * 1024 ** 'KMGT'.indexOf(m[2])) / 1024 ** 2 : 0
+}
+
 /** GB (resident) of a process and all its descendants, from `ps -axo pid=,ppid=,rss=` (rss in KB). */
 export function treeRss(psText: string, rootPid: number): number {
   const children = new Map<number, number[]>()
@@ -73,6 +86,39 @@ export function treeRss(psText: string, rootPid: number): number {
     stack.push(...(children.get(pid) ?? []))
   }
   return (total * 1024) / GB
+}
+
+/** The pids of a process and all its descendants, from `ps -axo pid=,ppid=`. */
+export function treePids(psText: string, rootPid: number): number[] {
+  const children = new Map<number, number[]>()
+  for (const line of psText.split('\n')) {
+    const m = /^\s*(\d+)\s+(\d+)/.exec(line)
+    if (m) children.set(Number(m[2]), [...(children.get(Number(m[2])) ?? []), Number(m[1])])
+  }
+  const out: number[] = []
+  const stack = [rootPid]
+  while (stack.length) {
+    const pid = stack.pop() as number
+    if (out.includes(pid)) continue
+    out.push(pid)
+    stack.push(...(children.get(pid) ?? []))
+  }
+  return out
+}
+
+/** GB of the memory footprint (MEM) summed over `top -l 1 -stats pid,mem` lines ("26585  17G", "21808  8000K+"). */
+export function footprintFromTop(text: string): number {
+  let bytes = 0
+  for (const m of text.matchAll(/^\s*\d+\s+([\d.]+)([BKMGT])[+-]?\s*$/gm)) bytes += Number(m[1]) * 1024 ** 'BKMGT'.indexOf(m[2])
+  return bytes / GB
+}
+
+/** The memory footprint of the app and its engines, as macOS counts it (with what the GPU holds, which the resident
+ *  size leaves out: an MLX engine of 17 GB shows 35 MB there). `top` costs about half a second of CPU, so this is
+ *  asked only while a benchmark runs. */
+export async function treeFootprintGb(rootPid: number): Promise<number> {
+  const pids = treePids(await run('/bin/ps', ['-axo', 'pid=,ppid=']), rootPid)
+  return footprintFromTop(await run('/usr/bin/top', ['-l', '1', '-stats', 'pid,mem', ...pids.flatMap((p) => ['-pid', String(p)])]))
 }
 
 // ------------------------------------------------------------------ the streaming caches on the SSD
@@ -142,7 +188,7 @@ export class SystemMonitor {
   private storage = { cacheGb: 0, freeGb: 0, where: '' }
   private storageAt = 0
   private storageBusy = false
-  current: SystemStats = { cpuPercent: 0, gpuPercent: -1, appGb: 0, usedGb: 0, totalGb: totalmem() / GB, streamCacheGb: 0, streamFreeGb: 0, streamWhere: '' }
+  current: SystemStats = { cpuPercent: 0, gpuPercent: -1, appGb: 0, usedGb: 0, totalGb: totalmem() / GB, streamCacheGb: 0, streamFreeGb: 0, streamWhere: '', swapGb: 0, pageinsGb: 0, swapinsGb: 0 }
 
   constructor(private readonly deps: MonitorDeps) {}
 
@@ -164,8 +210,8 @@ export class SystemMonitor {
   }
 
   private async tick(): Promise<void> {
-    const [ps, vm, gpu] = await Promise.all([run('/bin/ps', ['-axo', 'pid=,ppid=,rss=']), run('/usr/bin/vm_stat', []),
-      run('/usr/sbin/ioreg', ['-r', '-d', '1', '-w', '0', '-c', 'IOAccelerator'])])
+    const [ps, vm, gpu, swap] = await Promise.all([run('/bin/ps', ['-axo', 'pid=,ppid=,rss=']), run('/usr/bin/vm_stat', []),
+      run('/usr/sbin/ioreg', ['-r', '-d', '1', '-w', '0', '-c', 'IOAccelerator']), run('/usr/sbin/sysctl', ['-n', 'vm.swapusage'])])
     if (Date.now() - this.storageAt > 30_000 && !this.storageBusy) {
       this.storageBusy = true
       try {
@@ -178,6 +224,7 @@ export class SystemMonitor {
     this.current = {
       cpuPercent: cpuPercent(), gpuPercent: gpuFromIoreg(gpu), appGb: treeRss(ps, process.pid), usedGb: usedFromVmStat(vm), totalGb: totalmem() / GB,
       streamCacheGb: this.storage.cacheGb, streamFreeGb: this.storage.freeGb, streamWhere: shownPath(this.storage.where),
+      swapGb: swapFromSysctl(swap), pageinsGb: pagesInGb(vm, 'Pageins'), swapinsGb: pagesInGb(vm, 'Swapins'),
     }
     this.deps.send(this.current)
   }

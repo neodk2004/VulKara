@@ -151,6 +151,23 @@ def test_peft_dumps_get_their_prefix():
                         "transformer.single_transformer_blocks.0.attn.to_out.lora_B.weight"}
 
 
+def test_auraflow_loras_for_comfyui_land_on_diffusers_layers_with_alpha_folded_in():
+    down, up = torch.ones(16, 3072), torch.ones(3072, 16)
+    sd = {"diffusion_model.double_layers.0.attn.w2q.lora_down.weight": down,
+          "diffusion_model.double_layers.0.attn.w2q.lora_up.weight": up,
+          "diffusion_model.double_layers.0.attn.w2q.alpha": torch.tensor(8.0),
+          "lora_unet_single_layers_3_mlp_c_fc1.lora_down.weight": down,  # kohya's underscores
+          "lora_unet_single_layers_3_mlp_c_fc1.lora_up.weight": up}
+    out = lora_convert.convert(stand_in("AuraFlowPipeline"), sd)
+    assert set(out) == {"transformer.joint_transformer_blocks.0.attn.to_q.lora_A.weight",
+                        "transformer.joint_transformer_blocks.0.attn.to_q.lora_B.weight",
+                        "transformer.single_transformer_blocks.3.ff.linear_1.lora_A.weight",
+                        "transformer.single_transformer_blocks.3.ff.linear_1.lora_B.weight"}
+    assert float(out["transformer.joint_transformer_blocks.0.attn.to_q.lora_B.weight"][0, 0]) == 0.5  # 8 / 16
+    peft = {"transformer.joint_transformer_blocks.0.attn.to_q.lora_A.weight": down}  # SimpleTuner: as it is
+    assert lora_convert.convert(stand_in("AuraFlowPipeline"), peft) == peft
+
+
 @pytest.mark.parametrize("key, kind", [("lora_unet_input_blocks_4_1_proj_in.lokr_w1", "LoKr"),
                                        ("lora_unet_input_blocks_4_1_proj_in.hada_w1_a", "LoHa")])
 def test_lokr_and_loha_are_refused_by_name(tmp_path, key, kind):

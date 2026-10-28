@@ -54,6 +54,14 @@ export interface RuntimeUpdates {
   runtimes: RuntimeUpdate[]
 }
 
+/** Time the steps of a job waited for parts of the model to be read again, and how much was read. */
+export interface Waited {
+  /** ssd_stream: blocks of a model streamed from the SSD */
+  what: string
+  seconds: number
+  gb: number
+}
+
 export type QueuedJobState = 'waiting' | 'running' | 'done' | 'failed' | 'cancelled'
 
 export interface QueuedJob {
@@ -66,6 +74,12 @@ export interface QueuedJob {
   eta?: number
   /** seconds per step of the running job */
   secondsPerStep?: number
+  /** the bit size each part of the model runs in, as the engine reported it */
+  precision?: string
+  /** time the steps waited for parts of the model read again, summed per kind */
+  waited?: Waited[]
+  /** the engine's own peak footprint and disk reads over the job, and what its memory plan expected */
+  footprint?: { peakGb: number; readGb: number; planGb?: number }
   results: string[]
   error?: string
   addedAt: number
@@ -295,6 +309,62 @@ export interface SystemStats {
   streamCacheGb: number
   streamFreeGb: number
   streamWhere: string
+  /** read since the Mac started (vm_stat page-ins and swap-ins): the difference over a job is what it read back */
+  pageinsGb: number
+  swapinsGb: number
+  /** swap in use on the SSD (when memory runs short, macOS moves pages there and everything slows down) */
+  swapGb: number
+}
+
+/** A phase of a benchmark run: the engine's status line and how long it lasted (still counting while it runs). */
+export interface BenchmarkPhase {
+  text: string
+  /** milliseconds since 1970 */
+  at: number
+  seconds: number
+}
+
+/** One picture of a benchmark (Hardware page): a model's job through the queue, with its times and the memory the Mac
+ *  used meanwhile (the peaks of the 2 s samples). */
+export interface BenchmarkRun {
+  /** the queue job's id */
+  id: string
+  /** milliseconds since 1970 */
+  at: number
+  model: string
+  /** the app's version and the code state it was built from ("0.7.1 7370989+ 2026-10-26 15:42"); missing on older runs */
+  build?: string
+  width: number
+  height: number
+  steps?: number
+  state: QueuedJobState
+  error?: string
+  secondsPerStep?: number
+  /** the whole job, with loading the model and saving the picture */
+  seconds?: number
+  /** the footprint of the app and its engines, with what the GPU holds */
+  peakAppGb: number
+  peakUsedGb: number
+  totalGb: number
+  /** swap in use when the job started, and its highest value while it ran */
+  swapStartGb?: number
+  peakSwapGb: number
+  /** read back while the job ran, Mac-wide: from the disks (model files, mapped or streamed) and from the swap */
+  diskReadGb?: number
+  swapReadGb?: number
+  /** time the steps waited for parts of the model read again, as the engine measured it */
+  waited?: Waited[]
+  /** the engine's own processes: peak footprint and disk reads over the job, and the peak its memory plan expected */
+  footprint?: { peakGb: number; readGb: number; planGb?: number }
+  /** the bit size each part of the model ran in ("transformer 8 bit, text encoder 4 bit") */
+  precision?: string
+  /** what the engine did one after the other (handing over to Diffusers, preparing SSD streaming, quantizing, loading,
+   *  generating), each with how long it took; a figure that counts up stays one phase */
+  phases: BenchmarkPhase[]
+  /** how the job was made where that differs from the usual */
+  note?: string
+  /** the picture, to look at what was measured */
+  result?: string
 }
 
 /** This Mac (Hardware page); asked once. */
@@ -401,6 +471,8 @@ export interface ImportInfo {
   gated: boolean
   fits?: boolean
   minRamGb?: number
+  /** too large for the memory: it runs streamed from the SSD (minRamGb is then what that needs) */
+  streamed?: boolean
   /** how the model would be compressed to fit */
   quant?: string
   inPlace: boolean
@@ -475,6 +547,13 @@ export interface VulkaraApi {
     onExportProgress(fn: (stage: string, percent: number) => void): () => void
     onChange(fn: () => void): () => void
   }
+  benchmark: {
+    /** the job count times (the first picture loads the model, the next ones show the speed with it loaded) */
+    start(job: Omit<Job, 'id'>, count: number, model: string): Promise<string[]>
+    list(): Promise<BenchmarkRun[]>
+    clear(): Promise<void>
+    onChange(fn: (runs: BenchmarkRun[]) => void): () => void
+  }
   system: {
     stats(): Promise<SystemStats>
     hardware(): Promise<HardwareInfo>
@@ -534,6 +613,8 @@ export interface VulkaraApi {
     /** in a viewer window: hand something back to the main window */
     act(action: ViewerAction): Promise<void>
     onAction(fn: (action: ViewerAction) => void): () => void
+    /** whether a large view is open (a window of its own, or the overlay of the remote web UI) */
+    onOpen(fn: (open: boolean) => void): () => void
   }
   licences: {
     /** the licence of an installed model or LoRA: read once from its origin and kept in its folder */

@@ -12,7 +12,8 @@ more time), so during encoding both are resident, just without the activations.
 RESERVE_FRACTION = 0.2
 MIN_RESERVE_GB = 4.0
 RUNTIME_OVERHEAD_GB = 1.0  # python + torch + app
-ACTIVATIONS_GB = {"sd1": 0.8, "sd2": 1.0, "sdxl": 1.5, "sd3": 2.0, "flux1": 2.5, "flux2": 3.0, "flux3": 2.5, "krea2": 3.0, "ideogram4": 2.5,
+# SD 1.5 at 1024 px measured 1.9 GB over its weights with fused attention (docs/MEASUREMENTS.md 7n)
+ACTIVATIONS_GB = {"sd1": 1.9, "sd2": 1.0, "sdxl": 1.5, "sd3": 2.0, "flux1": 2.5, "flux2": 3.0, "flux3": 2.5, "krea2": 3.0, "ideogram4": 2.5,
                   "chroma": 2.5,  # FLUX.1's blocks; the guided and the unguided pass run one after the other
                   # Z-Image at 1024 px (4096 image + up to 512 caption tokens, 3840 wide); with guidance (Base)
                   # both passes run as one batch
@@ -20,6 +21,8 @@ ACTIVATIONS_GB = {"sd1": 0.8, "sd2": 1.0, "sdxl": 1.5, "sd3": 2.0, "flux1": 2.5,
                   "wan": 4.0,  # wan (video): decoding all frames dominates
                   # Qwen-Image at its native 1328 px (6900 image tokens); 2.1 at 1024 px with its text cache
                   "qwen_image": 3.5, "qwen_image21": 3.0}
+# families made for a smaller picture: whether they fit is judged at their own size, not at 1024²
+NATIVE_SIDE = {"sd1": 512, "sd2": 768}
 # further denoisers that run next to the main one and get its precision (Ideogram 4 denoises with a
 # conditional and an unconditional transformer)
 SECOND_DENOISERS = ("unconditional_transformer",)
@@ -59,6 +62,43 @@ def ram_needed_gb(peak_gb):
     return max(peak_gb + MIN_RESERVE_GB, peak_gb / (1 - RESERVE_FRACTION))
 
 
+def _scale(side_or_pixels):
+    return max(0.25, side_or_pixels / (1024 * 1024))
+
+
+def activations_at(plan, width, height):
+    """(the activations a plan counts, those at a picture size): they grow and shrink with the pixels, not below a
+    quarter of 1024²'s; a plan's are for its activations_side (1024 in older plans)."""
+    act = plan.get("activations_gb", 2.5)
+    side = plan.get("activations_side", 1024)
+    return act, act / _scale(side * side) * _scale(width * height)
+
+
+def peak_at(plan, width, height):
+    """A plan's peak for a picture size; a staged plan's encoding peak does not change with the size."""
+    act, at = activations_at(plan, width, height)
+    denoise = plan["denoise_peak_gb"] - act + at
+    encoding = plan["est_peak_gb"] if plan["est_peak_gb"] > plan["denoise_peak_gb"] else 0
+    return max(encoding, denoise)
+
+
+def free_gb(held_gb=0.0):
+    """What a job can use now: what macOS has available, plus what the engine itself already holds (held_gb)."""
+    import psutil
+    return psutil.virtual_memory().available / 1024 ** 3 + held_gb
+
+
+def short_of(need_gb, held_gb, total_gb=None):
+    """None when a job's planned peak fits into the memory free now, else a note for the job: other programs (or
+    another engine) hold what is missing, and the picture will swap."""
+    free = free_gb(held_gb)
+    if need_gb <= free:
+        return None
+    others = (total_gb or total_ram_gb()) - free
+    return ("Only %.1f GB of memory free for the planned %.1f GB (other programs or engines hold %.1f GB): this picture may be "
+            "slow, macOS moves memory to the swap" % (free, need_gb, others))
+
+
 def _is_text_encoder(name):
     return name.startswith("text_encoder")
 
@@ -83,7 +123,8 @@ def plan(components, denoiser, family, ram_gb, quant="auto", denoiser_fixed_gb=N
     Returns a dict with quant per component, staged flag, peak estimate, fit and min RAM.
     """
     budget = budget_gb(ram_gb)
-    act = ACTIVATIONS_GB.get(family, 2.5) if activations_gb is None else activations_gb
+    side = NATIVE_SIDE.get(family, 1024) if activations_gb is None else 1024
+    act = ACTIVATIONS_GB.get(family, 2.5) * _scale(side * side) if activations_gb is None else activations_gb
     extra = RUNTIME_OVERHEAD_GB + act
 
     big_te = [n for n, p in components.items() if _is_text_encoder(n) and p >= MIN_QUANT_PARAMS_B]
@@ -160,6 +201,7 @@ def plan(components, denoiser, family, ram_gb, quant="auto", denoiser_fixed_gb=N
         # text encoders as planned (resident unless staged)
         "text_gb": round(small_te_gb + sum(_gb(components[n], tq) for n in big_te), 1),
         "activations_gb": act,
+        "activations_side": side,
         "budget_gb": round(budget, 1),
         "min_ram_gb": min_ram_gb,
         "ram_gb": round(ram_gb, 1),

@@ -144,6 +144,7 @@ export default {
     noSuchFile: 'The repository has no such file.',
     hfUnreachable: 'Hugging Face could not be reached. Check the internet connection.',
     serverUnreachable: 'The server could not be reached. Check the internet connection.',
+    notEnoughSpace: 'Only {free} GB are free on the models disk. Models and LoRAs are installed with at least 50 GB free: free some space or choose another models folder in Settings.',
   },
   helpers: {
     installing: 'A runtime is being installed: download helper models when it is finished.',

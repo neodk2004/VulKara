@@ -21,7 +21,8 @@ import { unlabelledOf } from './unlabelled'
 import { ImportQueue, processRunner, publicRef } from './imports'
 import { PhotoSelector, installedTools, recommendedTools } from './photo_tools'
 import { listHelpers } from './helpers'
-import { SystemMonitor, hardwareInfo } from './system_stats'
+import { SystemMonitor, hardwareInfo, treeFootprintGb } from './system_stats'
+import { Benchmarks } from './benchmark'
 import { currentSession, log, logFolder, logLines, logOutput, onLog } from './log'
 import { hiddenSummary, redact } from './log_redact'
 import { listSessions, machineContext, readSession, sessionStart, stamp } from './log_sessions'
@@ -37,12 +38,12 @@ import { runTool } from './tool_process'
 import { engineCommand, installRuntime, listRuntimes, removeRuntime, staleRuntimes, updateTargets, type RuntimeId } from './runtimes'
 import { AUTO_INTERVAL, UpdateChecker } from './runtime_updates'
 import { getToken, hasToken, setToken, type TokenService } from './secrets'
-import { closeViewers, isViewer, openViewer, viewerPayload } from './viewer'
+import { closeViewers, isViewer, onViewersChange, openViewer, viewerPayload } from './viewer'
 import { confirmSplash, isSplash, splashState } from './splash'
 import { engineLine, mainLanguage, t } from './i18n'
 import { engineEnv, getSettings, helpersDir, historyDir, imagesDir, isValidSetting, modelsDir, settableByPage, lorasDir, onSettingChanged, setSetting } from './settings'
 import type { LoraSearchRequest } from '@shared/lora_bases'
-import type { ImportRequest, QueueSnapshot, TrainingRequest, ViewerAction, ViewerItem } from '@shared/api'
+import type { ImportJob, ImportRequest, QueueSnapshot, TrainingRequest, ViewerAction, ViewerItem } from '@shared/api'
 import { FOLDER_KEYS, type FolderKey, type Settings } from '@shared/settings'
 import type { Job } from '@shared/types'
 
@@ -102,10 +103,15 @@ const queue: JobQueue<RuntimeId> = new JobQueue<RuntimeId>({
   changed: () => {
     snapshotTimer ??= setTimeout(() => {
       snapshotTimer = undefined
+      benchmarks.observe(queue.snapshot(), Date.now())
       send('queue:change', snapshot())
     }, 100)
   },
 })
+
+// benchmarks of single models (Hardware page): measured from the queue's snapshots and the monitor's samples
+const benchmarks = new Benchmarks(() => join(dataDir(), 'benchmarks.json'), (runs) => send('benchmark:change', runs),
+  `${app.getVersion()} ${__VK_BUILD__}`, () => t('main.status.starting'))
 
 // one sound when the last waiting job is done, not one for every picture of a series
 function doneSound(): void {
@@ -144,12 +150,22 @@ export const fileAccess = new FileAccess(
 
 // CPU, memory and the streaming caches for the status bar and the Hardware page
 const monitor = new SystemMonitor({
-  modelsDir, streamCacheDir: () => getSettings().streamCacheDir, send: (stats) => send('system:stats', stats),
+  modelsDir, streamCacheDir: () => getSettings().streamCacheDir,
+  send: (stats) => {
+    send('system:stats', stats)
+    if (benchmarks.running) void treeFootprintGb(process.pid).then((gb) => benchmarks.sample(stats, gb || undefined))
+    else benchmarks.sample(stats)
+  },
 })
 onSettingChanged((key) => { if (key === 'modelsDir' || key === 'streamCacheDir') monitor.refreshStorage() })
 
 // selecting objects with a photo tool: one process, kept while the page is used
 const selector = new PhotoSelector(() => engineCommand('diffusers', ['photo_select']), engineEnv, (chunk) => logOutput('photo select', chunk))
+
+// what a browser (remote web UI) imports and sees of the imports: downloads only, no file or folder of the Mac
+const WEB_SOURCES = ['hf', 'civitai']
+const isWeb = (job: ImportJob): boolean => WEB_SOURCES.includes(job.request.source)
+const webJobs = (jobs: ImportJob[]): ImportJob[] => jobs.filter(isWeb)
 
 const imports = new ImportQueue(
   processRunner(
@@ -165,7 +181,11 @@ const imports = new ImportQueue(
     },
     (chunk) => logOutput('import', chunk),
   ),
-  () => send('imports:change', imports.list()),
+  () => {
+    const jobs = imports.list()
+    if (win && !win.isDestroyed()) win.webContents.send('imports:change', jobs)
+    sendToRemote('imports:change', webJobs(jobs))
+  },
   (result) => {
     try {
       if (typeof result.model_path === 'string') adoptFolder(result.model_path)
@@ -373,7 +393,7 @@ export function registerIpc(): void {
   })
   scheduleUpdateChecks()
 
-  handle('queue:add', (job: Omit<Job, 'id'>, count?: number) => {
+  const addJob = (job: Omit<Job, 'id'>, count?: number): string[] => {
     if (trainer.running) throw new Error(t('main.queue.training'))
     if (installing.size) throw new Error(t('main.queue.installing'))
     if (exporting) throw new Error(t('main.queue.exporting'))
@@ -393,8 +413,21 @@ export function registerIpc(): void {
     fileAccess.check(job.controlnet?.image, 'control')
     fileAccess.check(job.photoTool?.mask, 'selection')
     return queue.add(job, count)
+  }
+  handle('queue:add', addJob)
+  handle('benchmark:start', (job: Omit<Job, 'id'>, count: number, model: string) => {
+    const run = { ...job, page: 'benchmark' }
+    const ids = addJob(run, count)
+    benchmarks.track(ids, run, String(model ?? '').slice(0, 200), Date.now())
+    return ids
   })
-  handle('queue:cancel', (id: string) => queue.cancel(String(id)))
+  handle('benchmark:list', () => benchmarks.list())
+  handle('benchmark:clear', () => benchmarks.clear())
+  handle('queue:cancel', (id: string) => {
+    // stopping a picture of a benchmark stops the whole benchmark (the pictures waiting after it first)
+    for (const other of benchmarks.together(String(id))) queue.cancel(other)
+    queue.cancel(String(id))
+  })
   handle('queue:clearFinished', () => queue.clearFinished())
   handle('queue:snapshot', () => snapshot())
 
@@ -578,6 +611,19 @@ export function registerIpc(): void {
   })
   handle('imports:clearFinished', () => imports.clearFinished())
   handle('imports:list', () => imports.list())
+  // a browser imports from the web only: a file or folder named by it would be one of the Mac's
+  remoteHandlers.set('imports:list', () => webJobs(imports.list()))
+  for (const channel of ['imports:inspect', 'imports:add']) {
+    const local = remoteHandlers.get(channel)!
+    remoteHandlers.set(channel, (req, ...rest) => {
+      if (!WEB_SOURCES.includes((req as ImportRequest | undefined)?.source ?? '')) throw new Error('not allowed')
+      return local(req, ...rest)
+    })
+  }
+  remoteHandlers.set('imports:cancel', (id) => {
+    if (imports.list().some((j) => j.id === String(id) && isWeb(j))) imports.cancel(String(id))
+  })
+  remoteHandlers.set('imports:clearFinished', () => imports.clearFinished(isWeb))
 
   handle('history:list', (opts: { query?: string; offset?: number; limit?: number; favorites?: boolean }) => {
     if (!opts?.query?.trim()) return history.list(opts ?? {})
@@ -819,8 +865,10 @@ export function registerIpc(): void {
 
 export function bindWindow(w: BrowserWindow): void {
   win = w
-  // the viewer windows belong to the main window
+  // the viewer windows belong to the main window: back in it, they close
   w.on('closed', closeViewers)
+  w.on('focus', closeViewers)
+  onViewersChange((open) => send('viewer:opened', open))
 }
 
 export function shutdown(): void {

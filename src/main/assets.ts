@@ -29,6 +29,7 @@ function meta(m: Raw, type: Asset['type'], folder: string): ModelMeta {
     defaults: (m.defaults as ModelMeta['defaults']) ?? undefined,
     maker: (m.maker as ModelMeta['maker']) ?? undefined,
     resolutions: Array.isArray(m.resolutions) ? (m.resolutions as number[]) : undefined,
+    samplers: Array.isArray(m.samplers) ? (m.samplers as string[]) : undefined,
     negativePrompt: m.negative_prompt === true, img2img: m.img2img === true,
     inpaint: typeof m.inpaint === 'boolean' ? m.inpaint : undefined,
     inpaintOnly: m.inpaint_only === true, contentFiltered: m.content_filtered === true,

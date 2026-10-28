@@ -34,6 +34,7 @@ const VALID: { [K in keyof Settings]: (v: unknown) => boolean } = {
   defaultQuant: (v) => ['auto', 'none', 'q8', 'q4'].includes(v as string),
   memoryReserveGb: (v) => typeof v === 'number' && v >= 0 && v <= 256,
   ssdStreaming: (v) => ['auto', 'always', 'off'].includes(v as string),
+  comfyStreaming: (v) => typeof v === 'boolean',
   streamCacheDir: folder,
   stepCache: (v) => ['off', 'light', 'strong'].includes(v as string),
   runtime: (v) => ['auto', 'diffusers', 'mlx'].includes(v as string),
@@ -125,5 +126,6 @@ export function engineEnv(): Record<string, string> {
   if (s.memoryReserveGb > 0) env.VK_MEMORY_RESERVE_GB = String(s.memoryReserveGb)
   if (s.streamCacheDir) env.VK_STREAM_CACHE_DIR = s.streamCacheDir
   if (s.stepCache !== 'off') env.VK_STEP_CACHE = s.stepCache
+  if (!s.comfyStreaming) env.VK_COMFY_STREAMING = 'off'
   return env
 }

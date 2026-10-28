@@ -24,7 +24,7 @@ import { t } from './i18n'
 const EVENT_PREFIX = '@vk '
 
 // only the MLX runtime loads these checkpoints
-const MLX_ONLY = ['krea2', 'ideogram4', 'flux3_klein']
+const MLX_ONLY = ['krea2', 'ideogram4', 'flux3_klein', 'ernie_image']
 // what MLX runs as well as Diffusers (models in repository layout, text to image)
 const MLX_ALSO = ['flux1_schnell', 'flux1_dev', 'flux2_klein', 'z_image']
 
@@ -228,6 +228,6 @@ export const anyEngineInstalled = (): boolean =>
   (['diffusers', 'mlx', 'comfyui'] as RuntimeId[]).some((id) => !!engineCommand(id))
 
 onSettingChanged((key) => {
-  if (['modelsDir', 'imagesDir', 'lorasDir', 'helpersDir', 'runtimesDir', 'memoryReserveGb', 'ssdStreaming', 'streamCacheDir', 'runtime', 'stepCache'].includes(key)) restartPending = true
+  if (['modelsDir', 'imagesDir', 'lorasDir', 'helpersDir', 'runtimesDir', 'memoryReserveGb', 'ssdStreaming', 'comfyStreaming', 'streamCacheDir', 'runtime', 'stepCache'].includes(key)) restartPending = true
   if (['runtimesDir', 'memoryReserveGb', 'ssdStreaming', 'runtime'].includes(key)) forgetMlxRefusals()
 })

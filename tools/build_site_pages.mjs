@@ -66,6 +66,7 @@ const T = {
     ogAlt: 'VulKara, your local AI image generator with high privacy',
     skip: 'Skip to content',
     nav: ['Features', 'Why VulKara', 'Screenshots', 'Get started'],
+    changesNav: 'Changes',
     language: 'Language',
     theme: 'Appearance',
     themes: ["Like the system", "Light", "Dark"],
@@ -173,6 +174,7 @@ const T = {
     ogAlt: 'VulKara, dein lokaler KI-Bildgenerator mit hohem Datenschutz',
     skip: 'Zum Inhalt springen',
     nav: ['Funktionen', 'Warum VulKara', 'Screenshots', 'Loslegen'],
+    changesNav: 'Änderungen',
     language: 'Sprache',
     theme: 'Darstellung',
     themes: ["Wie das System", "Hell", "Dunkel"],
@@ -280,6 +282,7 @@ const T = {
     ogAlt: 'VulKara, tu generador local de imágenes con IA, con alta privacidad',
     skip: 'Saltar al contenido',
     nav: ['Funciones', 'Por qué VulKara', 'Capturas', 'Empezar'],
+    changesNav: 'Cambios',
     language: 'Idioma',
     theme: 'Apariencia',
     themes: ["Como el sistema", "Claro", "Oscuro"],
@@ -387,6 +390,7 @@ const T = {
     ogAlt: 'VulKara, seu gerador local de imagens com IA, com alta privacidade',
     skip: 'Pular para o conteúdo',
     nav: ['Recursos', 'Por que o VulKara', 'Capturas', 'Começar'],
+    changesNav: 'Novidades',
     language: 'Idioma',
     theme: 'Aparência',
     themes: ["Como o sistema", "Claro", "Escuro"],
@@ -494,6 +498,7 @@ const T = {
     ogAlt: 'VulKara, o seu gerador local de imagens com IA, com elevada privacidade',
     skip: 'Avançar para o conteúdo',
     nav: ['Funcionalidades', 'Porquê o VulKara', 'Capturas', 'Começar'],
+    changesNav: 'Novidades',
     language: 'Idioma',
     theme: 'Aspeto',
     themes: ["Como o sistema", "Claro", "Escuro"],
@@ -663,7 +668,7 @@ ${ogAlts}
 
   <header class="top">
     <div class="wrap">
-      <a class="brand" href="${up}${lang.dir || './'}"><img src="${up}assets/icon.svg" width="30" height="30" alt="">VulKara<span class="ver">v${VERSION}</span></a>
+      <span class="brandbox"><a class="brand" href="${up}${lang.dir || './'}"><img src="${up}assets/icon.svg" width="30" height="30" alt="">VulKara</a><a class="ver" href="${up}changes/" title="${t.changesNav}" aria-label="${t.changesNav}: v${VERSION}">v${VERSION}</a></span>
       <nav aria-label="VulKara">
         <a href="#features">${t.nav[0]}</a>
         <a href="#models">${t.models.nav}</a>
@@ -912,7 +917,7 @@ ${t.links.map(([ic, h, s, href]) => `          <li>${ext(href, `${icon(up, ic)}<
       <p>${t.foot}</p>
       <p>${t.footPrivate}</p>
       <p>${t.footTm}</p>
-      <p class="legal"><a href="${up}impressum/">${t.legal[0]}</a> · <a href="${up}datenschutz/">${t.legal[1]}</a> · <a href="${DISCORD}" rel="noopener">Discord</a></p>
+      <p class="legal"><a href="${up}impressum/">${t.legal[0]}</a> · <a href="${up}datenschutz/">${t.legal[1]}</a> · <a href="${up}changes/">${t.changesNav}</a> · <a href="${DISCORD}" rel="noopener">Discord</a></p>
     </div>
   </footer>
 </body>
@@ -1023,3 +1028,119 @@ for (const [slug, p] of Object.entries(LEGAL)) {
 `)
 }
 console.log(L.name ? 'legal pages written' : 'legal pages written with placeholders (site/legal.local.json missing)')
+
+// ---------------------------------------------------------------- changes: every release's new features and changes
+// site/changes/index.html from CHANGELOG.md (English, as the changelog), in a technical look. A release raises the
+// version in package.json, which deploys the site (site.yml), so the page follows every release by itself. Only
+// released versions: an "Unreleased" section of the development line stays out.
+const inline = (s) => esc(s)
+  .replace(/`([^`]+)`/g, '<code>$1</code>')
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/(^|[^*\w])\*([^*\s][^*]*)\*(?!\w)/g, '$1<em>$2</em>')
+  .replace(/\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g, '<a href="$2" rel="noopener">$1</a>')
+
+/** The released versions of the changelog: [{ version, date, blocks: [{ kind: 'item' | 'text', text, subs }] }] */
+function releases(markdown) {
+  const out = []
+  let cur, last
+  for (const line of markdown.split('\n')) {
+    const head = /^## (\d+\.\d+\.\d+\S*) – (\d{4}-\d{2}-\d{2})/.exec(line)
+    if (head) { out.push(cur = { version: head[1], date: head[2], blocks: [] }); last = undefined; continue }
+    if (line.startsWith('## ') || line.startsWith('# ')) { cur = undefined; continue }
+    if (!cur || !line.trim()) { if (!line.trim()) last = last?.kind === 'text' ? undefined : last; continue }
+    const sub = /^ {2}- (.*)$/.exec(line)
+    if (line.startsWith('- ')) cur.blocks.push(last = { kind: 'item', text: line.slice(2), subs: [] })
+    else if (sub && last?.kind === 'item') last.subs.push(sub[1])
+    else if (line.startsWith(' ') && last?.kind === 'item') {
+      if (last.subs.length && /^ {4}/.test(line)) last.subs[last.subs.length - 1] += ' ' + line.trim()
+      else last.text += ' ' + line.trim()
+    } else if (last?.kind === 'text') last.text += ' ' + line.trim()
+    else cur.blocks.push(last = { kind: 'text', text: line.trim(), subs: [] })
+  }
+  return out
+}
+
+function changesPage(list) {
+  const total = list.reduce((n, r) => n + r.blocks.filter((b) => b.kind === 'item').length, 0)
+  const entry = (b) => {
+    const m = /^\*\*(.+?)\*\*\s*(.*)$/.exec(b.text)
+    const subs = b.subs.length ? `\n          <ul>${b.subs.map((s) => `<li>${inline(s)}</li>`).join('')}</ul>` : ''
+    return b.kind === 'text' ? `        <p class="note">${inline(b.text)}</p>`
+      : m ? `        <li><span class="title">${inline(m[1])}</span> ${inline(m[2])}${subs}</li>`
+        : `        <li>${inline(b.text)}${subs}</li>`
+  }
+  const section = (r, i) => {
+    const items = r.blocks.filter((b) => b.kind === 'item')
+    const notes = r.blocks.filter((b) => b.kind === 'text').map(entry).join('\n')
+    return `    <section class="release" id="v${esc(r.version)}">
+      <header>
+        <a class="tag" href="#v${esc(r.version)}">v${esc(r.version)}</a>
+        <time datetime="${r.date}">${r.date}</time>
+        <span class="count">${items.length} ${items.length === 1 ? 'change' : 'changes'}</span>${i === 0 ? '\n        <span class="latest">latest</span>' : ''}
+        <a class="gh" href="${GH}/releases/tag/v${esc(r.version)}" rel="noopener">release ↗</a>
+      </header>${notes ? '\n' + notes : ''}
+      <ul class="entries">
+${items.map(entry).join('\n')}
+      </ul>
+    </section>`
+  }
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Changes – VulKara</title>
+  <meta name="description" content="New features and changes of every VulKara release, from the changelog.">
+  <link rel="canonical" href="${BASE}changes/">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css?v=${CSS_V}">
+  <script src="../theme.js?v=${JS_V}"></script>
+</head>
+<body class="changes-page">
+  <header class="cl-top">
+    <div class="wrap">
+      <a class="brand" href="../"><img src="../assets/icon.svg" width="26" height="26" alt="">VulKara<span class="ver">v${VERSION}</span></a>
+      <span class="path">~/vulkara <b>$</b> changelog --releases</span>
+      <span class="spacer"></span>
+      <a class="gh" href="${BLOB}/CHANGELOG.md" rel="noopener">CHANGELOG.md ↗</a>
+    </div>
+  </header>
+  <main id="main" class="wrap">
+    <div class="intro">
+      <h1>Changes</h1>
+      <p>New features, fixes and measurements of every release, taken from the changelog.
+      <span class="stat">${list.length} releases · ${total} entries · latest v${esc(list[0]?.version ?? VERSION)} (${list[0]?.date ?? ''})</span></p>
+    </div>
+    <div class="cl-grid">
+    <nav class="index" aria-label="Releases">
+      <ol>
+${list.map((r) => `        <li><a href="#v${esc(r.version)}"><span>v${esc(r.version)}</span><time datetime="${r.date}">${r.date}</time></a></li>`).join('\n')}
+      </ol>
+    </nav>
+    <div class="releases">
+${list.map(section).join('\n')}
+    </div>
+    </div>
+  </main>
+  <footer>
+    <div class="wrap">
+      <p class="legal"><a href="../">VulKara</a> · <a href="../impressum/">Impressum</a> · <a href="../datenschutz/">Datenschutz</a> · <a href="${GH}" rel="noopener">GitHub</a></p>
+    </div>
+  </footer>
+</body>
+</html>
+`
+}
+
+{
+  const list = releases(readFileSync(join(ROOT, 'CHANGELOG.md'), 'utf8'))
+  // a release without entries means the changelog's layout changed and the parser no longer follows it
+  const empty = list.filter((r) => !r.blocks.length).map((r) => r.version)
+  if (!list.length || empty.length) throw new Error(`changes page: no entries read for ${empty.join(', ') || 'any release'}`)
+  mkdirSync(join(SITE, 'changes'), { recursive: true })
+  writeFileSync(join(SITE, 'changes', 'index.html'), changesPage(list))
+  console.log(`changes page written (${list.length} releases)`)
+}

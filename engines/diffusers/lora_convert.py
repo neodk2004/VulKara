@@ -186,6 +186,52 @@ def z_image_to_diffusers(sd):
     return out
 
 
+# ---------------------------------------------------------------- AuraFlow
+
+# AuraFlow / Pony V7 LoRAs made for ComfyUI name the original layers (dotted, or kohya's underscores); diffusers' reader
+# takes only its own names with peft factors. The map is diffusers' own for the single file (convert_auraflow_...)
+_AURA_DOUBLE = {"attn.w2q": "attn.to_q", "attn.w2k": "attn.to_k", "attn.w2v": "attn.to_v", "attn.w2o": "attn.to_out.0",
+                "attn.w1q": "attn.add_q_proj", "attn.w1k": "attn.add_k_proj", "attn.w1v": "attn.add_v_proj",
+                "attn.w1o": "attn.to_add_out", "mlpX.c_fc1": "ff.linear_1", "mlpX.c_fc2": "ff.linear_2",
+                "mlpX.c_proj": "ff.out_projection", "mlpC.c_fc1": "ff_context.linear_1",
+                "mlpC.c_fc2": "ff_context.linear_2", "mlpC.c_proj": "ff_context.out_projection",
+                "modX.1": "norm1.linear", "modC.1": "norm1_context.linear"}
+_AURA_SINGLE = {"attn.w1q": "attn.to_q", "attn.w1k": "attn.to_k", "attn.w1v": "attn.to_v", "attn.w1o": "attn.to_out.0",
+                "mlp.c_fc1": "ff.linear_1", "mlp.c_fc2": "ff.linear_2", "mlp.c_proj": "ff.out_projection",
+                "modCX.1": "norm1.linear"}
+# kohya writes "_" for every "." (and "c_fc1" keeps its own): compared with both as "."
+_AURA_LAYERS = {kind: {k.replace("_", ".").lower(): v for k, v in m.items()}
+                for kind, m in (("double", _AURA_DOUBLE), ("single", _AURA_SINGLE))}
+_AURA_KEY = re.compile(r"^(?:lora_unet_|lora_transformer_|(?:model[._])?diffusion_model[._])?(double|single)_layers[._](\d+)"
+                       r"[._](.+?)\.(lora_down\.weight|lora_up\.weight|lora_A\.weight|lora_B\.weight|alpha)$")
+
+
+def auraflow_needs(keys):
+    return any(_AURA_KEY.match(k) for k in keys)
+
+
+def auraflow_to_diffusers(sd):
+    """An AuraFlow LoRA in diffusers' names with peft factors ("transformer.<layer>.lora_A.weight", ".lora_B.weight"),
+    alpha / rank folded into the up factor (this reader takes no alphas). Layers it does not map are left out."""
+    layers = {}
+    for k, v in sd.items():
+        m = _AURA_KEY.match(k)
+        if m:
+            layers.setdefault((m[1], m[2], m[3].replace("_", ".").lower()), {})[m[4]] = v
+    out = {}
+    for (kind, i, layer), f in layers.items():
+        target = _AURA_LAYERS[kind].get(layer)
+        down = f.get("lora_down.weight", f.get("lora_A.weight"))
+        up = f.get("lora_up.weight", f.get("lora_B.weight"))
+        if target is None or down is None or up is None:
+            continue
+        if "alpha" in f:
+            up = up * (float(f["alpha"]) / down.shape[0])
+        name = "transformer.%s_transformer_blocks.%s.%s" % ("joint" if kind == "double" else "single", i, target)
+        out[name + ".lora_A.weight"], out[name + ".lora_B.weight"] = down, up
+    return out
+
+
 def _peft_dump(sd, component):
     """peft's own dump: ".default." taken out, "base_model.model." too, and the component prefix put in front
     of keys that have none."""
@@ -222,6 +268,8 @@ def _kind(pipe):
         return "qwen_image21"
     if name.startswith("ZImage"):
         return "z_image"
+    if name.startswith("AuraFlow"):
+        return "auraflow"
     if name.startswith("StableDiffusion") and not name.startswith("StableDiffusion3"):
         return "unet"
     return "other"
@@ -233,6 +281,8 @@ def _needs(kind, keys):
     if kind == "z_image":
         # one conversion for every naming (diffusers' own reader of 0.40 drops kohya's fused qkv layers)
         return ["zimage"] if z_image_needs(keys) else []
+    if kind == "auraflow" and auraflow_needs(keys):
+        return ["auraflow"]
     if any(".default." in k or k.startswith("base_model.model.") for k in keys):
         steps.append("peft")
     elif kind not in ("unet",) and keys and not any(k.startswith(_COMPONENT_PREFIXES) for k in keys):
@@ -253,6 +303,8 @@ def convert(pipe, sd):
     steps = _needs(kind, list(sd))
     if "zimage" in steps:
         return z_image_to_diffusers(sd)
+    if "auraflow" in steps:
+        return auraflow_to_diffusers(sd)
     if "peft" in steps:
         sd = _peft_dump(sd, "unet" if kind == "unet" else "transformer")
     if "bfl" in steps:

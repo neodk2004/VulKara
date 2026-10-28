@@ -35,7 +35,7 @@ BASE_MODELS = [
     (r"^qwen$", "qwen_image", "qwen_image", None),
     (r"sd ?3\.5.*large", "sd35_large", "sd3", None),
     (r"sd ?3", "sd35_medium", "sd3", None),
-    (r"pony ?v ?7|aura ?flow", None, "auraflow", None),  # Pony V7 is an AuraFlow model, not SDXL
+    (r"pony ?v ?7|aura ?flow", "auraflow", "auraflow", None),  # Pony V7 is an AuraFlow model, not SDXL
     (r"sdxl|^pony\b|illustrious|noobai|playground", "sdxl", "sdxl", None),
     (r"sd ?2.*768", "sd21", "sd2", None),
     (r"sd ?2", "sd21_base", "sd2", None),
@@ -50,7 +50,7 @@ BASE_MODELS = [
     (r"^hidream", None, "hidream", None),
     (r"^hunyuan video", None, "hunyuan_video", None),
     (r"^hunyuan 1", None, "hunyuan_dit", None),
-    (r"^lumina", None, "lumina", None),
+    (r"^lumina", "lumina2", "lumina", None),
     (r"^ernie", None, "ernie", None),
 ]
 

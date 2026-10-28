@@ -112,7 +112,10 @@ function key(event: KeyboardEvent): void {
 
 let observer: IntersectionObserver | undefined
 let stopListening: (() => void) | undefined
+let stopViewer: (() => void) | undefined
 let stale = false
+/** a large view is open: the panel shows only the buttons */
+const viewerOpen = ref(false)
 onMounted(() => {
   void load(true)
   observer = new IntersectionObserver((hits) => {
@@ -121,6 +124,7 @@ onMounted(() => {
   if (sentinel.value) observer.observe(sentinel.value)
   // new results arrive while another page is shown: refresh when this one comes back
   stopListening = window.vk.history.onChange(() => { stale = true })
+  stopViewer = window.vk.viewer.onOpen((open) => { viewerOpen.value = open })
 })
 onActivated(() => {
   window.addEventListener('keydown', key)
@@ -134,6 +138,7 @@ onBeforeUnmount(() => {
   clearTimeout(searchTimer)
   observer?.disconnect()
   stopListening?.()
+  stopViewer?.()
   window.removeEventListener('keydown', key)
 })
 
@@ -236,6 +241,9 @@ const copyable = canCopyImage()
 const share = (path: string): Promise<void> => sharePicture(path)
 /** the picture just copied (its button says so for a moment) */
 const copiedFile = ref('')
+// portrait pictures and videos: only as high as a square one is
+const tall = ref(new Set<string>())
+const measure = (f: string, w: number, h: number): void => { if (h > w) tall.value = new Set(tall.value).add(f) }
 async function copyImage(path: string): Promise<void> {
   if (!(await copyPicture(path))) return
   copiedFile.value = path
@@ -244,7 +252,7 @@ async function copyImage(path: string): Promise<void> {
 </script>
 
 <template>
-  <PageFrame :title="favorites ? t('library.favorites') : t('library.history')" :subtitle="subtitle">
+  <PageFrame :title="favorites ? t('library.favorites') : t('library.history')" :subtitle="subtitle" wide-panel>
     <template #actions>
       <label class="search">
         <Search :size="14" class="dim" />
@@ -277,37 +285,52 @@ async function copyImage(path: string): Promise<void> {
     <template #panel>
       <div v-if="selected" class="detail">
         <template v-for="f in pictures(selected)" :key="f">
-          <video v-if="selected.kind === 'video'" :src="url(f)" controls loop class="big" />
-          <img v-else :src="url(f)" class="big zoom" draggable="false" :title="t('library.largeView')" @click="view(selected)" />
-          <div class="row">
-            <button class="btn small" :class="{ marked: isFavorite(selected, f) }" @click="toggleFavorite(selected, f)">
-              <Heart :size="12" :fill="isFavorite(selected, f) ? 'currentColor' : 'none'" /> {{ t('library.favourite') }}
-            </button>
-            <button class="btn small" @click="saveAs(f)"><Download :size="12" /> {{ t('library.saveAs') }}</button>
-            <button class="btn small" @click="reveal(f)"><FolderSearch :size="12" /> {{ t('library.showInFinder') }}</button>
-            <button v-if="shareable" class="btn small" @click="share(f)"><Share :size="12" /> {{ t('common.share') }}</button>
-            <button v-if="copyable && selected.kind !== 'video'" class="btn small" @click="copyImage(f)">
-              <component :is="copiedFile === f ? Check : Copy" :size="12" /> {{ copiedFile === f ? t('common.copied') : t('common.copyImage') }}
-            </button>
-          </div>
+          <video v-if="selected.kind === 'video'" :src="url(f)" controls loop class="big" :class="{ tall: tall.has(f) }"
+            @loadedmetadata="(ev) => measure(f, (ev.target as HTMLVideoElement).videoWidth, (ev.target as HTMLVideoElement).videoHeight)" />
+          <img v-else :src="url(f)" class="big zoom" :class="{ tall: tall.has(f) }" draggable="false" :title="t('library.largeView')" @click="view(selected)"
+            @load="(ev) => measure(f, (ev.target as HTMLImageElement).naturalWidth, (ev.target as HTMLImageElement).naturalHeight)" />
         </template>
-        <p class="prompt selectable">{{ selected.job.prompt || t('library.noPrompt') }}</p>
-        <p v-if="selected.job.negativePrompt" class="prompt dim selectable">{{ t('library.negative', { prompt: selected.job.negativePrompt }) }}</p>
-        <dl>
-          <template v-for="[k, v] in facts" :key="k">
-            <dt class="dim">{{ t(k) }}</dt>
-            <dd class="selectable">{{ v }}</dd>
-          </template>
-        </dl>
-        <div class="row">
-          <button class="btn small" :title="t('library.reuseHint')" @click="reuse(selected)"><Repeat :size="12" /> {{ t('library.reuse') }}</button>
-        </div>
-        <div class="row">
-          <button class="btn small" :title="t('library.filesStay')" @click="remove(false)"><X :size="12" /> {{ t('library.removeEntry') }}</button>
-          <button class="btn small danger" @click="remove(true)"><Trash2 :size="12" /> {{ t('library.moveToTrash') }}</button>
+        <!-- buttons in the left third, the settings and prompts beside them -->
+        <div class="info">
+          <div class="buttons">
+            <div v-for="f in pictures(selected)" :key="f" class="buttons">
+              <!-- several pictures: each group of buttons under a small copy of its picture -->
+              <img v-if="pictures(selected).length > 1 && selected.kind !== 'video'" :src="url(f)" class="mark" draggable="false" />
+              <button class="btn small" :class="{ marked: isFavorite(selected, f) }" @click="toggleFavorite(selected, f)">
+                <Heart :size="12" :fill="isFavorite(selected, f) ? 'currentColor' : 'none'" /> {{ t('library.favourite') }}
+              </button>
+              <button class="btn small" @click="saveAs(f)"><Download :size="12" /> {{ t('library.saveAs') }}</button>
+              <button class="btn small" @click="reveal(f)"><FolderSearch :size="12" /> {{ t('library.showInFinder') }}</button>
+              <button v-if="shareable" class="btn small" @click="share(f)"><Share :size="12" /> {{ t('common.share') }}</button>
+              <button v-if="copyable && selected.kind !== 'video'" class="btn small" @click="copyImage(f)">
+                <component :is="copiedFile === f ? Check : Copy" :size="12" /> {{ copiedFile === f ? t('common.copied') : t('common.copyImage') }}
+              </button>
+            </div>
+            <div class="buttons">
+              <button class="btn small" :title="t('library.reuseHint')" @click="reuse(selected)"><Repeat :size="12" /> {{ t('library.reuse') }}</button>
+              <button class="btn small" :title="t('library.filesStay')" @click="remove(false)"><X :size="12" /> {{ t('library.removeEntry') }}</button>
+              <button class="btn small danger" @click="remove(true)"><Trash2 :size="12" /> {{ t('library.moveToTrash') }}</button>
+            </div>
+          </div>
+          <!-- while the large view is open, the panel holds only the buttons -->
+          <div v-if="!viewerOpen" class="facts">
+            <dl>
+              <template v-for="[k, v] in facts" :key="k">
+                <dt class="dim">{{ t(k) }}</dt>
+                <dd class="selectable">{{ v }}</dd>
+              </template>
+            </dl>
+            <hr />
+            <h3>{{ t('library.facts.prompt') }}</h3>
+            <p class="prompt selectable">{{ selected.job.prompt || t('library.noPrompt') }}</p>
+            <template v-if="selected.job.negativePrompt">
+              <hr />
+              <h3>{{ t('library.facts.negative') }}</h3>
+              <p class="prompt selectable">{{ selected.job.negativePrompt }}</p>
+            </template>
+          </div>
         </div>
       </div>
-
       <div v-else-if="selection.length" class="detail">
         <h2>{{ t('library.selected', { n: selection.length }) }}</h2>
         <div class="stack">
@@ -447,6 +470,17 @@ async function copyImage(path: string): Promise<void> {
   background: var(--surface-2);
 }
 
+.detail {
+  container-type: inline-size;
+}
+
+.big.tall {
+  width: auto;
+  max-width: 100%;
+  height: 100cqw;
+  justify-self: center;
+}
+
 .zoom {
   cursor: zoom-in;
 }
@@ -462,6 +496,60 @@ async function copyImage(path: string): Promise<void> {
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: var(--radius-s);
+}
+
+/* under the picture: the buttons one under the other in the left third, the settings in the rest */
+.info {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.facts {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+}
+
+.facts .prompt,
+.facts h3 {
+  margin: 0;
+}
+
+.facts h3 {
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.facts hr {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.buttons {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.buttons > .buttons + .buttons {
+  margin-top: 8px;
+}
+
+.mark {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius-s);
+}
+
+.buttons .btn {
+  justify-content: center;
 }
 
 .row {

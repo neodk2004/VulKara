@@ -47,6 +47,8 @@ def imported_on():
 WEIGHT_EXTS = (".safetensors", ".bin", ".ckpt", ".pt", ".pth", ".onnx", ".msgpack", ".h5", ".gguf", ".onnx_data")
 # code in a repo is never fetched: the pipelines and models come from diffusers / transformers
 CODE_EXTS = (".py", ".pyc", ".so", ".dylib")
+# parts of a repository no engine loads: not downloaded (ERNIE-Image's prompt enhancer is a 7 GB language model)
+OPTIONAL_COMPONENTS = ("safety_checker", "pe", "pe_tokenizer")
 SKIP_COMPONENTS = ("scheduler", "tokenizer", "tokenizer_2", "tokenizer_3", "feature_extractor", "image_encoder",
                    "safety_checker", "processor")
 
@@ -129,7 +131,7 @@ def _pick_weight_files(files, component, prefer_fp16=False):
 def _repo_plan_files(files, model_index):
     """Exact file list to download for a diffusers repo and the variant to load."""
     comps = [k for k, v in model_index.items() if isinstance(v, list) and len(v) == 2 and v[1] is not None
-             and k != "safety_checker"]
+             and k not in OPTIONAL_COMPONENTS]
     wanted = ["model_index.json"]
     variants = set()
     # diffusers loads one variant for all components: fp16 only when every component has it
@@ -430,6 +432,9 @@ def inspect(source, ref, file=None, token=None, name_hint=""):
         params = dict(spec["fallback_params"])
         if den_params and not spec.get("fixed_params"):
             params[spec["denoiser"]] = den_params
+        if (file or ref).lower().endswith(".gguf") and file_bytes:
+            # a GGUF file stays as it is in memory: counted by its size, in 16 bit equivalents
+            params[spec["denoiser"]] = file_bytes / 2e9
         info.update(layout=layout, arch=arch, overrides=overrides, components=params, denoiser=spec["denoiser"],
                     base_repo=spec["base_repo"], variant=None, base_files=base_files, base_sizes=base_sizes,
                     base_sha256=base_sha256,
@@ -542,6 +547,10 @@ def _guess_from_name(name):
         if "radiance" in n:
             raise registry.UnsupportedModel(registry.CHROMA_OTHERS % "Chroma Radiance")
         return "chroma", "single_denoiser", registry.chroma_overrides(n), None
+    if re.search(r"pony[-_ ]?v[-_ ]?7|auraflow|aura[-_ ]flow", n):
+        return "auraflow", "comfy_files", {}, None
+    if re.search(r"lumina|neta[-_ ]?(yume|lumina)", n):
+        return "lumina2", "comfy_files", registry.lumina_overrides(n), None
     if re.search(r"z[-_ ]?image", n):
         return "z_image", "single_denoiser", registry.z_image_overrides(n), None
     if re.search(r"qwen[-_ ]?image", n):
@@ -580,8 +589,21 @@ def make_plan(info, quant="auto", ram_gb=None):
     spec = registry.ARCHS[info["arch"]]
     if spec.get("runtime") == "comfyui":
         # ComfyUI keeps the weights as they are and frees the text encoder when the denoiser needs room
-        return memory.plan(info["components"], info["denoiser"], spec["family"],
-                           ram_gb if ram_gb is not None else memory.total_ram_gb(), quant="none", allow_staging=True)
+        ram = ram_gb if ram_gb is not None else memory.total_ram_gb()
+        plan = memory.plan(info["components"], info["denoiser"], spec["family"], ram, quant="none", allow_staging=True,
+                           denoiser_fixed_gb=info.get("denoiser_fixed_gb"))
+        if plan["fits"] or not _comfy_streamable(info):
+            return plan
+        # too large: ComfyUI's LOW_VRAM mode copies the layers in from the mapped GGUF file (engines/comfy/main.py)
+        comps = dict(info["components"])
+        comps[info["denoiser"]] *= STREAM_RESIDENT_SHARE
+        fixed = info.get("denoiser_fixed_gb")
+        streamed = memory.plan(comps, info["denoiser"], spec["family"], ram, quant="none", allow_staging=True,
+                               denoiser_fixed_gb=fixed * STREAM_RESIDENT_SHARE if fixed else None)
+        if streamed["fits"]:
+            streamed["streamed"] = True
+            return streamed
+        return plan
     if spec.get("plan_on_disk"):
         # FLUX 3 (flux3-mlx): the weights in memory as on disk, the text encoder only for encoding when both do not fit
         return memory.plan(info["components"], info["denoiser"], spec["family"],
@@ -617,6 +639,14 @@ def make_plan(info, quant="auto", ram_gb=None):
 
 # share of a streamed denoiser counted as resident, as engine.py counts it
 STREAM_RESIDENT_SHARE = 0.15
+
+
+def _comfy_streamable(info):
+    """A ComfyUI model streams only from a GGUF file (safetensors are read into memory), and not when Settings →
+    ComfyUI streaming is off."""
+    if os.environ.get("VK_COMFY_STREAMING", "on").strip().lower() in ("off", "0"):
+        return False
+    return str(info.get("file") or info.get("ref") or "").lower().endswith(".gguf")
 
 
 def _streamable(info):
@@ -687,6 +717,26 @@ def _sha256(path):
 
 
 MIN_FREE_GB = 5.0
+# no model or LoRA is installed with less free on the models disk: the downloads, the caches and the Mac need room
+MIN_INSTALL_FREE_GB = 50.0
+
+
+class NotEnoughSpace(OSError):
+    pass
+
+
+def ensure_install_room(folder):
+    """Refuses an install (dry runs as well, so the finders show it) while the models disk has less than
+    MIN_INSTALL_FREE_GB free."""
+    import shutil
+    at = Path(folder)
+    while not at.exists() and at.parent != at:
+        at = at.parent
+    free_gb = shutil.disk_usage(str(at)).free / 1024 ** 3
+    if free_gb < MIN_INSTALL_FREE_GB:
+        # rounded down: 49.6 GB free must not read "50 GB"
+        raise NotEnoughSpace("Only %d GB free on the models disk: models are installed with %d GB free or more"
+                             % (int(free_gb), MIN_INSTALL_FREE_GB))
 
 
 def ensure_space(folder, need_bytes, what="this import"):
@@ -900,7 +950,7 @@ def import_civitai(ref, name, quant="auto", dry_run=False, force=False, token=No
             # a single file: GGUF and FP8 (stored as 8 bit GGUF) take the size of the file; where it does not fit,
             # the denoiser streams from the SSD
             fixed = (c["file_name"] or "").lower().endswith(".gguf") or str(c.get("precision") or "").startswith("fp8")
-            summary["plan"] = make_plan({"arch": c["arch"], "components": spec["fallback_params"],
+            summary["plan"] = make_plan({"arch": c["arch"], "components": spec["fallback_params"], "file": c["file_name"],
                                          "denoiser": spec["denoiser"], "layout": "single_denoiser",
                                          "denoiser_fixed_gb": c["size_bytes"] / 1024 ** 3 if fixed else None}, quant)
             summary["label"] = "%s · %s" % (summary["label"], spec["label"])
@@ -1004,6 +1054,8 @@ def run_import(source, ref, name, file=None, quant="auto", dry_run=False, force=
     # toolfile: a model file chosen on the Enhance page (.pth and .safetensors would be checkpoints otherwise)
     if source in ("tool", "toolfile") or (source == "file" and ref.lower().endswith(".onnx")):
         return import_photo_tool(source, ref, name, dry_run=dry_run)
+    if source in ("hf", "civitai", "file", "dir"):
+        ensure_install_room(root or paths.models_dir())
     if source == "helper":
         import helpers
         if dry_run:
@@ -1252,6 +1304,18 @@ def _materialize_comfy(info, target, token):
             "sha256": _sha256(str(dst)), "base_repo": info["base_repo"]}
 
 
+def _name_variant_indexes(weights_dir, variant):
+    """fal's AuraFlow repos name their fp16 index "x.safetensors.fp16.index.json", diffusers looks for
+    "x.safetensors.index.fp16.json": a copy under that name."""
+    if not variant:
+        return
+    wrong = ".safetensors.%s.index.json" % variant
+    for p in Path(weights_dir).glob("*/*" + wrong):
+        right = p.with_name(p.name.replace(wrong, ".safetensors.index.%s.json" % variant))
+        if not p.name.startswith("._") and not right.exists():
+            shutil.copyfile(p, right)
+
+
 def _materialize(info, target, token):
     layout = info["layout"]
     if layout == "comfy_files":
@@ -1262,6 +1326,7 @@ def _materialize(info, target, token):
         if left:  # an empty allow list would download the whole repo
             _download(info["ref"], left, str(target / "weights"), token,
                       sum(sizes.get(f, 0) for f in left) if sizes else info["download_bytes"], "Downloading")
+        _name_variant_indexes(target / "weights", info["variant"])
         return {"layout": "repo", "weights_dir": "weights", "variant": info["variant"]}
 
     if layout == "folder":

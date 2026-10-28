@@ -112,3 +112,18 @@ def test_an_import_says_which_mac_it_was_made_on(tmp_path, monkeypatch):
     assert m["imported_on"] == {"ram_gb": 16}
 
 
+
+
+def test_installs_need_50_gb_free_on_the_models_disk(tmp_path, monkeypatch):
+    import collections
+    import shutil
+    import pytest
+    import importer
+    monkeypatch.setattr(importer, "MIN_INSTALL_FREE_GB", 50.0)
+    usage = collections.namedtuple("usage", "total used free")
+    monkeypatch.setattr(shutil, "disk_usage", lambda p: usage(0, 0, 49 * 1024 ** 3))
+    with pytest.raises(importer.NotEnoughSpace, match="Only 49 GB free"):
+        importer.run_import("hf", "a/b", "b", dry_run=True, root=str(tmp_path / "not-made-yet"))
+    # 50 GB free is enough
+    monkeypatch.setattr(shutil, "disk_usage", lambda p: usage(0, 0, 50 * 1024 ** 3))
+    importer.ensure_install_room(str(tmp_path))

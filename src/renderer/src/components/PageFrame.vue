@@ -8,7 +8,7 @@ import { isRemote } from '../remote_vk'
 import { openLink } from '../util/links'
 import { t } from '../i18n'
 
-defineProps<{ title: string; subtitle?: string }>()
+defineProps<{ title: string; subtitle?: string; widePanel?: boolean }>()
 // the community is one click away on every page (not in the remote web UI, which cannot open the Mac's browser)
 const community = !isRemote()
 </script>
@@ -30,7 +30,7 @@ const community = !isRemote()
     </header>
     <div class="body">
       <div class="work"><slot /></div>
-      <aside v-if="$slots.panel" class="panel"><slot name="panel" /></aside>
+      <aside v-if="$slots.panel" class="panel" :class="{ wide: widePanel }"><slot name="panel" /></aside>
     </div>
   </section>
 </template>
@@ -84,6 +84,11 @@ const community = !isRemote()
   border-left: 1px solid var(--line);
 }
 
+/* a panel that shows a picture large (History, Favourites): twice as wide, not over half the window */
+.panel.wide {
+  width: min(640px, 50vw);
+}
+
 /* grids and flex rows in the panel may shrink below the width of their longest word */
 .panel :deep(*) {
   min-width: 0;
@@ -101,7 +106,8 @@ const community = !isRemote()
     overflow: visible;
     padding: 16px;
   }
-  .panel {
+  .panel,
+  .panel.wide {
     width: auto;
     border-left: none;
     border-top: 1px solid var(--line);

@@ -18,9 +18,17 @@ export const SIGMA_SCHEDULES = ['Default', 'Karras', 'Exponential', 'Beta']
 /** The samplers a model can use ("Default" = the model's own), or null when it has no choice. */
 export function samplersFor(meta: ModelMeta | undefined): string[] | null {
   if (!meta) return null
-  if (meta.runtime === 'comfyui') return ['Default', ...COMFY]
-  if (meta.family === 'sdxl' || meta.family === 'sd1' || meta.family === 'sd2') return ['Default', ...NOISE]
-  if (meta.family === 'sd3') return ['Default', ...FLOW]
-  if (OWN_SIGMAS.includes(meta.family)) return ['Default', ...FLOW.filter((s) => !FLUX_UNSUPPORTED.includes(s))]
-  return null
+  let list: string[] | null = null
+  if (meta.runtime === 'comfyui') list = COMFY
+  else if (meta.family === 'sdxl' || meta.family === 'sd1' || meta.family === 'sd2') list = NOISE
+  else if (meta.family === 'sd3') list = FLOW
+  else if (OWN_SIGMAS.includes(meta.family)) list = FLOW.filter((s) => !FLUX_UNSUPPORTED.includes(s))
+  if (!list) return null
+  // the maker names the samplers it runs the model with: hold the picker to those, so e.g. a DPM++-only model
+  // does not offer Euler. Skip it when none of them is one this family's pipeline can take (keeps a usable picker).
+  if (meta.samplers?.length) {
+    const only = list.filter((s) => meta.samplers!.includes(s))
+    if (only.length) list = only
+  }
+  return ['Default', ...list]
 }

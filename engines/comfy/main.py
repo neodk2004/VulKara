@@ -27,6 +27,7 @@ from pathlib import Path
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "diffusers"))
 
+import memory  # noqa: E402
 import protocol  # noqa: E402
 import paths  # noqa: E402
 import registry  # noqa: E402
@@ -113,9 +114,44 @@ def _copy_input(source):
     return name
 
 
-# the custom node that locks ComfyUI's server with a key only this engine knows (custom_nodes/vulkara_guard)
+# the custom node that locks ComfyUI's server with a key only this engine knows (custom_nodes/vulkara_guard) and the
+# one that switches its memory mode (custom_nodes/vulkara_memory)
 GUARD_NODES = os.path.join(HERE, "custom_nodes")
 GUARD_HEADER = "X-VK-Token"
+
+
+def bit_sizes(model_dir, m, mode):
+    """The bit size of the model's own files (benchmarks): its GGUF type or 16 bit / FP8, and whether LOW_VRAM streams
+    the diffusion model from its file."""
+    out = []
+    for part, rel in m["files"].items():
+        if part.startswith("diffusion_model") or part == "text_encoder":
+            label = registry.file_precision(rel if os.path.isabs(rel) else os.path.join(model_dir, rel))
+            if part.startswith("diffusion_model") and label == "8 bit (FP8)":
+                label = "16 bit (from FP8)"  # MPS cannot compute FP8: vulkara_memory keeps it in 16 bit
+            if part.startswith("diffusion_model") and mode == "LOW_VRAM":
+                label += ", streamed from the SSD"
+            out.append(("transformer" if part == "diffusion_model" else part, label))
+    return out
+
+
+def memory_mode(m, files, ram_gb):
+    """ComfyUI's memory mode for a model (m: its model.json): LOW_VRAM when SHARED would not hold it. SHARED keeps the
+    text encoder loaded next to the model, so it is counted without staging (Pony V7 Q8_0: 14 GB, docs/MEASUREMENTS.md
+    7h). Only a GGUF model streams from its file; Settings → ComfyUI streaming off (VK_COMFY_STREAMING=off) keeps
+    SHARED."""
+    if os.environ.get("VK_COMFY_STREAMING", "on").strip().lower() in ("off", "0"):
+        return "SHARED"
+    if not str(files.get("diffusion_model", "")).lower().endswith(".gguf"):
+        return "SHARED"
+    return "SHARED" if shared_plan(m, ram_gb)["fits"] else "LOW_VRAM"
+
+
+def shared_plan(m, ram_gb):
+    """The memory plan of a model held whole in memory (SHARED), text encoder included."""
+    spec = registry.ARCHS[m["arch"]]
+    return memory.plan(m.get("components") or spec["fallback_params"], spec["denoiser"], spec["family"], ram_gb,
+                       quant="none", allow_staging=False)
 
 
 class ComfyServer:
@@ -123,6 +159,7 @@ class ComfyServer:
         self.proc = None
         self.port = None
         self.token = ""
+        self.mode = "SHARED"  # ComfyUI's own on the Mac
 
     @property
     def headers(self):
@@ -157,12 +194,14 @@ class ComfyServer:
         import secrets
         self.token = secrets.token_urlsafe(32)
         self.port = _free_port()
-        # only on the loopback interface; API nodes (paid online services) are not loaded
+        self.mode = "SHARED"
+        # only on the loopback interface; API nodes (paid online services) are not loaded; attention: vulkara_memory
         with open(WORK / "comfyui.log", "w") as log:
             self.proc = subprocess.Popen(
                 [sys.executable, "main.py", "--listen", "127.0.0.1", "--port", str(self.port), "--disable-auto-launch",
-                 "--disable-api-nodes", "--disable-metadata", "--disable-all-custom-nodes",
-                 "--whitelist-custom-nodes", "ComfyUI-GGUF", "vulkara_guard", "--extra-model-paths-config", str(cfg),
+                 "--disable-api-nodes", "--disable-metadata", "--disable-all-custom-nodes", "--use-pytorch-cross-attention",
+                 "--whitelist-custom-nodes", "ComfyUI-GGUF", "vulkara_guard", "vulkara_memory",
+                 "--extra-model-paths-config", str(cfg),
                  "--output-directory", str(WORK / "output"), "--temp-directory", str(WORK / "temp"),
                  "--input-directory", str(WORK / "input"), "--user-directory", str(WORK / "user")],
                 cwd=str(COMFY_DIR), stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
@@ -199,6 +238,15 @@ class ComfyServer:
             body = r.read()
         return json.loads(body) if body else {}
 
+    def set_mode(self, mode):
+        """ComfyUI's memory mode (vulkara_memory); the loaded models are freed first, they were loaded for the other."""
+        if mode == self.mode:
+            return
+        self.free()
+        self.post("/vulkara/memory", {"mode": mode})
+        self.mode = mode
+        protocol.log("[comfy] memory mode %s" % mode)
+
     def free(self):
         if self.proc and self.proc.poll() is None:
             try:
@@ -215,6 +263,7 @@ class ComfyServer:
                 self.proc.kill()
                 self.proc.wait()
         self.proc = None
+        self.mode = "SHARED"
 
 
 class ComfyEngine:
@@ -330,16 +379,21 @@ class ComfyEngine:
         defaults = m.get("defaults") or spec["defaults"]
         self.server.ensure(self._state)
         files = self._model_files(model_dir, m)
+        mode = memory_mode(m, files, memory.total_ram_gb())
+        self.server.set_mode(mode)
+        protocol.precision(bit_sizes(model_dir, m, mode))
         loras, words = self._loras(d.get("loras"), m)
 
         prompt = d.get("prompt") or ""
         for w in words:
             if w and w.lower() not in prompt.lower():
                 prompt = w + ", " + prompt
+        # a system prompt the model expects before the prompt (Lumina 2); not in the file names of the results
+        prefix = defaults.get("prompt_prefix") or ""
         multiple = spec.get("size_multiple", 16)
         job = {
             # the negative prompt the model card recommends when the job has none
-            "prompt": prompt, "negative_prompt": d.get("negative_prompt") or defaults.get("negative_prompt", ""),
+            "prompt": prefix + prompt, "negative_prompt": d.get("negative_prompt") or defaults.get("negative_prompt", ""),
             "width": int(d.get("width") or defaults.get("width", 1024)) // multiple * multiple,
             "height": int(d.get("height") or defaults.get("height", 1024)) // multiple * multiple,
             "steps": int(d.get("num_steps") or defaults["num_steps"]),
@@ -357,6 +411,9 @@ class ComfyEngine:
             job["strength"] = float(d.get("strength", 0.6))  # how much of the picture changes
         # a video's start picture is used as it is, a picture to change is scaled to the size
         input_name = _copy_input(d["input_image"]) if d.get("input_image") else None
+        # what the benchmark shows beside the engine's peak; a streamed model or a video has no plan of its own
+        protocol.planned(memory.peak_at(shared_plan(m, memory.total_ram_gb()), job["width"], job["height"])
+                         if mode == "SHARED" and not video else None)
 
         saved = []
         try:
@@ -439,6 +496,8 @@ def serve(stream=None):
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     reader = protocol.CommandReader(stream).start()
     engine = ComfyEngine(reader)
+    # per job, for benchmarks: this process and the ComfyUI server it runs
+    footprint = protocol.Footprint(lambda: [os.getpid()] + ([engine.server.proc.pid] if engine.server.proc else []))
     protocol.state("loaded")
     if os.environ.get("VK_ANNOUNCE_READY") == "1":
         protocol.state("idle")
@@ -450,6 +509,7 @@ def serve(stream=None):
             op, job = item
             if op in ("generate", "preview"):
                 protocol.state("busy")
+                footprint.start()
                 target = job.get("target") or job.get("model_dir")
                 try:
                     if op == "preview":
@@ -467,6 +527,7 @@ def serve(stream=None):
                         protocol.preview({"model": target, "error": str(e)[:300]})
                     else:
                         protocol.error(protocol.describe(e))
+                footprint.report()
                 protocol.state("idle")
             elif op == "unload":
                 try:

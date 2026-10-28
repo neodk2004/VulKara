@@ -35,6 +35,8 @@ export interface Settings {
   /** 0 = automatic (20 %, at least 4 GB) */
   memoryReserveGb: number
   ssdStreaming: 'auto' | 'always' | 'off'
+  /** ComfyUI models in GGUF that do not fit into memory load piece by piece from their file (LOW_VRAM mode) */
+  comfyStreaming: boolean
   /** where streamed models keep their blocks; '' = in each model's folder. A fast internal SSD speeds streaming up */
   streamCacheDir: string
   runtime: 'auto' | 'diffusers' | 'mlx'
@@ -82,6 +84,7 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultQuant: 'auto',
   memoryReserveGb: 0,
   ssdStreaming: 'auto',
+  comfyStreaming: true,
   streamCacheDir: '',
   runtime: 'auto',
   stepCache: 'off',

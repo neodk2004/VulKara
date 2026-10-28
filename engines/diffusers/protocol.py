@@ -9,6 +9,7 @@ Out: one event per line, "@vk " followed by JSON, {"event": "state" | "progress"
 A reader thread owns stdin, so a stop request is seen while a job runs and no other request is lost.
 """
 import json
+import os
 import queue
 import sys
 import threading
@@ -87,6 +88,78 @@ def event(name, **fields):
 def note(message):
     """How the job was made, shown with its result (e.g. step caching)."""
     event("note", message=message)
+
+
+def precision(parts):
+    """The bit size each part of the model runs in for this job (benchmarks): [("transformer", "8 bit"), ...]."""
+    event("precision", message=", ".join("%s %s" % (name.replace("_", " "), label) for name, label in parts))
+
+
+def waited(what, seconds, gb):
+    """Time the steps of this picture spent waiting for parts of the model to be read again (benchmarks); what:
+    "ssd_stream" (blocks of a model streamed from the SSD)."""
+    event("waited", what=what, seconds=round(seconds, 1), gb=round(gb, 2))
+
+
+# what the memory plan expected for the running job (GB), reported with its footprint (benchmarks)
+PLANNED = {"gb": None}
+
+
+def planned(gb):
+    PLANNED["gb"] = round(gb, 2) if gb is not None else None
+
+
+class Footprint:
+    """The memory footprint (with what the GPU holds) and the disk reads of the engine's processes over one job, as
+    macOS counts them (proc_pid_rusage): the peak of each process since start() summed, and what they read."""
+
+    def __init__(self, pids=lambda: [os.getpid()]):
+        self.pids = pids
+        self.read = {}
+
+    @staticmethod
+    def _usage(pid):
+        import ctypes
+        lib = ctypes.CDLL("/usr/lib/libSystem.B.dylib")
+        names = ("user_time system_time pkg_idle_wkups interrupt_wkups pageins wired_size resident_size phys_footprint "
+                 "proc_start_abstime proc_exit_abstime child_user_time child_system_time child_pkg_idle_wkups "
+                 "child_interrupt_wkups child_pageins child_elapsed_abstime diskio_bytesread diskio_byteswritten "
+                 "cpu_time_qos_default cpu_time_qos_maintenance cpu_time_qos_background cpu_time_qos_utility "
+                 "cpu_time_qos_legacy cpu_time_qos_user_initiated cpu_time_qos_user_interactive billed_system_time "
+                 "serviced_system_time logical_writes lifetime_max_phys_footprint instructions cycles billed_energy "
+                 "serviced_energy interval_max_phys_footprint runnable_time").split()
+
+        class Usage(ctypes.Structure):  # rusage_info_v4
+            _fields_ = [("uuid", ctypes.c_uint8 * 16)] + [(n, ctypes.c_uint64) for n in names]
+        u = Usage()
+        if lib.proc_pid_rusage(pid, 4, ctypes.byref(u)) != 0:
+            return None
+        return lib, u
+
+    def start(self):
+        PLANNED["gb"] = None
+        self.read = {}
+        for pid in self.pids():
+            got = self._usage(pid)
+            if got:
+                got[0].proc_reset_footprint_interval(pid)
+                self.read[pid] = got[1].diskio_bytesread
+
+    def report(self):
+        peak = read = 0
+        for pid in self.pids():
+            got = self._usage(pid)
+            if got:
+                peak += got[1].interval_max_phys_footprint
+                read += got[1].diskio_bytesread - self.read.get(pid, 0)  # a process started during the job: all it read
+        if peak:
+            event("footprint", peak_gb=round(peak / 1024 ** 3, 2), read_gb=round(read / 1024 ** 3, 2), plan_gb=PLANNED["gb"])
+
+
+def footprint_gb():
+    """What this process holds now (with the GPU's share), as macOS counts it."""
+    got = Footprint._usage(os.getpid())
+    return got[1].phys_footprint / 1024 ** 3 if got else 0.0
 
 
 def state(value):

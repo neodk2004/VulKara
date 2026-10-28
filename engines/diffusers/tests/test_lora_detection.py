@@ -147,7 +147,7 @@ def test_metadata_chooses_where_the_layers_leave_a_choice():
 
 
 def test_civitai_bases():
-    assert civitai.arch_of("Pony V7") == "unknown" and civitai.family_of("Pony V7") == ("auraflow", None)
+    assert civitai.arch_of("Pony V7") == "auraflow" and civitai.family_of("Pony V7") == ("auraflow", None)
     assert civitai.arch_of("Pony") == "sdxl"
     assert civitai.arch_of("Qwen") == "qwen_image" and civitai.arch_of("Qwen 2.1") == "qwen_image21"
     assert civitai.family_of("Qwen 2") == (None, None)  # not known: no guess

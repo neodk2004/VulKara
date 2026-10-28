@@ -41,7 +41,8 @@ SIGMAS = {"karras": "use_karras_sigmas", "exponential": "use_exponential_sigmas"
 
 # SD 2.x 768 px models predict v: the eps samplers take prediction_type from the model's config
 FAMILY_KIND = {"sd1": "eps", "sd2": "eps", "sdxl": "eps", "sd3": "flow", "flux1": "flow", "chroma": "flow",
-               "flux2": "flow", "qwen_image": "flow", "qwen_image21": "flow", "z_image": "flow"}
+               "flux2": "flow", "qwen_image": "flow", "qwen_image21": "flow", "z_image": "flow",
+               "auraflow": "flow"}
 
 # known not to work with a family's pipeline
 UNSUPPORTED = {

@@ -31,6 +31,7 @@ const REASONS: Record<string, PlainKey> = {
 
 /** What the importer reported, as one sentence for the page. */
 export function reason(code: string, message: string): string {
+  if (code === 'NotEnoughSpace') return t('main.imports.notEnoughSpace', { free: /(\d+) GB free/.exec(message)?.[1] ?? '?' })
   if (REASONS[code]) return t(REASONS[code])
   const line = message.replace(/\(Request ID:[^)]*\)/g, '').split('\n').map((l) => l.trim()).find(Boolean)
   return line || t('main.imports.failed')
@@ -127,6 +128,7 @@ export function toInfo(summary: Record<string, unknown>): ImportInfo {
     gated: summary.gated === true,
     fits: typeof plan.fits === 'boolean' ? plan.fits : undefined,
     minRamGb: num(plan.min_ram_gb),
+    streamed: plan.streamed === true,
     quant,
     inPlace: summary.in_place === true,
     note: typeof summary.note === 'string' && summary.note ? summary.note : undefined,
@@ -172,8 +174,9 @@ export class ImportQueue {
     this.changed()
   }
 
-  clearFinished(): void {
-    this.entries = this.entries.filter((e) => OPEN.includes(e.state))
+  /** only: the finished imports that may go (the remote web UI's: those from the web) */
+  clearFinished(only: (job: ImportJob) => boolean = () => true): void {
+    this.entries = this.entries.filter((e) => OPEN.includes(e.state) || !only(e))
     this.changed()
   }
 

@@ -175,6 +175,7 @@ export default {
       qwen: 'Research and evaluation only; commercial use needs a separate licence from Alibaba (Tongyi Lab).',
       krea: 'Commercial use only below USD 1 million company revenue; content filter measures required.',
       fluxKommunity: 'Non-commercial use of the model. Pictures may be used commercially only by people and companies below USD 5 million annual revenue, with content filter measures and the AI disclosure the law requires; anything else needs a licence from Black Forest Labs.',
+      pony: "Model and pictures may be used commercially, except to offer the model as an inference service or app, by companies above USD 1 million revenue, or in professional video production; for those PurpleSmartAI's permission is needed.",
     },
   },
   report: {

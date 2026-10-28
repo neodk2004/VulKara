@@ -1,12 +1,29 @@
 // SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
+import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 
+/** The code state a build was made from, for telling benchmarks apart: the commit, + with changes to tracked files
+ *  (not new files: the build writes a temporary copy of this config next to it), and the time of the build. */
+function buildLabel(): string {
+  const git = (args: string): string => {
+    try {
+      return execSync(`git ${args}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
+    } catch {
+      return ''  // no git (a source archive)
+    }
+  }
+  const hash = git('rev-parse --short HEAD')
+  const at = new Date().toLocaleString('sv-SE').slice(0, 16)  // "2026-10-26 15:42", local time
+  return hash ? `${hash}${git('status --porcelain --untracked-files=no -- .') ? '+' : ''} ${at}` : at
+}
+
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
+    define: { __VK_BUILD__: JSON.stringify(buildLabel()) },
     resolve: { alias: { '@shared': resolve('src/shared') } },
   },
   preload: {

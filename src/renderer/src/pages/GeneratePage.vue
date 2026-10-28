@@ -418,7 +418,7 @@ const labelPreview = computed(() => {
         <p v-if="controlNote" class="error">{{ t(controlNote) }}</p>
 
         <div v-if="samplers && does.sampler" class="field">
-          <span class="label-row">{{ t('generate.panel.sampler') }} <HintBadge notice v-if="form.sampler !== samplerShown" :text="t('generate.panel.samplerMissingHint', { name: samplerLabel(form.sampler) })" /></span>
+          <span class="label-row">{{ t('generate.panel.sampler') }} <HintBadge v-if="model?.meta.samplers?.length" :text="t('generate.panel.samplerMakerOnly')" /><HintBadge notice v-if="form.sampler !== samplerShown" :text="t('generate.panel.samplerMissingHint', { name: samplerLabel(form.sampler) })" /></span>
           <div class="pair">
             <select v-model="samplerShown"><option v-for="s in samplers" :key="s" :value="s">{{ samplerLabel(s) }}</option></select>
             <!-- i18n-ok: the sampler's value -->

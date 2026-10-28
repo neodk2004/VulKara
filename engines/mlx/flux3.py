@@ -63,6 +63,18 @@ def components(folder):
             "vae": (_file_gb(folder, "vae", "ae.safetensors") or 0.3) / 2}
 
 
+def precision(weights):
+    """The bit size of the transformer and text encoder as the download has them (its config.json; Black Forest Labs'
+    own files are 16 bit)."""
+    try:
+        with open(os.path.join(weights, "config.json")) as f:
+            config = json.load(f)
+    except (OSError, ValueError):
+        config = {}
+    bits = lambda part: "%d bit" % config[part]["bits"] if isinstance(config.get(part), dict) and config[part].get("bits") else "16 bit"
+    return [("transformer", bits("transformer")), ("text_encoder", bits("text_encoder"))]
+
+
 def plan(folder, ram_gb=None):
     """(low_memory, peak_gb) by the shared memory plan: both parts resident, or the prompt encoded before the
     transformer is loaded (low_memory: they are never in memory together). Raises MemoryError when neither fits."""

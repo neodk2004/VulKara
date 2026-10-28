@@ -194,3 +194,128 @@ def test_a_large_picture_is_made_smaller_before_upscaling_and_measured_on_the_or
     assert plan((8192, 4096), 4.0) == ((2048, 1024), (8192, 4096))
     g = _workflows().build_upscale("in.png", "m.safetensors", size=(6144, 4096))
     assert g["scaled"]["class_type"] == "ImageScale" and (g["scaled"]["inputs"]["width"], g["scaled"]["inputs"]["height"]) == (6144, 4096)
+
+
+def _lumina_keys(width=2304):
+    return {"model.diffusion_model.x_embedder.weight": [width, 64], "model.diffusion_model.noise_refiner.0.attention.qkv.weight": [1],
+            "model.diffusion_model.context_refiner.0.attention.qkv.weight": [1], "model.diffusion_model.cap_embedder.1.weight": [1],
+            "model.diffusion_model.layers.0.attention.qkv.weight": [1]}
+
+
+def test_lumina2_and_its_fine_tunes_are_recognised():
+    arch, layout, overrides, _ = registry.detect_from_single_file(_lumina_keys(), "lumina_2_model_bf16.safetensors")
+    assert (arch, layout, overrides) == ("lumina2", "comfy_files", {})
+    spec = registry.ARCHS["lumina2"]
+    assert spec["defaults"]["prompt_prefix"].endswith("<Prompt Start> ") and spec["comfy"]["clip_type"] == "lumina2"
+    # NetaYume / Neta Lumina: their own system prompt for anime and the makers' steps and CFG
+    neta = registry.detect_from_single_file(_lumina_keys(), "Unet/v4/NetaYumev4_unet.safetensors")[2]
+    assert neta["prompt_prefix"].startswith("You are an assistant designed to generate anime images") and neta["num_steps"] == 40
+    assert registry.detect_from_single_file(_lumina_keys(3840), "z.safetensors")[0] == "z_image"
+    # GGUF from a repository, before the download: by its name
+    assert importer._guess_from_name("immac/netayume-lumina-image-2.0-gguf/x-Q8_0.gguf")[:2] == ("lumina2", "comfy_files")
+    assert registry.family_label("lumina") == "Lumina 2" and "lumina" not in registry.FOREIGN_FAMILIES
+
+
+def test_lumina2_fits_16_gb_and_civitai_knows_it():
+    info = {"arch": "lumina2", "components": dict(registry.ARCHS["lumina2"]["fallback_params"]), "denoiser": "transformer"}
+    assert importer.make_plan(info, ram_gb=16)["fits"]
+    assert civitai.arch_of("Lumina") == "lumina2"
+
+
+def test_auraflow_pony_v7_gguf_is_recognised_and_its_prompt_padded():
+    keys = {"cond_seq_linear.weight": [2048, 3072], "double_layers.0.attn.w1q.weight": [3072, 3072],
+            "register_tokens": [1, 8, 3072]}
+    assert registry.detect_from_single_file(keys, "gguf/base-v7-Q8_0.gguf")[:2] == ("auraflow", "comfy_files")
+    try:
+        registry.detect_from_single_file({"model." + k: v for k, v in keys.items()}, "pony-v7-base.safetensors")
+        assert False, "diffusers-style single file must be refused"
+    except registry.UnsupportedModel as e:
+        assert "GGUF" in str(e)
+    assert importer._guess_from_name("purplesmartai/pony-v7-base/gguf/base-v7-Q8_0.gguf")[0] == "auraflow"
+    assert civitai.arch_of("Pony V7") == "auraflow" and civitai.arch_of("AuraFlow") == "auraflow"
+    assert civitai.arch_of("Pony") == "sdxl"  # V6 stays SDXL
+    wf = _workflows()
+    files = {"diffusion_model": "d.gguf", "text_encoder": "t.safetensors", "vae": "v.safetensors"}
+    g = wf.build({"prompt": "a fox", "width": 1024, "height": 1024, "steps": 30, "cfg": 3.5, "seed": 1}, files,
+                 registry.ARCHS["auraflow"]["comfy"], loras=[("l.safetensors", 1.0)])
+    assert g["t5"]["inputs"] == {"clip": ["clip", 0], "min_padding": 768, "min_length": 768}
+    assert g["lora0"]["inputs"]["clip"] == ["t5", 0] and g["unet"]["class_type"] == "UnetLoaderGGUFAdvanced"
+    assert registry.family_label("auraflow") == "AuraFlow (Pony V7)"
+
+
+def test_auraflow_diffusers_repos_run_on_the_diffusers_runtime():
+    import samplers
+    pony = registry.detect_from_model_index({"_class_name": "AuraFlowPipeline"}, {}, "purplesmartai/pony-v7-base")
+    assert pony == ("auraflow_diffusers", {})
+    assert registry.detect_from_model_index({"_class_name": "AuraFlowPipeline"}, {}, "fal/AuraFlow-v0.3")[1] == \
+        {"num_steps": 50}  # fal's model card
+    spec = registry.ARCHS["auraflow_diffusers"]
+    assert spec["family"] == "auraflow" and not spec.get("runtime") and spec["call_kwargs"]["max_sequence_length"] == 768
+    assert "flow_euler" in samplers.for_family("auraflow")
+    info = {"arch": "auraflow_diffusers", "components": dict(spec["fallback_params"]), "denoiser": "transformer",
+            "layout": "repo"}
+    assert importer.make_plan(info, ram_gb=16)["fits"]  # 8 bit
+    assert registry.family_label("auraflow") == "AuraFlow (Pony V7)"
+
+
+def test_a_misnamed_variant_index_gets_the_name_diffusers_reads(tmp_path):
+    (tmp_path / "transformer").mkdir()
+    (tmp_path / "transformer" / "diffusion_pytorch_model.safetensors.fp16.index.json").write_text("{}")
+    importer._name_variant_indexes(tmp_path, "fp16")
+    assert (tmp_path / "transformer" / "diffusion_pytorch_model.safetensors.index.fp16.json").read_text() == "{}"
+
+
+def test_a_gguf_transformer_counts_by_its_size(monkeypatch):
+    monkeypatch.setattr(importer, "_hf_gguf_shapes", lambda ref, file, token: {
+        "cond_seq_linear.weight": [2048, 3072], "double_layers.0.attn.w1q.weight": [3072, 3072]})
+    monkeypatch.setattr(importer, "_hf_repo_info", lambda repo, token: (None, {
+        "gguf/base-v7-Q8_0.gguf": 7_350_000_000, "text_encoder/model.fp16.safetensors": 2_950_000_000,
+        "vae/diffusion_pytorch_model.fp16.safetensors": 167_000_000}))
+    monkeypatch.setattr(importer, "_hf_file_size", lambda *a, **k: 7_350_000_000, raising=False)
+    info = importer.inspect("hf", "purplesmartai/pony-v7-base", "gguf/base-v7-Q8_0.gguf")
+    assert info["arch"] == "auraflow" and abs(info["components"]["transformer"] - 3.675) < 0.01
+    assert importer.make_plan(info, ram_gb=16)["fits"]
+
+
+def test_a_civitai_gguf_card_counts_the_file_on_the_comfyui_runtime():
+    # the finder's card (dry run) has only the file size: Pony V7 Q8_0 (7.3 GB) fits 16 GB, as after the install
+    info = {"arch": "auraflow", "components": registry.ARCHS["auraflow"]["fallback_params"], "denoiser": "transformer",
+            "layout": "single_denoiser", "denoiser_fixed_gb": 7_350_000_000 / 1024 ** 3}
+    assert importer.make_plan(info, ram_gb=16)["fits"]
+    assert not importer.make_plan(dict(info, denoiser_fixed_gb=None), ram_gb=16)["fits"]  # 16 bit: 13.7 GB
+
+
+def _comfy_main(monkeypatch):
+    here = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "comfy")
+    monkeypatch.syspath_prepend(here)
+    spec = importlib.util.spec_from_file_location("comfy_main", os.path.join(here, "main.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_comfyui_streams_a_gguf_model_only_where_shared_would_not_hold_it(monkeypatch):
+    main = _comfy_main(monkeypatch)
+    monkeypatch.delenv("VK_COMFY_STREAMING", raising=False)
+    monkeypatch.delenv("VK_MEMORY_RESERVE_GB", raising=False)
+    pony = {"arch": "auraflow", "components": {"transformer": 3.67, "text_encoder": 1.47, "vae": 0.08}}
+    gguf = {"diffusion_model": "pony__diffusion_model.gguf"}
+    # SHARED keeps the text encoder beside it: about 14 GB, as measured
+    assert main.memory_mode(pony, gguf, 16) == "LOW_VRAM"
+    assert main.memory_mode(pony, gguf, 24) == "SHARED"
+    assert main.memory_mode(pony, {"diffusion_model": "x.safetensors"}, 16) == "SHARED"  # read into memory anyway
+    monkeypatch.setenv("VK_COMFY_STREAMING", "off")
+    assert main.memory_mode(pony, gguf, 16) == "SHARED"
+
+
+def test_a_comfyui_gguf_too_large_for_memory_is_planned_streamed(monkeypatch):
+    monkeypatch.delenv("VK_COMFY_STREAMING", raising=False)
+    monkeypatch.delenv("VK_MEMORY_RESERVE_GB", raising=False)
+    # a 13 GB GGUF (Wan 2.2 14B in Q6, say): no room on 16 GB, streamed from its file it fits
+    info = {"arch": "auraflow", "components": {"transformer": 6.5, "text_encoder": 1.47, "vae": 0.08},
+            "denoiser": "transformer", "file": "big.gguf"}
+    plan = importer.make_plan(info, ram_gb=16)
+    assert plan["fits"] and plan["streamed"]
+    assert not importer.make_plan(dict(info, file="big.safetensors"), ram_gb=16)["fits"]
+    monkeypatch.setenv("VK_COMFY_STREAMING", "off")
+    assert not importer.make_plan(info, ram_gb=16)["fits"]

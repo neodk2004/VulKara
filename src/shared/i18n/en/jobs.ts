@@ -11,6 +11,7 @@ export default {
     illusion: 'Illusion',
     lora: 'LoRA comparison',
     start: 'Start page',
+    benchmark: 'Benchmark',
   },
   upscaleTo: '{from} to {to}',
   steps: '{n} steps',

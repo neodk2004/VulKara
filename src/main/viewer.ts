@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
-// The large view of pictures and videos: every view is a window of its own, so several can stay open next to
-// the app and next to each other. A viewer window gets the list it was opened from and may only ask for that
+// The large view of pictures and videos: every view is a window of its own, so several can be open next to each
+// other; back in the main window they all close (ipc.ts bindWindow). A viewer window gets the list it was opened from and may only ask for that
 // list, save or reveal a file, and hand a picture back to the main window.
 
 import { app, BrowserWindow, nativeTheme, shell, type WebContents } from 'electron'
@@ -10,6 +10,12 @@ import type { ViewerPayload } from '@shared/api'
 
 const payloads = new Map<number, ViewerPayload>()  // by the id of the window's page
 const windows = new Set<BrowserWindow>()
+let changed: (open: boolean) => void = () => {}
+
+/** told whether a viewer window is open, after each one opens or closes */
+export function onViewersChange(fn: (open: boolean) => void): void {
+  changed = fn
+}
 
 export const isViewer = (sender: WebContents): boolean => payloads.has(sender.id)
 export const viewerPayload = (sender: WebContents): ViewerPayload | undefined => payloads.get(sender.id)
@@ -39,7 +45,9 @@ export function openViewer(payload: ViewerPayload, opener?: BrowserWindow): void
   win.on('closed', () => {
     payloads.delete(id)
     windows.delete(win)
+    changed(windows.size > 0)
   })
+  changed(true)
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https://')) void shell.openExternal(url)
     return { action: 'deny' }

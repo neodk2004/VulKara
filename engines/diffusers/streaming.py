@@ -28,11 +28,15 @@ PROFILE = os.environ.get("VK_STREAM_PROFILE") == "1"
 STATS = {"wait": 0.0, "copy": 0.0, "forward": 0.0, "read_gb": 0.0, "blocks": 0, "passes": 0, "peak_gb": 0.0, "skipped": 0}
 
 
+def reset():
+    for k in STATS:
+        STATS[k] = 0 if isinstance(STATS[k], int) else 0.0
+
+
 def report():
     """The profile since the last report, as one line; resets it."""
     s = dict(STATS)
-    for k in STATS:
-        STATS[k] = 0 if isinstance(STATS[k], int) else 0.0
+    reset()
     total = s["wait"] + s["copy"] + s["forward"]
     return ("passes %d, blocks %d (%d skipped by step caching), read %.1f GB | waiting for the SSD %.1fs, to the GPU %.1fs, computing %.1fs "
             "(%.0f%% waiting) | %.2f GB/s while waiting | GPU memory peak %.1f GB" % (
@@ -104,8 +108,7 @@ def enable(model, device, dtype, cache_dir, report=None, resident_share=0.0):
         # one sequential read (memory-mapped page faults are several times slower on a busy Mac)
         with open(path, "rb") as fh:
             data = fh.read()
-        if PROFILE:
-            STATS["read_gb"] += len(data) / 1024 ** 3
+        STATS["read_gb"] += len(data) / 1024 ** 3  # also without the profile: benchmarks report it
         return load_bytes(data)
 
     order = []  # the streamed blocks in the order they run
@@ -158,9 +161,9 @@ def enable(model, device, dtype, cache_dir, report=None, resident_share=0.0):
             state = pending.pop(i).result()
             for ahead in range(1, PREFETCH + 1):  # the next blocks load while this one computes
                 prefetch(q + ahead)
+            t1 = time.time()
+            STATS["wait"] += t1 - t0  # what the steps waited for the SSD (benchmarks), measured without syncing
             if PROFILE:
-                t1 = time.time()
-                STATS["wait"] += t1 - t0
                 STATS["blocks"] += 1
                 STATS["passes"] += q == 0
             state = {k: v.to(device, non_blocking=True) for k, v in state.items()}
@@ -184,8 +187,7 @@ def enable(model, device, dtype, cache_dir, report=None, resident_share=0.0):
 
         block.register_forward_pre_hook(load)
         block.register_forward_hook(drop)
-    if PROFILE:
-        STATS["read_gb"] = 0.0  # the kept blocks' first read is not part of a step
+    STATS["read_gb"] = 0.0  # the kept blocks' first read is not part of a step
     model._stream_blocks = {key: block for n, (key, block) in enumerate(blocks) if n not in keep}
     model._stream_loras = {}
     model._stream_resident = []

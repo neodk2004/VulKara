@@ -160,16 +160,17 @@ async function remove(tl: PhotoTool): Promise<void> {
   }
 }
 
-const result = computed(() => {
-  if (!size.value || !tool.value) return ''
+const target = computed((): [number, number] | undefined => {
+  if (!size.value || !tool.value) return size.value
   const tl = tool.value
-  if (tl.kind !== 'image' || tl.scale <= 1) return `${size.value[0]} × ${size.value[1]}`
+  if (tl.kind !== 'image' || tl.scale <= 1) return size.value
   // a picture over the tool's limit is made smaller to it first; the result then at most the tool's scale of that
   const k = tl.maxSide && Math.max(...size.value) > tl.maxSide ? tl.maxSide / Math.max(...size.value) : 1
   const most = (v: number): number => Math.round(v * k) * tl.scale
   const want = (v: number): number => Math.round(v * Math.min(factor.value, tl.scale))
-  return `${Math.min(want(size.value[0]), most(size.value[0]))} × ${Math.min(want(size.value[1]), most(size.value[1]))}`
+  return [Math.min(want(size.value[0]), most(size.value[0])), Math.min(want(size.value[1]), most(size.value[1]))]
 })
+const result = computed(() => (target.value && tool.value ? `${target.value[0]} × ${target.value[1]}` : ''))
 
 async function run(out: 'cutout' | 'mask' = output.value): Promise<void> {
   const tl = tool.value
@@ -180,7 +181,7 @@ async function run(out: 'cutout' | 'mask' = output.value): Promise<void> {
   if (error.value || !tl) return
   try {
     await queue.add({
-      page: 'enhance', prompt: '', modelId: '', modelDir: '', width: size.value?.[0] ?? 0, height: size.value?.[1] ?? 0, seed: 0,
+      page: 'enhance', prompt: '', modelId: '', modelDir: '', width: target.value?.[0] ?? 0, height: target.value?.[1] ?? 0, seed: 0,
       // the label in English, as every label a job keeps (labels.ts shows it in the app's language)
       inputImage: input.value, label: englishToolName(catalogOf(tl)?.id) ?? fullName(tl),
       photoTool: { folder: tl.folder, strength: strength.value / 100, factor: tl.scale > 1 ? factor.value : undefined,

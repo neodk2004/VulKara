@@ -39,7 +39,7 @@ export const PAGES: PageEntry[] = [
   { path: '/pose', title: 'nav.pose', icon: PersonStanding, group: 'tools', remote: true, page: () => import('./pages/PosePage.vue') },
   { path: '/lora', title: 'nav.lora', icon: Layers, group: 'tools', remote: true, page: () => import('./pages/LoraPage.vue') },
   { path: '/training', title: 'nav.training', icon: GraduationCap, group: 'tools', page: () => import('./pages/TrainingPage.vue') },
-  { path: '/models', title: 'nav.models', icon: Boxes, group: 'library', page: () => import('./pages/ModelsPage.vue') },
+  { path: '/models', title: 'nav.models', icon: Boxes, group: 'library', remote: true, page: () => import('./pages/ModelsPage.vue') },
   { path: '/history', title: 'nav.history', icon: History, group: 'library', remote: true, page: () => import('./pages/HistoryPage.vue') },
   {
     path: '/favorites', title: 'nav.favorites', icon: Heart, group: 'library', remote: true,

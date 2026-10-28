@@ -29,6 +29,24 @@ def _res(lo, hi, step=64):
 # model itself (content_check.py), which the checker of these two families could not do
 NO_SAFETY_CHECKER = {"safety_checker": None, "feature_extractor": None, "requires_safety_checker": False}
 
+LUMINA_SYSTEM_PROMPT = ("You are an assistant designed to generate superior images with the superior degree of image-text "
+                        "alignment based on textual prompts or user prompts. <Prompt Start> ")
+# Neta Lumina / NetaYume (model cards): their own system prompt for anime, 40-50 steps, CFG 4-7
+NETA_SYSTEM_PROMPT = "You are an assistant designed to generate anime images based on textual prompts. <Prompt Start> "
+
+
+def ernie_overrides(ref):
+    # the SFT model (not Turbo): 50 steps with guidance (model card; mflux's example uses 4)
+    return {} if "turbo" in (ref or "").lower() else {"num_steps": 50, "guidance_scale": 4.0}
+
+
+def lumina_overrides(ref):
+    if re.search(r"neta", (ref or "").lower()):
+        return {"prompt_prefix": NETA_SYSTEM_PROMPT, "num_steps": 40, "guidance_scale": 5.5,
+                "negative_prompt": "blurry, worst quality, low quality, jpeg artifacts, signature, watermark"}
+    return {}
+
+
 ARCHS = {
     "sd15": {
         "family": "sd1", "label": "Stable Diffusion 1.5",
@@ -269,6 +287,20 @@ ARCHS = {
         "resolutions": _res(512, 1536),
         "fallback_params": {"transformer": 13.1, "text_encoder": 4.4, "vae": 0.13},
     },
+    # ERNIE-Image (Baidu, Apache 2.0): 8B single-stream DiT, Ministral 3 3B text encoder, FLUX.2 VAE. The MLX runtime
+    # runs it from the diffusers repository (mflux, which quantizes the text encoder too: 4 bit fits 16 GB); the
+    # repository's prompt enhancer (pe/) is not needed and not downloaded. Turbo (DMD): 8 steps, guidance 1 only
+    "ernie_image": {
+        "family": "ernie", "label": "ERNIE-Image",
+        "pipeline": "ErnieImagePipeline", "img2img_pipeline": None, "img2img": False,
+        "denoiser": "transformer", "denoiser_class": "ErnieImageTransformer2DModel",
+        "base_repo": "baidu/ERNIE-Image-Turbo", "runtime": "mlx",
+        "license": "Apache 2.0",
+        "torch_dtype": "bfloat16", "negative_prompt": True, "size_multiple": 16,
+        "defaults": {"num_steps": 8, "guidance_scale": 1.0, "width": 1024, "height": 1024},
+        "resolutions": _res(512, 1536),
+        "fallback_params": {"transformer": 8.04, "text_encoder": 3.86, "vae": 0.08},
+    },
     # Anima (CircleStone Labs / Comfy Org): Cosmos-Predict2 2B with an LLM adapter, Qwen3 0.6B text
     # encoder, Qwen-Image VAE. Neither diffusers (0.40) nor mflux runs it: the ComfyUI runtime does,
     # from the original files (layout "comfy_files": diffusion model, text encoder, VAE)
@@ -287,6 +319,62 @@ ARCHS = {
                      "negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts"},
         "resolutions": _res(512, 1536),
         "fallback_params": {"transformer": 2.09, "text_encoder": 0.6, "vae": 0.13},
+    },
+    # Lumina Image 2.0 (Alpha-VLLM, Apache 2.0): NextDiT 2.6B (width 2304) with Gemma 2 2B as its text encoder and
+    # the FLUX.1 VAE. Runs on the ComfyUI runtime from Comfy-Org's repackaged files; the prompt starts with the system
+    # prompt of the official example (fine-tunes such as Neta Lumina / NetaYume bring their own, lumina_overrides)
+    "lumina2": {
+        "family": "lumina", "label": "Lumina 2",
+        "pipeline": None, "img2img_pipeline": None, "img2img": True,
+        "denoiser": "transformer", "denoiser_class": None,
+        "base_repo": "Comfy-Org/Lumina_Image_2.0_Repackaged", "runtime": "comfyui",
+        "comfy": {"clip_type": "lumina2", "sampler": "res_multistep", "scheduler": "simple",
+                  "base_files": {"text_encoder": "split_files/text_encoders/gemma_2_2b_fp16.safetensors",
+                                 "vae": "split_files/vae/ae.safetensors"}},
+        "license": "Apache 2.0",
+        "prompt_hint": "Full sentences describing the picture; fine-tunes for anime also take Danbooru tags",
+        "torch_dtype": "bfloat16", "negative_prompt": True, "size_multiple": 16,
+        # ComfyUI's note on its example: the official way is shift 6 (its default) with 36 steps, CFG 4
+        "defaults": {"num_steps": 36, "guidance_scale": 4.0, "width": 1024, "height": 1024,
+                     "negative_prompt": "blurry, ugly, bad, low quality",
+                     "prompt_prefix": LUMINA_SYSTEM_PROMPT},
+        "resolutions": _res(512, 1536),
+        "fallback_params": {"transformer": 2.61, "text_encoder": 2.61, "vae": 0.08},
+    },
+    # AuraFlow (fal) and Pony V7 (PurpleSmartAI), its best known fine-tune: a 6.8B MMDiT with Pile-T5-XL as its text
+    # encoder and the SDXL VAE. Runs on the ComfyUI runtime; the transformer as GGUF (Pony's own Q8_0 / Q4_0, what its
+    # workflow loads) or in ComfyUI's names. Prompts are padded to 768 tokens as in Pony's workflow (T5TokenizerOptions)
+    "auraflow": {
+        "family": "auraflow", "label": "AuraFlow (Pony V7)",
+        "pipeline": None, "img2img_pipeline": None, "img2img": True,
+        "denoiser": "transformer", "denoiser_class": None,
+        "base_repo": "purplesmartai/pony-v7-base", "runtime": "comfyui",
+        "comfy": {"clip_type": "stable_diffusion", "sampler": "euler", "scheduler": "simple", "t5_min_padding": 768,
+                  "base_files": {"text_encoder": "text_encoder/model.fp16.safetensors",
+                                 "vae": "vae/diffusion_pytorch_model.fp16.safetensors"}},
+        "license": "Pony License (commercial use with limits)",
+        "prompt_hint": "Sentences, then tags; Pony's template: \"style_cluster_1610, score_9, rating_safe, <description>\"",
+        "torch_dtype": "float16", "negative_prompt": True, "size_multiple": 16,
+        # model card: 768-1536 px, higher is better, at least 30 steps; its workflow: euler / simple, CFG 3.5
+        "defaults": {"num_steps": 30, "guidance_scale": 3.5, "width": 1024, "height": 1024},
+        "resolutions": _res(768, 1536),
+        "fallback_params": {"transformer": 6.85, "text_encoder": 1.47, "vae": 0.08},
+    },
+    # AuraFlow's diffusers repositories and folders (AuraFlowPipeline: fal/AuraFlow-v0.3, purplesmartai/pony-v7-base)
+    # run on the Diffusers runtime, in 8 bit or streamed where 16 bit does not fit. Prompts padded to 768 tokens as on
+    # the ComfyUI runtime; AuraFlow itself gets fal's 50 steps (auraflow_overrides)
+    "auraflow_diffusers": {
+        "family": "auraflow", "label": "AuraFlow",
+        "pipeline": "AuraFlowPipeline", "img2img_pipeline": None, "img2img": False,
+        "denoiser": "transformer", "denoiser_class": "AuraFlowTransformer2DModel",
+        "base_repo": "fal/AuraFlow-v0.3",
+        "license": "Apache 2.0 (Pony V7: Pony License)",
+        "prompt_hint": "Sentences, then tags; Pony's template: \"style_cluster_1610, score_9, rating_safe, <description>\"",
+        "torch_dtype": "float16", "negative_prompt": True, "size_multiple": 16,
+        "call_kwargs": {"max_sequence_length": 768},
+        "defaults": {"num_steps": 30, "guidance_scale": 3.5, "width": 1024, "height": 1024},
+        "resolutions": _res(768, 1536),
+        "fallback_params": {"transformer": 6.85, "text_encoder": 1.47, "vae": 0.08},
     },
     # Wan 2.2 TI2V 5B (Alibaba, Apache 2.0): video from a start picture, UMT5-XXL text encoder, Wan 2.2
     # VAE (16x compression). Runs on the ComfyUI runtime from Comfy-Org's repackaged files
@@ -438,6 +526,10 @@ def detect_from_model_index(model_index, denoiser_config=None, ref="", scheduler
         return "flux2_dev", overrides
     if cls == "Ideogram4Pipeline":
         return "ideogram4", {}
+    if cls == "ErnieImagePipeline":
+        return "ernie_image", ernie_overrides(ref)
+    if cls == "AuraFlowPipeline":
+        return "auraflow_diffusers", auraflow_overrides(ref)
     if cls == "Krea2Pipeline":
         return "krea2", {}  # the generic "turbo" rule (4 steps, no guidance) does not fit Krea 2
     if cls == "Flux2KleinPipeline":
@@ -458,6 +550,11 @@ def detect_from_model_index(model_index, denoiser_config=None, ref="", scheduler
     if cls.startswith("ZImage"):
         raise UnsupportedModel(Z_IMAGE_OTHERS % cls)
     raise UnsupportedModel("Unsupported pipeline type: %s" % (cls or "unknown"))
+
+
+def auraflow_overrides(ref):
+    """fal's AuraFlow by its name: 50 steps (its model card); Pony V7 and other fine-tunes keep 30."""
+    return {"num_steps": 50} if re.search(r"aura[-_ ]?flow", (ref or "").lower()) else {}
 
 
 Z_IMAGE_OTHERS = ("Of the Z-Image models Z-Image-Turbo, Z-Image (Base) and their fine-tunes are supported, not %s "
@@ -657,8 +754,8 @@ def trigger_words_from_metadata(meta):
 # (their import labels end in NO_RUNTIME_LABEL; recheck.py takes it off when the family becomes runnable)
 NO_RUNTIME_LABEL = ": no model type of the app can use it yet"
 FOREIGN_FAMILIES = {
-    "lumina": "Lumina 2", "ernie": "ERNIE-Image", "hidream": "HiDream",
-    "hidream_o1": "HiDream-O1", "hunyuan_video": "HunyuanVideo", "hunyuan_dit": "Hunyuan-DiT", "auraflow": "AuraFlow",
+    "hidream": "HiDream",
+    "hidream_o1": "HiDream-O1", "hunyuan_video": "HunyuanVideo", "hunyuan_dit": "Hunyuan-DiT",
 }
 
 # sub-bases inside a family whose LoRAs do not fit each other (other widths)
@@ -1103,6 +1200,31 @@ def lora_mismatch(lm, m):
     return None
 
 
+_FILE_PRECISION = {}
+
+
+def file_precision(path):
+    """The bit size most of a weights file is in: its GGUF type ("Q8_0", "Q4_K") or "16 bit", "8 bit (FP8)" from a
+    safetensors header; read once per file."""
+    if path not in _FILE_PRECISION:
+        label = None
+        try:
+            if path.lower().endswith(".gguf"):
+                from gguf import GGUFReader
+                counts = {}
+                for t in GGUFReader(path).tensors:
+                    counts[t.tensor_type.name] = counts.get(t.tensor_type.name, 0) + int(t.n_elements)
+                label = max(counts, key=counts.get) if counts else None
+            else:
+                dtypes = {v["dtype"] for k, v in read_safetensors_json(path).items() if k != "__metadata__"}
+                label = ("8 bit (FP8)" if any(d.startswith("F8") for d in dtypes) else
+                         "16 bit" if dtypes & {"BF16", "F16"} else "32 bit" if "F32" in dtypes else None)
+        except Exception:
+            pass
+        _FILE_PRECISION[path] = label or "?"
+    return _FILE_PRECISION[path]
+
+
 def read_gguf_header(path):
     from gguf import GGUFReader
     reader = GGUFReader(path)
@@ -1301,13 +1423,21 @@ def detect_from_single_file(shapes, ref=""):
         if not has("x_embedder.") and not has("all_x_embedder."):
             raise UnsupportedModel("Incomplete Z-Image checkpoint (no input layer): the file holds only some layers")
         return "z_image", "single_denoiser", z_image_overrides(ref), params
+    if width == 2304:  # Lumina Image 2.0 and its fine-tunes (Neta Lumina, NetaYume), ComfyUI files
+        return "lumina2", "comfy_files", lumina_overrides(ref), params
     if width:
-        raise UnsupportedModel("Lumina 2 and other NextDiT models are not supported (only Z-Image)")
+        raise UnsupportedModel("This NextDiT model (width %d) is not supported (only Lumina 2 and Z-Image)" % width)
     if has("txtfusion.") and has("blocks.0.mod.lin"):  # Krea 2 in Krea's own format
         return "krea2", "single_denoiser", {}, params  # its own defaults, not the "turbo" rule
     if has("text_fusion.") and has("transformer_blocks."):
         raise UnsupportedModel("Krea 2 checkpoints in diffusers format are not supported as a single file; "
                                "use the original checkpoint or the krea/Krea-2-Turbo repo")
+    if has("double_layers.") and has("cond_seq_linear."):  # AuraFlow / Pony V7 (original names, GGUF)
+        return "auraflow", "comfy_files", {}, params
+    if any(k.startswith("model.double_layers.") for k in keys):
+        raise UnsupportedModel("This AuraFlow / Pony V7 file names its weights model.* (diffusers' single file), which "
+                               "ComfyUI does not load: use the GGUF files of purplesmartai/pony-v7-base (Q8_0 is close "
+                               "to 16 bit at half the size)")
     if has("joint_blocks."):
         depth = len({k.split(".")[1] for k in keys if k.startswith("joint_blocks.")})
         return ("sd35_large" if depth >= 30 else "sd35_medium"), "single_denoiser", overrides, params

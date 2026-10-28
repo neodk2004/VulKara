@@ -28,12 +28,13 @@ const factor = ref(4)
 const error = ref('')
 const comfyInstalled = computed(() => runtimes.list.some((r) => r.id === 'comfyui' && r.installed))
 // a picture over MAX_SIDE is made smaller to it first; the result is factor times the picture, at most four times that
-const result = computed(() => {
-  if (!size.value) return ''
+const target = computed((): [number, number] | undefined => {
+  if (!size.value) return undefined
   const k = Math.min(1, MAX_SIDE / Math.max(...size.value))
   const side = (v: number): number => Math.min(Math.round(v * factor.value), Math.round(v * k) * 4)
-  return `${side(size.value[0])} × ${side(size.value[1])}`
+  return [side(size.value[0]), side(size.value[1])]
 })
+const result = computed(() => (target.value ? `${target.value[0]} × ${target.value[1]}` : ''))
 const jobs = computed(() => queue.ofPage('upscale'))
 
 async function refresh(): Promise<void> {
@@ -52,7 +53,7 @@ async function enlarge(): Promise<void> {
   error.value = !input.value ? t('edit.upscale.choosePicture') : ''
   if (error.value || !size.value) return
   try {
-    await queue.add({ page: 'upscale', prompt: '', modelId: '', modelDir: '', width: size.value[0], height: size.value[1], seed: 0, inputImage: input.value, upscale: factor.value, label: `Upscale ×${factor.value}` }) // i18n-ok
+    await queue.add({ page: 'upscale', prompt: '', modelId: '', modelDir: '', width: target.value![0], height: target.value![1], seed: 0, inputImage: input.value, upscale: factor.value, label: `Upscale ×${factor.value}` }) // i18n-ok
   } catch (err) {
     error.value = cleanError(err)
   }

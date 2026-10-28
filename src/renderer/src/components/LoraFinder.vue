@@ -1,18 +1,19 @@
 <!-- SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0 · Copyright (C) 2026 Oliver Schmidt -->
 <script setup lang="ts">
-// LoRAs that fit a model, from Civitai or Hugging Face, installed through the import queue.
+// LoRAs that fit a model, or models made from a base, from Civitai or Hugging Face, installed through the import queue.
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { Check, Download, ExternalLink, Search, Square, X } from 'lucide-vue-next'
+import HintBadge from './HintBadge.vue'
 import { useAssetsStore } from '../stores/assets'
 import { useImportsStore } from '../stores/imports'
 import { cleanError } from '../stores/runtimes'
 import { useSettingsStore } from '../stores/settings'
 import { openLink } from '../util/links'
-import { LORA_BASES, isInstalled, loraBase, type LoraHit } from '@shared/lora_bases'
-import type { ImportJob, ImportRequest } from '@shared/api'
+import { BASE_GROUPS, isInstalled, loraBase, type FindKind, type LoraHit } from '@shared/lora_bases'
+import type { ImportInfo, ImportJob, ImportRequest } from '@shared/api'
 import { num, t } from '../i18n'
 
-const props = defineProps<{ base: string; model?: string }>()
+const props = withDefaults(defineProps<{ base: string; model?: string; kind?: FindKind }>(), { kind: 'lora' })
 const emit = defineEmits<{ close: [] }>()
 
 const assets = useAssetsStore()
@@ -33,11 +34,19 @@ const tokens = reactive({ hf: false, civitai: false })
 const chosen = reactive<Record<string, string>>({})
 /** preview pictures: data URL, '' when there is none */
 const thumbs = reactive<Record<string, string>>({})
+/** models: what the import's check says about the memory */
+const plans = reactive<Record<string, ImportInfo>>({})
+/** models: why the import's check refused one (a format this Mac can not compute, an unknown model type …) */
+const refused = reactive<Record<string, string>>({})
 /** adult previews the user chose to see */
 const revealed = reactive(new Set<string>())
 
-const title = computed(() => props.model ? t('lora.finder.titleFor', { model: props.model }) : t('lora.finder.title'))
-const baseLabel = computed(() => loraBase(base.value)?.label ?? base.value)
+const title = computed(() => props.kind === 'model' ? t('lora.finder.modelsTitle')
+  : props.model ? t('lora.finder.titleFor', { model: props.model }) : t('lora.finder.title'))
+const baseLabel = computed(() => (base.value === 'all' ? t('lora.finder.allBases') : loraBase(base.value)?.label ?? base.value))
+const intro = computed(() => base.value === 'all'
+  ? t(props.kind === 'model' ? 'lora.finder.modelsIntroAll' : 'lora.finder.introAll')
+  : t(props.kind === 'model' ? 'lora.finder.modelsIntro' : 'lora.finder.intro', { base: baseLabel.value }))
 let run = 0
 
 onMounted(async () => {
@@ -58,13 +67,14 @@ async function search(more = false): Promise<void> {
     cursor.value = undefined
   }
   try {
-    const page = await window.vk.loras.search({ base: base.value, source: source.value, query: query.value, cursor: more ? cursor.value : undefined })
+    const page = await window.vk.loras.search({ base: base.value, source: source.value, kind: props.kind, query: query.value, cursor: more ? cursor.value : undefined })
     if (id !== run) return
     const known = new Set(hits.value.map(key))
     hits.value = [...hits.value, ...page.hits.filter((h) => !known.has(key(h)))]
     cursor.value = page.cursor
     for (const h of page.hits) if (h.file && !(h.ref in chosen)) chosen[h.ref] = h.file
     void loadThumbs(page.hits, id)
+    if (props.kind === 'model') void loadPlans(page.hits, id)
   } catch (err) {
     if (id === run) error.value = cleanError(err)
   } finally {
@@ -86,9 +96,26 @@ async function loadThumbs(list: LoraHit[], id: number): Promise<void> {
   await Promise.all([worker(), worker(), worker(), worker()])
 }
 
+// the import's dry run for each model, two at a time (well under a second for Civitai, a few for a repository), so the
+// cards tell the memory a model needs and whether it runs streamed from the SSD.
+// shortcut: checked for the file first offered; another file chosen on the card is not checked again
+async function loadPlans(list: LoraHit[], id: number): Promise<void> {
+  const todo = list.filter((h) => !(key(h) in plans) && !(key(h) in refused) && !tokenMissing(h))
+  const worker = async (): Promise<void> => {
+    for (let h = todo.shift(); h && id === run; h = todo.shift()) {
+      try {
+        plans[key(h)] = await window.vk.imports.inspect(requestOf(h))
+      } catch (err) {
+        refused[key(h)] = cleanError(err)
+      }
+    }
+  }
+  await Promise.all([worker(), worker()])
+}
+
 const fileOf = (h: LoraHit): string | undefined => chosen[h.ref] ?? h.file
 const requestOf = (h: LoraHit): ImportRequest => h.source === 'hf' ? { source: 'hf', ref: h.ref, file: fileOf(h) } : { source: 'civitai', ref: h.ref }
-const installed = (h: LoraHit): boolean => isInstalled({ source: h.source, ref: h.ref, file: fileOf(h) }, assets.all)
+const installed = (h: LoraHit): boolean => isInstalled({ source: h.source, ref: h.ref, file: fileOf(h) }, assets.all, props.kind)
 
 function jobOf(h: LoraHit): ImportJob | undefined {
   const job = imports.of(requestOf(h))
@@ -116,6 +143,17 @@ function count(n: number | undefined): string {
   return n >= 1e6 ? `${num(n / 1e6, 1)}M` : n >= 1e3 ? `${num(n / 1e3, n >= 1e4 ? 0 : 1)}k` : String(n)
 }
 
+// the format names as the sites write them, with what they mean on a Mac
+const FORMATS = [
+  ['bf16 · fp16', 'lora.finder.formats.f16'], ['fp8 · fp8 scaled', 'lora.finder.formats.fp8'],
+  ['GGUF (Q8_0, Q5, Q4 …)', 'lora.finder.formats.gguf'], ['fp32', 'lora.finder.formats.fp32'],
+  // i18n-ok: format names
+  ['NF4 · int8 · int4 · nvfp4 · AWQ', 'lora.finder.formats.nvidia'], ['pruned · full', 'lora.finder.formats.pruned'],
+  ['.safetensors · .ckpt · .pt', 'lora.finder.formats.pickle'],
+] as const
+
+const size = (mb: number): string => mb >= 1024 ? `${num(mb / 1024, 1)} GB` : `${mb} MB`
+
 function close(): void {
   run++
   emit('close')
@@ -130,7 +168,7 @@ function close(): void {
       <header>
         <div class="grow">
           <h2>{{ title }}</h2>
-          <p class="dim">{{ t('lora.finder.intro', { base: baseLabel }) }}</p>
+          <p class="dim">{{ intro }}</p>
         </div>
         <button class="btn small ghost" :title="t('lora.finder.close')" @click="close"><X :size="14" /></button>
       </header>
@@ -140,8 +178,11 @@ function close(): void {
           <button :class="{ on: source === 'civitai' }" @click="source = 'civitai'">Civitai</button>
           <button :class="{ on: source === 'hf' }" @click="source = 'hf'">Hugging Face</button>
         </div>
-        <select v-model="base" :title="t('lora.finder.baseHint')">
-          <option v-for="b in LORA_BASES" :key="b.id" :value="b.id">{{ b.label }}</option>
+        <select v-model="base" :title="kind === 'model' ? t('lora.finder.modelsBaseHint') : t('lora.finder.baseHint')">
+          <option value="all">{{ t('lora.finder.allBases') }}</option>
+          <optgroup v-for="g in BASE_GROUPS" :key="g.label" :label="g.label">
+            <option v-for="b in g.bases" :key="b.id" :value="b.id">{{ b.label }}</option>
+          </optgroup>
         </select>
         <label class="search">
           <Search :size="14" class="dim" />
@@ -149,8 +190,14 @@ function close(): void {
         </label>
       </div>
       <p v-if="!settings.values.allowExplicit" class="dim small">
-        {{ t('lora.finder.adultsLeftOut') }}
+        {{ kind === 'model' ? t('lora.finder.modelsAdultsLeftOut') : t('lora.finder.adultsLeftOut') }}
       </p>
+      <details v-if="kind === 'model'" class="formats">
+        <summary>{{ t('lora.finder.formats.title') }}</summary>
+        <dl>
+          <template v-for="[name, text] in FORMATS" :key="name"><dt>{{ name }}</dt><dd>{{ t(text) }}</dd></template>
+        </dl>
+      </details>
       <p v-if="installError" class="error selectable">{{ installError }}</p>
 
       <div class="results">
@@ -165,7 +212,7 @@ function close(): void {
                   {{ t('lora.finder.adultShow') }}
                 </button>
               </template>
-              <span v-else class="dim">{{ h.previewUrl && !(h.previewUrl in thumbs) ? '…' : 'LoRA' }}</span>
+              <span v-else class="dim">{{ h.previewUrl && !(h.previewUrl in thumbs) ? '…' : kind === 'model' ? baseLabel : 'LoRA' }}</span>
             </div>
             <div class="body">
               <strong class="selectable">{{ h.title }}</strong>
@@ -176,7 +223,15 @@ function close(): void {
                 <span v-if="h.baseModel" class="tag">{{ h.baseModel }}</span>
                 <span v-if="h.downloads !== undefined" class="tag" :title="t('lora.finder.downloadsHint')">{{ t('lora.finder.downloads', { count: count(h.downloads) }) }}</span>
                 <span v-if="h.likes" class="tag" :title="t('lora.finder.likesHint')">{{ t('lora.finder.likes', { count: count(h.likes) }) }}</span>
-                <span v-if="h.sizeMb" class="tag">{{ h.sizeMb }} MB</span>
+                <span v-if="h.sizeMb" class="tag">{{ size(h.sizeMb) }}</span>
+                <span v-else-if="plans[key(h)]?.downloadGb" class="tag">{{ size(plans[key(h)]!.downloadGb * 1024) }}</span>
+                <template v-if="plans[key(h)]?.minRamGb">
+                  <span v-if="plans[key(h)]!.streamed" class="tag stream">
+                    {{ t('models.recommended.streamedTag', { gb: plans[key(h)]!.minRamGb! }) }}
+                    <HintBadge notice start :text="t('models.recommended.streamedHint')" />
+                  </span>
+                  <span v-else class="tag" :class="{ warn: plans[key(h)]!.fits === false }">{{ t('models.recommended.ramTag', { gb: plans[key(h)]!.minRamGb! }) }}</span>
+                </template>
                 <span v-if="h.nsfw" class="tag warn">{{ t('lora.finder.adult') }}</span>
                 <span v-if="h.gated" class="tag">{{ t('lora.finder.licenceToAccept') }}</span>
               </p>
@@ -185,6 +240,8 @@ function close(): void {
               <select v-if="h.files && h.files.length > 1" v-model="chosen[h.ref]" class="file" :title="t('lora.finder.fileHint')">
                 <option v-for="f in h.files" :key="f" :value="f">{{ f }}</option>
               </select>
+              <p v-if="!installed(h) && plans[key(h)]?.fits === false" class="warn-text small">{{ t('models.recommended.tooLittleMemory') }}</p>
+              <p v-if="!installed(h) && refused[key(h)]" class="warn-text small selectable clip">{{ refused[key(h)] }}</p>
               <p v-if="!installed(h) && tokenMissing(h)" class="warn-text small">{{ tokenMissing(h) }}</p>
               <p v-if="!installed(h) && h.gated" class="dim small">
                 {{ t('lora.finder.gatedBefore') }} <a href="#" @click.prevent="openLink(h.page)">{{ t('lora.finder.gatedLink') }}</a> {{ t('lora.finder.gatedAfter') }}
@@ -202,7 +259,7 @@ function close(): void {
                 <button v-else-if="jobOf(h) && (jobOf(h)!.state === 'running' || jobOf(h)!.state === 'waiting')" class="btn small danger" @click="imports.cancel(jobOf(h)!.id)">
                   <Square :size="11" /> {{ t('lora.finder.cancel') }}
                 </button>
-                <button v-else class="btn small primary" :disabled="!!tokenMissing(h)" @click="install(h)">
+                <button v-else class="btn small primary" :disabled="!!tokenMissing(h) || !!refused[key(h)]" @click="install(h)">
                   <Download :size="12" /> {{ t('lora.finder.install') }}
                 </button>
                 <span class="spacer" />
@@ -351,6 +408,47 @@ header {
   background: var(--surface-2);
   font-size: 11px;
   white-space: nowrap;
+}
+
+.formats {
+  font-size: 12px;
+}
+
+.formats summary {
+  cursor: pointer;
+  color: var(--text-dim);
+}
+
+.formats dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 14px;
+  margin: 8px 0 2px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.formats dt {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.formats dd {
+  margin: 0;
+}
+
+.clip {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tag.stream {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: color-mix(in srgb, var(--surface-2) 70%, var(--accent));
 }
 
 .tag.warn,

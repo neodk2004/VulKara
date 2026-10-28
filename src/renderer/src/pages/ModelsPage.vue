@@ -3,7 +3,7 @@
 // Models and LoRAs: what is installed, what is recommended, and adding more from Hugging Face, Civitai or disk.
 // Nothing is part of the app; every model is downloaded or imported here.
 import { computed, nextTick, onActivated, onBeforeUnmount, reactive, ref, watch } from 'vue'
-import { Check, CircleAlert, Download, ExternalLink, FileDown, FolderOpen, FolderSearch, Layers, Pencil, Search, Square, Trash2, X } from 'lucide-vue-next'
+import { Boxes, Check, CircleAlert, Download, ExternalLink, FileDown, FolderOpen, FolderSearch, Layers, Pencil, Search, Square, Trash2, X } from 'lucide-vue-next'
 import LoraFinder from '../components/LoraFinder.vue'
 import HintBadge from '../components/HintBadge.vue'
 import PageFrame from '../components/PageFrame.vue'
@@ -13,9 +13,10 @@ import { cleanError, useRuntimesStore } from '../stores/runtimes'
 import { useSettingsStore } from '../stores/settings'
 import { CURATED, GROUPS, importRequest, installedAs, licencePage, memoryFit, type CuratedModel } from '../util/curated'
 import { openLink } from '../util/links'
+import { isRemote } from '../remote_vk'
 import { num, t, type PlainKey } from '../i18n'
 import type { HelperModel, ImportInfo, ImportJob, ImportRequest, PhotoTool, RecommendedTool } from '@shared/api'
-import { baseOfAsset } from '@shared/lora_bases'
+import { baseOfAsset, type FindKind } from '@shared/lora_bases'
 import { familyTitle } from '@shared/lora_fit'
 import type { Asset } from '@shared/types'
 import { curatedDescription, helperGroup } from '../util/data_texts'
@@ -25,11 +26,13 @@ const imports = useImportsStore()
 const runtimes = useRuntimesStore()
 const settings = useSettingsStore()
 
+// a browser (remote web UI) chooses, finds and installs models; what touches the Mac's files stays on the Mac
+const remote = isRemote()
 type Tab = 'installed' | 'recommended' | 'add'
 const TABS: { id: Tab; title: PlainKey }[] = [
   { id: 'installed', title: 'models.tabs.installed' },
   { id: 'recommended', title: 'models.tabs.recommended' },
-  { id: 'add', title: 'models.tabs.add' },
+  ...(remote ? [] : [{ id: 'add' as Tab, title: 'models.tabs.add' as PlainKey }]),
 ]
 const tab = ref<Tab>('installed')
 const ramGb = ref(0)
@@ -105,6 +108,7 @@ const helpers = ref<HelperModel[]>([])
 const tools = ref<{ installed: PhotoTool[]; recommended: RecommendedTool[] }>({ installed: [], recommended: [] })
 
 async function loadHelpers(): Promise<void> {
+  if (remote) return
   const [h, tl] = await Promise.all([window.vk.helpers.list(), window.vk.tools.list()])
   helpers.value = h
   tools.value = tl
@@ -248,13 +252,14 @@ const sourcePage = (a: Asset): string | undefined => {
   return undefined
 }
 
-// LoRAs online that fit a model (or, without one, the base of the first installed model)
-const finder = ref<{ base: string; model?: string; key: number }>()
+// LoRAs online that fit a model (or, without one, the base of the first installed model); models made from that base
+const finder = ref<{ base: string; model?: string; kind: FindKind; key: number }>()
 let finderKey = 0
-const findLoras = (a?: Asset): void => {
+const findLoras = (a?: Asset, kind: FindKind = 'lora'): void => {
   const base = a ? baseOfAsset(a) : assets.models.map(baseOfAsset).find(Boolean)
   // a new key each time: the finder opens afresh, for this model's base
-  finder.value = { base: base?.id ?? 'sdxl', model: a?.title, key: ++finderKey }
+  // models without a model of one's own: all of them, the search words narrow it
+  finder.value = { base: kind === 'model' && !a ? 'all' : base?.id ?? 'sdxl', model: a?.title, kind, key: ++finderKey }
 }
 
 // ------------------------------------------------------------------ recommended
@@ -400,9 +405,10 @@ async function startImport(force = false): Promise<void> {
             <button :class="{ on: kind === 'all' }" @click="kind = 'all'">{{ t('models.installed.all') }}</button>
             <button :class="{ on: kind === 'model' }" @click="kind = 'model'">{{ t('models.installed.models') }}</button>
             <button :class="{ on: kind === 'lora' }" @click="kind = 'lora'">{{ t('models.installed.loras') }}</button>
-            <button :class="{ on: kind === 'helper' }" @click="kind = 'helper'">{{ t('models.installed.helpers') }}</button>
+            <button v-if="!remote" :class="{ on: kind === 'helper' }" @click="kind = 'helper'">{{ t('models.installed.helpers') }}</button>
           </div>
           <span class="spacer" />
+          <button class="btn" :title="t('models.installed.findModelsHint')" @click="findLoras(undefined, 'model')"><Boxes :size="14" /> {{ t('models.installed.findModels') }}</button>
           <button class="btn" :title="t('models.installed.findLorasHint')" @click="findLoras()"><Layers :size="14" /> {{ t('models.installed.findLoras') }}</button>
           <label class="search"><Search :size="14" class="dim" /><input v-model="query" type="search" :placeholder="t('models.installed.search')" spellcheck="false" /></label>
         </div>
@@ -442,7 +448,7 @@ async function startImport(force = false): Promise<void> {
                   <span v-if="a.meta.kind === 'video'" class="tag">{{ t('models.installed.video') }}</span>
                   <span v-if="a.meta.runtime === 'comfyui'" class="tag">ComfyUI</span>
                   <span class="spacer" />
-                  <template v-if="a.meta.foreignMac">
+                  <template v-if="a.meta.foreignMac && !remote">
                     <button v-if="a.meta.foreignMac.canReimport" class="btn small" :disabled="reimportingId === a.id" @click="reimport(a)">
                       <Download :size="12" /> {{ t('models.installed.importAgain') }}
                     </button>
@@ -454,13 +460,15 @@ async function startImport(force = false): Promise<void> {
                       <Layers :size="12" /> {{ t('models.installed.lorasButton') }}
                     </button>
                     <button v-if="sourcePage(a)" class="btn small ghost" :title="t('models.installed.sourceHint')" @click="openLink(sourcePage(a))"><ExternalLink :size="12" /></button>
-                    <button
-                      v-if="a.type === 'model' && a.meta.exportable" class="btn small ghost" :disabled="!!exporting"
-                      :aria-label="t('models.installed.exportHint')" @click="exportSingle(a)"
-                    ><FileDown :size="12" /></button>
-                    <button class="btn small ghost" :title="t('models.installed.renameHint')" @click="startRename(a)"><Pencil :size="12" /></button>
-                    <button class="btn small ghost" :title="t('models.installed.showInFinder')" @click="reveal(a.folder)"><FolderSearch :size="12" /></button>
-                    <button class="btn small ghost danger" :title="t('models.installed.moveToTrash')" @click="remove(a)"><Trash2 :size="12" /></button>
+                    <template v-if="!remote">
+                      <button
+                        v-if="a.type === 'model' && a.meta.exportable" class="btn small ghost" :disabled="!!exporting"
+                        :aria-label="t('models.installed.exportHint')" @click="exportSingle(a)"
+                      ><FileDown :size="12" /></button>
+                      <button class="btn small ghost" :title="t('models.installed.renameHint')" @click="startRename(a)"><Pencil :size="12" /></button>
+                      <button class="btn small ghost" :title="t('models.installed.showInFinder')" @click="reveal(a.folder)"><FolderSearch :size="12" /></button>
+                      <button class="btn small ghost danger" :title="t('models.installed.moveToTrash')" @click="remove(a)"><Trash2 :size="12" /></button>
+                    </template>
                   </template>
                 </div>
               </div>
@@ -587,7 +595,11 @@ async function startImport(force = false): Promise<void> {
               <strong>{{ info.label }}</strong>
               <span class="tag">{{ info.kind === 'lora' ? 'LoRA' : t('models.add.model') }}</span>
               <span v-if="info.downloadGb" class="tag">{{ t('models.add.downloadTag', { gb: info.downloadGb }) }}</span>
-              <span v-if="info.minRamGb" class="tag" :class="{ warn: info.fits === false }">{{ t('models.add.ramTag', { gb: info.minRamGb }) }}</span>
+              <template v-if="info.minRamGb && info.streamed">
+                <span class="tag">{{ t('models.recommended.streamedTag', { gb: info.minRamGb }) }}</span>
+                <HintBadge notice start :text="t('models.recommended.streamedHint')" />
+              </template>
+              <span v-else-if="info.minRamGb" class="tag" :class="{ warn: info.fits === false }">{{ t('models.add.ramTag', { gb: info.minRamGb }) }}</span>
               <span v-if="info.quant" class="tag">{{ t('models.add.compressed', { quant: info.quant }) }}</span>
               <span v-if="info.inPlace" class="tag">{{ t('models.add.inPlace') }}</span>
               <HintBadge v-if="info.inPlace" start :text="t('models.add.inPlaceHint')" />
@@ -604,13 +616,14 @@ async function startImport(force = false): Promise<void> {
         </section>
       </template>
     </div>
-    <LoraFinder v-if="finder" :key="finder.key" :base="finder.base" :model="finder.model" @close="finder = undefined" />
+    <LoraFinder v-if="finder" :key="finder.key" :base="finder.base" :model="finder.model" :kind="finder.kind" @close="finder = undefined" />
   </PageFrame>
 </template>
 
 <style scoped>
 .wrap {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
   max-width: 1200px;
 }
@@ -873,5 +886,20 @@ select {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* a phone (remote web UI): the filter bar wraps, two cards fill a row */
+@media (max-width: 860px) {
+  .filters {
+    flex-wrap: wrap;
+  }
+
+  .cards {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .asset .row {
+    flex-wrap: wrap;
+  }
 }
 </style>

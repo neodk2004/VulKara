@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 // Copyright (C) 2026 Oliver Schmidt
-// LoRAs that fit a model, found on Civitai and Hugging Face through their public APIs (no token is sent).
+// LoRAs that fit a model, and models made from a base (checkpoints, fine-tunes), found on Civitai and Hugging Face
+// through their public APIs (no token is sent).
 // Answers are kept for ten minutes; preview pictures are fetched here, with a size limit, and handed to the
 // page as data URLs, since the page itself loads nothing from the internet.
 
 import { TERMS } from '@shared/licence_terms'
-import { isInstalled, loraBase, type LoraBase, type LoraHit, type LoraSearchPage, type LoraSearchRequest } from '@shared/lora_bases'
+import { LORA_BASES, isInstalled, loraBase, type FindKind, type LoraBase, type LoraHit, type LoraSearchPage, type LoraSearchRequest } from '@shared/lora_bases'
 import type { Asset } from '@shared/types'
-import { t } from './i18n'
+import { mainLanguage, t } from './i18n'
 
 type Raw = Record<string, unknown>
 /** fetch as the main process has it (Electron's net.fetch); injected for the tests */
@@ -72,8 +73,8 @@ export function civitaiAdult(model: Raw): boolean {
   return model.nsfw === true || (level > 0 && !(level & SAFE_LEVELS)) || tags.some((t) => ADULT_WORDS.has(t)) || ADULT_NAME.test(String(model.name ?? ''))
 }
 
-export function civitaiUrl(base: LoraBase, query: string | undefined, cursor: string | undefined, safe: boolean): string {
-  const p = new URLSearchParams({ types: 'LORA', sort: 'Most Downloaded', limit: String(PAGE) })
+export function civitaiUrl(base: LoraBase, query: string | undefined, cursor: string | undefined, safe: boolean, kind: FindKind = 'lora'): string {
+  const p = new URLSearchParams({ types: kind === 'model' ? 'Checkpoint' : 'LORA', sort: 'Most Downloaded', limit: String(PAGE) })
   if (safe) p.set('nsfw', 'false')
   for (const b of base.civitai) p.append('baseModels', b)
   if (query) p.set('query', query)
@@ -102,18 +103,20 @@ function civitaiLicence(model: Raw): string | undefined {
   return named.includes('Image') ? t('main.loras.maySell') : t('main.loras.mayNotSell')
 }
 
-/** The LoRAs of one page of Civitai's model list; safe: no adult models and no adult pictures. */
-export function parseCivitai(body: Raw, base: LoraBase, safe: boolean, assets: Asset[]): LoraSearchPage {
+const CIVITAI_TYPES: Record<FindKind, string[]> = { lora: ['lora', 'locon', 'dora'], model: ['checkpoint'] }
+
+/** The LoRAs (or checkpoints) of one page of Civitai's model list; safe: no adult models and no adult pictures. */
+export function parseCivitai(body: Raw, base: LoraBase, safe: boolean, assets: Asset[], kind: FindKind = 'lora'): LoraSearchPage {
   const hits: LoraHit[] = []
   for (const model of list(body.items) as Raw[]) {
     const id = num(model.id)
     const type = String(model.type ?? '').toLowerCase()
-    if (!id || !['lora', 'locon', 'dora'].includes(type)) continue
+    if (!id || !CIVITAI_TYPES[kind].includes(type)) continue
     const nsfw = civitaiAdult(model)
     if (safe && nsfw) continue
-    // the newest version made for this base, with a SafeTensor file
+    // the newest version made for this base (any base: the newest), with a SafeTensor file
     const versions = list(model.modelVersions) as Raw[]
-    const version = versions.find((v) => base.civitai.includes(String(v.baseModel)) && hasSafetensors(v))
+    const version = versions.find((v) => (!base.civitai.length || base.civitai.includes(String(v.baseModel))) && hasSafetensors(v))
     if (!version) continue
     const versionId = num(version.id)
     const file = (list(version.files) as Raw[]).find((f) => f.primary === true && isSafetensors(f)) ?? (list(version.files) as Raw[]).find(isSafetensors)
@@ -137,7 +140,7 @@ export function parseCivitai(body: Raw, base: LoraBase, safe: boolean, assets: A
       needsToken: version.availability !== undefined && version.availability !== 'Public',
       installed: false,
     }
-    hit.installed = isInstalled(hit, assets)
+    hit.installed = isInstalled(hit, assets, kind)
     hits.push(hit)
   }
   const next = str((body.metadata as Raw | undefined)?.nextCursor)
@@ -152,11 +155,18 @@ const hasSafetensors = (v: Raw): boolean => (list(v.files) as Raw[]).some(isSafe
 
 const HF_EXPAND = ['siblings', 'cardData', 'downloads', 'likes', 'tags', 'author', 'gated']
 
-export function hfUrl(repo: string, query: string | undefined, cursor: string | undefined): string {
+export function hfUrl(repo: string, query: string | undefined, cursor: string | undefined, kind: FindKind = 'lora'): string {
   const p = new URLSearchParams({ sort: 'downloads', direction: '-1', limit: String(PAGE) })
-  // adapters of the base that are LoRAs (not ControlNets or embeddings)
-  p.append('filter', `base_model:adapter:${repo}`)
-  p.append('filter', 'lora')
+  // any base (repo ''): pictures models of every kind, by the search words
+  if (!repo) {
+    p.append('pipeline_tag', 'text-to-image')
+    if (kind === 'lora') p.append('filter', 'lora')
+  } else if (kind === 'model') p.append('filter', `base_model:finetune:${repo}`)
+  else {
+    // adapters of the base that are LoRAs (not ControlNets or embeddings)
+    p.append('filter', `base_model:adapter:${repo}`)
+    p.append('filter', 'lora')
+  }
   for (const e of HF_EXPAND) p.append('expand[]', e)
   if (query) p.set('search', query)
   if (cursor) p.set('cursor', cursor)
@@ -185,6 +195,17 @@ export function pickLoraFile(files: string[]): string | undefined {
     ?? ok.find((f) => !f.includes('/')) ?? ok[0]
 }
 
+/**
+ * What the import takes of a fine-tuned model's repository: the whole repository when it is in diffusers' layout
+ * (file undefined), else a single checkpoint file at its top; null when neither is there.
+ */
+export function pickModelFile(files: string[]): { file?: string; files?: string[] } | null {
+  if (files.includes('model_index.json')) return {}
+  const ok = files.filter((f) => /\.safetensors$/i.test(f) && !f.includes('/') && !/lora/i.test(f))
+  return ok.length ? { file: ok[0], files: ok.slice(0, 30) } : null
+}
+
+const NOT_A_MODEL = /control-?net|ip-?adapter|upscaler/i
 const ADULT_TAGS = ['not-for-all-audiences', 'nsfw']
 
 /** A picture of the model card's widget, as an address on Hugging Face. */
@@ -198,6 +219,12 @@ function hfPreview(repo: string, card: Raw): string | undefined {
   return undefined
 }
 
+/** The base a repository names (base_model:…:<repo>), as the app calls it; for a search over all bases. */
+function hfBaseLabel(tags: string[]): string | undefined {
+  const repos = tags.filter((t) => t.startsWith('base_model:')).map((t) => t.split(':').pop()!)
+  return LORA_BASES.find((b) => b.hf.some((r) => repos.includes(r.toLowerCase())))?.label
+}
+
 function hfLicence(card: Raw, tags: string[]): string | undefined {
   const id = String(card.license ?? tags.find((t) => t.startsWith('license:'))?.slice(8) ?? '').toLowerCase()
   const name = typeof card.license_name === 'string' ? card.license_name.toLowerCase() : ''
@@ -205,8 +232,8 @@ function hfLicence(card: Raw, tags: string[]): string | undefined {
   return terms?.name ?? (name || (id && id !== 'other' ? id : undefined))
 }
 
-/** The LoRAs of one page of Hugging Face's model list; repositories without a .safetensors file are left out. */
-export function parseHf(body: unknown, base: LoraBase, safe: boolean, assets: Asset[]): LoraHit[] {
+/** The LoRAs (or models) of one page of Hugging Face's model list; repositories without a file to take are left out. */
+export function parseHf(body: unknown, base: LoraBase, safe: boolean, assets: Asset[], kind: FindKind = 'lora'): LoraHit[] {
   const hits: LoraHit[] = []
   for (const m of list(body) as Raw[]) {
     const repo = str(m.id)
@@ -215,22 +242,25 @@ export function parseHf(body: unknown, base: LoraBase, safe: boolean, assets: As
     const tags = [...list(m.tags), ...list(card.tags)].map((t) => String(t).toLowerCase())
     const nsfw = tags.some((t) => ADULT_TAGS.includes(t))
     if (safe && nsfw) continue
-    const files = (list(m.siblings) as Raw[]).map((s) => String(s.rfilename ?? '')).filter((f) => /\.safetensors$/i.test(f))
-    const file = pickLoraFile(files)
-    if (!file) continue
+    const names = (list(m.siblings) as Raw[]).map((s) => String(s.rfilename ?? ''))
+    const files = names.filter((f) => /\.safetensors$/i.test(f))
+    // a model: not a LoRA, ControlNet, IP-Adapter or upscaler, which Hugging Face lists as fine-tunes too
+    const pick = kind === 'model'
+      ? (tags.some((t) => t === 'lora' || NOT_A_MODEL.test(t)) || NOT_A_MODEL.test(repo) ? null : pickModelFile(names))
+      : { file: pickLoraFile(files), files: files.filter((f) => !/(^|\/)(diffusion_pytorch_model|model)(-\d+-of-\d+)?\.safetensors$/i.test(f)).slice(0, 30) }
+    if (!pick || (kind === 'lora' && !pick.file)) continue
     const instance = card.instance_prompt
     const words = (Array.isArray(instance) ? instance : [instance]).map((w) => str(w)).filter((w): w is string => !!w)
     const gated = m.gated === 'auto' || m.gated === 'manual' || m.gated === true
     const preview = hfPreview(repo, card)
     const hit: LoraHit = {
-      source: 'hf', ref: repo, page: `https://huggingface.co/${repo}`, file,
-      files: files.filter((f) => !/(^|\/)(diffusion_pytorch_model|model)(-\d+-of-\d+)?\.safetensors$/i.test(f)).slice(0, 30),
-      title: repo.split('/')[1], author: str(m.author) ?? repo.split('/')[0], baseModel: base.label,
+      source: 'hf', ref: repo, page: `https://huggingface.co/${repo}`, file: pick.file, files: pick.files,
+      title: repo.split('/')[1], author: str(m.author) ?? repo.split('/')[0], baseModel: base.label || hfBaseLabel(tags),
       downloads: num(m.downloads), likes: num(m.likes), triggerWords: words.slice(0, 12),
       previewUrl: preview, previewExplicit: preview ? nsfw : undefined, nsfw,
       licence: hfLicence(card, tags), gated, needsToken: gated, installed: false,
     }
-    hit.installed = isInstalled(hit, assets)
+    hit.installed = isInstalled(hit, assets, kind)
     hits.push(hit)
   }
   return hits
@@ -263,40 +293,42 @@ export function clearSearchCache(): void {
   thumbs.clear()
 }
 
-/** One page of LoRAs for a base. Throws with a readable message. */
+/** One page of LoRAs (or models) for a base. Throws with a readable message. */
 export async function searchLoras(req: LoraSearchRequest, opts: { fetcher: FetchLike; safe: boolean; assets: Asset[]; now?: number }): Promise<LoraSearchPage> {
   const base = loraBase(String(req?.base ?? ''))
   if (!base) throw new Error(t('main.loras.chooseModel'))
   const source = req.source === 'hf' ? 'hf' : 'civitai'
+  const kind: FindKind = req.kind === 'model' ? 'model' : 'lora'
   const query = typeof req.query === 'string' ? req.query.trim().slice(0, 100) || undefined : undefined
   const cursor = decodeCursor(typeof req.cursor === 'string' ? req.cursor : undefined)
   const now = opts.now ?? Date.now()
-  const key = JSON.stringify([base.id, source, query ?? '', cursor, opts.safe])
+  // the language too: the licence line is kept as text
+  const key = JSON.stringify([base.id, source, kind, query ?? '', cursor, opts.safe, mainLanguage().lang])
   const kept = cache.get(key)
   let page: LoraSearchPage
   if (kept && now - kept.at < TTL) page = kept.page
   else {
     page = source === 'civitai'
-      ? parseCivitai((await getJson(opts.fetcher, civitaiUrl(base, query, cursor.c, opts.safe))).body as Raw, base, opts.safe, opts.assets)
-      : await hfPage(base, query, cursor, opts)
+      ? parseCivitai((await getJson(opts.fetcher, civitaiUrl(base, query, cursor.c, opts.safe, kind))).body as Raw, base, opts.safe, opts.assets, kind)
+      : await hfPage(base, query, cursor, kind, opts)
     if (cache.size > 200) cache.delete(cache.keys().next().value!)
     cache.set(key, { at: now, page })
   }
   // installed may have changed since the answer was kept
-  const hits = page.hits.map((h) => ({ ...h, installed: isInstalled(h, opts.assets) }))
+  const hits = page.hits.map((h) => ({ ...h, installed: isInstalled(h, opts.assets, kind) }))
   for (const h of hits) if (h.previewUrl) issued.set(h.previewUrl, !!h.previewExplicit)
   return { hits, cursor: page.cursor }
 }
 
 /** Hugging Face asks one base repository after the other; the cursor says which one and where in it. */
-async function hfPage(base: LoraBase, query: string | undefined, cursor: Cursor, opts: { fetcher: FetchLike; safe: boolean; assets: Asset[] }): Promise<LoraSearchPage> {
+async function hfPage(base: LoraBase, query: string | undefined, cursor: Cursor, kind: FindKind, opts: { fetcher: FetchLike; safe: boolean; assets: Asset[] }): Promise<LoraSearchPage> {
   let { i, c } = cursor
   const hits: LoraHit[] = []
   const seen = new Set<string>()
   // a page full of left-out repositories still moves on; three requests at most per page
   for (let round = 0; round < 3 && i < base.hf.length && hits.length < PAGE / 2; round++) {
-    const { body, link } = await getJson(opts.fetcher, hfUrl(base.hf[i], query, c))
-    for (const h of parseHf(body, base, opts.safe, opts.assets)) {
+    const { body, link } = await getJson(opts.fetcher, hfUrl(base.hf[i], query, c, kind))
+    for (const h of parseHf(body, base, opts.safe, opts.assets, kind)) {
       if (seen.has(h.ref)) continue
       seen.add(h.ref)
       hits.push(h)

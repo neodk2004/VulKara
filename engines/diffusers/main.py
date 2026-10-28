@@ -27,7 +27,7 @@ import protocol  # noqa: E402
 
 
 def serve(stream=None):
-    from engine import DiffusersEngine, StopRequested
+    from engine import DiffusersEngine, StopRequested, _free_memory
 
     reader = protocol.CommandReader(stream).start()
     engine = DiffusersEngine(reader)
@@ -36,6 +36,7 @@ def serve(stream=None):
         # the first engine started: the UI waits for it
         protocol.state("idle")
 
+    footprint = protocol.Footprint()  # per job, for benchmarks
     while True:
         item = reader.next_command()
         if item is None:
@@ -43,6 +44,7 @@ def serve(stream=None):
         op, job = item
         if op == "generate":
             protocol.state("busy")
+            footprint.start()
             try:
                 engine.generate(job)
             except StopRequested:
@@ -50,6 +52,8 @@ def serve(stream=None):
             except Exception as e:
                 traceback.print_exc()
                 protocol.error(protocol.describe(e))
+            _free_memory()  # a stopped or failed job leaves its buffers in the Metal cache otherwise
+            footprint.report()
             protocol.state("idle")
         elif op == "preview":
             # a preview picture painted by a model (of itself or of a LoRA); reported as a preview event
@@ -62,6 +66,7 @@ def serve(stream=None):
             except Exception as e:
                 traceback.print_exc()
                 protocol.preview({"model": target, "error": str(e)[:300]})
+            _free_memory()
             protocol.state("idle")
         elif op == "unload":
             try:

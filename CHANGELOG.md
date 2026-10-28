@@ -1,5 +1,100 @@
 # Changelog
 
+## 0.7.5 – 2026-10-28
+
+- **ComfyUI switches memory mode cleanly.** When a job needs the other memory mode (a GGUF model streamed from the SSD
+  after one held whole), the models of the previous job are unloaded before the new one starts, not after it; the
+  benchmark names an FP8 model "16 bit (from FP8)", as the Mac computes it.
+- **Remote web UI: imports.** Clearing finished imports and stopping one in the browser only reach the imports made
+  from the web, not the Mac's own.
+- **History: larger picture, buttons first.** The picture of the selected entry is twice as large (a portrait picture only as high as a square one), with its buttons under
+  it: one below the other in the left third, the settings beside them, behind a line, and prompt and negative prompt under headings of their own. While the large view is
+  open, the panel shows only the buttons. Going back to the main window closes the large views. The large view itself shows only its buttons, no prompt and no settings.
+- **Stopping while SSD streaming is prepared.** A picture stopped while the model was being prepared for SSD streaming
+  (or its GGUF file unpacked for it) went on until the preparation was done, 85 s in a test; it now stops at once.
+- **FP8 ComfyUI models no longer stop on Macs short of memory.** Where a model in FP8 did not fit in 16 bit, ComfyUI
+  kept it in FP8, which Apple GPUs cannot compute ("Undefined type Float8_e4m3fn" at the first step). It now stays in
+  16 bit there, as on every other Mac.
+- **Memory plans closer to what the models use.** SD 1.5's plan now matches the measurement at 512 and 1024 px, and
+  whether SD 1.5 and SD 2 fit is judged at their own picture size (an 8 GB Mac keeps SD 1.5 in 16 bit). ComfyUI models
+  now show their planned memory in the benchmark too.
+- **ComfyUI models use less memory.** On the Mac ComfyUI computed attention in chunks; it now uses PyTorch's attention
+  with the same padding of head sizes as the Diffusers runtime: Pony V7 up to 2.2 GB less, Lumina 2 (NetaYume) 1 GB
+  less and 10 % faster per step, Anima unchanged in speed, Wan 2.2 videos 30 % faster per step. The pictures and
+  videos stay the same.
+- **SD 1.5 twice as fast with half the memory, large SDXL pictures four times as fast.** On Apple GPUs attention with
+  a head size the fused kernel does not take (SD 1.5's 40) held the whole attention matrix: 3.5 GB more and 6 times as
+  slow. The Diffusers runtime pads those heads to a size it takes (same picture) and no longer computes attention in
+  slices on the Mac: SD 1.5 at 512 px 0.72 instead of 1.55 s per step and 3.7 instead of 7.3 GB, at 1024 px 4.8 instead
+  of 9.4 s; SDXL at 2048 px 28 instead of 111 s per step and 12.1 instead of 17.4 GB.
+- **The memory plan meets the free memory.** Every engine now measures its own peak per picture and the benchmark shows
+  it beside what the memory plan expected. Measured on 14 models, MLX models used up to 4.2 GB more than planned: decoding
+  the picture in one piece. The MLX plan counts it now, and before each picture the engine checks the memory free at that
+  moment: if decoding in one piece does not fit, it decodes in tiles (no visible difference; FLUX.1 dev 18.1 GB down to
+  13.0 GB, 46 s per step instead of 175 s on a Mac short of memory), and a picture still short of memory says in its job
+  how much was free. Bit sizes do not change. The Diffusers runtime gives the memory of a model back right after
+  changing to another one.
+- **Z-Image on MLX fits 16 GB.** On a 16 GB Mac Z-Image swapped while it decoded the picture (MLX alone peaked at
+  12.9 GB; the Mac mini took 93–104 s per step instead of about 30). It now loads in 8 bit, frees its text encoder after
+  the prompt (the same prompt again needs no reload) and, like every MLX model on a Mac with 16 GB or less, decodes in
+  tiles, as mflux's own low-RAM mode does: 8.8 GB at most.
+- **MLX gives memory back.** MLX kept every freed buffer for reuse: after one FLUX.2 [klein] picture 9.9 GB of them
+  beside 7.5 GB in use, enough to make a 24 GB Mac swap. The engine now keeps at most 1 GB of them and empties them
+  after loading and after each picture (footprint 17.9 GB down to about 10 GB); the log says what each picture gave
+  back.
+- **Benchmark a model.** Hardware → Benchmark makes one to three pictures with a model's own settings, the same prompt
+  and seed for every model, and shows the seconds per step, the whole picture, the most memory VulKara with its engines
+  (with what the GPU holds) and the system used and the swap the picture added, and in a column of its own the
+  phases the engine went through (handing over to Diffusers, preparing SSD streaming, quantizing, loading, generating)
+  with their times, the bit size each part of the model ran in, what was read again meanwhile (from the disks, back
+  from the swap) and the time the steps waited for blocks streamed from the SSD; one block per run. Stopping one picture
+  stops the whole benchmark, and stopped runs leave the list. Each run notes the app version and the code state it was built from. *Copy as table* gives
+  a Markdown table with the chip and its memory. The resource monitor shows the
+  swap in use too.
+- **Z-Image on MLX follows its own noise schedule.** mflux shifted Z-Image's steps by the picture's size; the MLX
+  runtime now uses the fixed shift the model's configuration asks for (Turbo 3, Base 6), as the Diffusers runtime does.
+  Pictures change slightly.
+- **SDXL keeps its memory steady.** img2img and inpainting no longer move SDXL's VAE to 32 bit and back for every
+  picture, which left 1.8 GB in the Metal cache until the model changed; the peak is 1.25 GB lower. A stopped or
+  failed job now gives its memory back too.
+- **AuraFlow repositories on the Diffusers runtime.** Models in the diffusers layout with AuraFlowPipeline
+  (fal/AuraFlow-v0.3, the repository of purplesmartai/pony-v7-base, such folders) now import and run on the Diffusers
+  runtime, in 8 bit or with the text encoder loaded per prompt on 16 GB. AuraFlow and Pony V7 LoRAs made for ComfyUI
+  are converted to diffusers' names as they load. The GGUF files keep running on ComfyUI.
+- **Enlarged pictures show their new size.** Upscale and the enlarging tools of Enhance kept the size of the picture
+  they started from, so the viewer and the library showed it; the viewer now shows every picture's own size.
+- **ComfyUI models in GGUF from the SSD.** Pony V7 and other ComfyUI models in GGUF that do not fit into memory
+  beside their text encoder (Macs with 16 GB) keep only part of themselves in memory and read the rest from their file
+  for each step: Pony V7 on 16 GB about 88 s per step instead of 225 s. Settings → Engine and memory → *ComfyUI: load
+  GGUF models piece by piece from the SSD* (on by default) switches it off. The finders' cards count a Civitai GGUF
+  by its file size, not as 16 bit.
+- **Models in the remote web UI.** The browser now has the Models page: it chooses, finds (*Find models*, *Find
+  LoRAs*) and installs models and LoRAs from *Recommended*, Hugging Face and Civitai. Adding the Mac's own files,
+  renaming, exporting, removing and the helper models stay on the Mac; the Mac checks that a browser's import comes
+  from Hugging Face or Civitai. A model's page opens in the browser, not on the Mac.
+- **Installs need 50 GB free.** Models and LoRAs are only installed while the models disk has at least 50 GB free;
+  with less, the import is refused and says how much is free, and the finders' cards say so before installing.
+- **New model types.** *Lumina 2* on the ComfyUI runtime (NetaYume and Neta Lumina among the recommended; the
+  system prompt the model expects goes before the prompt by itself, the anime fine-tunes use their own); *ERNIE-Image*
+  (Baidu, Turbo in 8 steps, strong on text in pictures) on the MLX runtime, 4 or 8 bit, without the repository's 7 GB
+  prompt enhancer; *AuraFlow / Pony V7* on the ComfyUI runtime from GGUF files, with prompts padded to 768 tokens as in
+  Pony's own workflow. A GGUF transformer counts with its own size in the memory check. LoRAs of these families now fit
+  their models.
+- **Find models / LoRAs: Any base model.** The first entry of the base menu searches all of Civitai or Hugging Face;
+  *Find models* starts there. Each card's check tells whether this Mac can run what it found.
+- **Find models.** Next to *Find LoRAs*, *Find models* searches Civitai (checkpoints) and Hugging Face (fine-tunes)
+  for models made from a base model, most downloaded first, and installs them through the downloads, with the same
+  cards and adult filter. Each card shows the memory the model needs; one too large for this Mac is marked *SSD
+  streaming* (it runs streamed from the SSD). The model check of *Add* marks such models the same way. A model the Mac
+  can not compute (NF4, int4, nvfp4 …) shows why and can not be installed; *File formats* explains bf16, fp8, GGUF
+  and the rest. The search answers are kept per language (licence lines no longer stay in the language of the first
+  search). The base menu of both finders is sorted into the main model groups (Stable
+  Diffusion, SDXL, FLUX, Qwen-Image, Z-Image, Krea · Ideogram · ERNIE, Anima · Lumina · Pony V7, Wan).
+- **The sampler picker follows the model's maker.** When a model card names the sampler(s) it runs with, the picker
+  now shows only those (plus *Default*, which is the recommended one). A model whose maker runs it with DPM++ only no
+  longer offers Euler. Read at import; for models already installed, `python main.py maker_settings` reads the cards
+  again. A card that names no sampler keeps the full list for its family.
+
 ## 0.7.1 – 2026-10-23
 
 - Qwen-Image 2.1 from its repository no longer fails at the first step with "Cannot copy out of meta tensor" when

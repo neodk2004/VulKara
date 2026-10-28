@@ -67,3 +67,88 @@ def test_auto_never_picks_quanto_4bit():
         for ram in (8, 16, 24, 48, 96):
             p = memory.plan(spec["fallback_params"], spec["denoiser"], spec["family"], ram)
             assert "q4" not in p["quant"].values(), (arch, ram, p)
+
+
+def test_sdxl_vae_stays_in_bfloat16_when_it_encodes_a_picture():
+    # img2img / inpaint would move it to float32 and back for every picture (force_upcast); bfloat16 has the range
+    import torch
+    from diffusers import AutoencoderKL
+
+    import engine
+    vae = AutoencoderKL(block_out_channels=(8,), norm_num_groups=8, latent_channels=4, force_upcast=True)
+    vae.to(torch.float16)
+    engine._bf16_vae(vae)
+    assert vae.dtype == torch.bfloat16 and not vae.config.force_upcast
+    latents = vae.encode(torch.zeros(1, 3, 16, 16, dtype=torch.float16)).latent_dist.mode()
+    assert latents.dtype == torch.bfloat16 and vae.dtype == torch.bfloat16
+    engine._bf16_vae(vae)  # a second time changes nothing
+    assert vae.encode(torch.zeros(1, 3, 16, 16, dtype=torch.float16)).latent_dist.mode().dtype == torch.bfloat16
+
+
+def test_benchmarks_learn_the_bit_size_of_a_weights_file(tmp_path):
+    import json as _json
+    import struct
+
+    def safetensors(name, dtypes):
+        header = {"w%d" % i: {"dtype": d, "shape": [1], "data_offsets": [0, 1]} for i, d in enumerate(dtypes)}
+        data = _json.dumps(header).encode()
+        (tmp_path / name).write_bytes(struct.pack("<Q", len(data)) + data + b"\0")
+        return str(tmp_path / name)
+
+    assert registry.file_precision(safetensors("fp8.safetensors", ["F8_E4M3", "F32"])) == "8 bit (FP8)"
+    assert registry.file_precision(safetensors("bf16.safetensors", ["BF16", "F32"])) == "16 bit"
+    assert registry.file_precision(str(tmp_path / "missing.gguf")) == "?"
+    import protocol
+    sent = []
+    protocol.event, old = (lambda name, **f: sent.append((name, f))), protocol.event
+    try:
+        protocol.precision([("transformer", "8 bit"), ("text_encoder_2", "16 bit")])
+    finally:
+        protocol.event = old
+    assert sent == [("precision", {"message": "transformer 8 bit, text encoder 2 16 bit"})]
+
+
+def test_benchmarks_get_the_plans_peak_at_the_pictures_size():
+    p = memory.plan({"transformer": 6.0, "text_encoder": 4.0, "vae": 0.08}, "transformer", "z_image", 48)
+    assert memory.peak_at(p, 1024, 1024) == p["est_peak_gb"]
+    # a quarter of the pixels: a quarter of the activations; smaller still counts as a quarter
+    assert abs(memory.peak_at(p, 512, 512) - (p["denoise_peak_gb"] - 0.75 * p["activations_gb"])) < 1e-9
+    assert memory.peak_at(p, 256, 256) == memory.peak_at(p, 512, 512)
+    # staged (the text encoder only for encoding): encoding both may be the peak, whatever the size
+    staged = memory.plan({"transformer": 6.0, "text_encoder": 4.0, "vae": 0.08}, "transformer", "z_image", 24)
+    assert staged["est_peak_gb"] > staged["denoise_peak_gb"] and memory.peak_at(staged, 512, 512) == staged["est_peak_gb"]
+
+
+def test_the_engines_measure_their_own_footprint_over_a_job():
+    import mmap
+    import protocol
+    sent = []
+    protocol.event, old = (lambda name, **f: sent.append((name, f))), protocol.event
+    try:
+        fp = protocol.Footprint()
+        fp.start()
+        protocol.planned(3.456)
+        m = mmap.mmap(-1, 300 * 1024 * 1024)
+        for i in range(0, len(m), 16384):
+            m[i] = 1
+        fp.report()
+        m.close()
+    finally:
+        protocol.event = old
+    name, f = sent[0]
+    assert name == "footprint" and f["peak_gb"] >= 0.29 and f["plan_gb"] == 3.46 and f["read_gb"] >= 0
+
+
+def test_attention_with_a_head_size_mps_does_not_fuse_is_padded_to_the_same_result():
+    import pytest
+    torch = pytest.importorskip("torch")
+    if not torch.backends.mps.is_available():
+        pytest.skip("needs MPS")
+    import torch.nn.functional as F
+    import engine
+    q, k, v = (torch.randn(2, 8, 1024, 40, device="mps", dtype=torch.float16) for _ in range(3))
+    plain = F.scaled_dot_product_attention(q, k, v)
+    engine.fused_attention()
+    padded = F.scaled_dot_product_attention(q, k, v)
+    assert getattr(F.scaled_dot_product_attention, "vk_padded", False) and padded.shape == plain.shape
+    assert (padded - plain).abs().max().item() < 1e-3

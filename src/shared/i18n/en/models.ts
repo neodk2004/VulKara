@@ -24,6 +24,8 @@ export default {
     helpers: 'Helpers',
     findLorasHint: 'LoRAs on Civitai and Hugging Face',
     findLoras: 'Find LoRAs',
+    findModelsHint: 'Checkpoints and fine-tunes on Civitai and Hugging Face, by model group',
+    findModels: 'Find models',
     search: 'Search',
     nothingFound: 'Nothing found.',
     nothingYet: 'Nothing installed yet. See Recommended.',

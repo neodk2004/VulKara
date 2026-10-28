@@ -47,13 +47,13 @@ def figures(arch, params, fixed):
     if arch in MLX_ARCHS and fixed is None:
         # the MLX runtime quantizes everything to 4 bit quickly and keeps it loaded
         out["min_ram_gb_mlx"] = memory.plan(comps, den, spec["family"], 256, quant="q4", allow_staging=False)["min_ram_gb"]
-    if fixed is None:
-        # GGUF does not stream; a 16 bit denoiser does, with a big text encoder in 4 bit as the last resort (engine.py)
-        streamed = dict(comps)
-        streamed[den] *= STREAM_RESIDENT_SHARE
-        need = memory.plan(streamed, den, spec["family"], 256, text_quant_opts=memory.QUANT_ORDER)["min_ram_gb"]
-        if need < out["min_ram_gb"]:
-            out["min_ram_gb_streamed"] = need
+    # the denoiser streams from the SSD in 16 bit blocks (a GGUF one unpacked into the stream cache once), with a
+    # big text encoder in 4 bit as the last resort (engine.py)
+    streamed = dict(comps)
+    streamed[den] *= STREAM_RESIDENT_SHARE
+    need = memory.plan(streamed, den, spec["family"], 256, text_quant_opts=memory.QUANT_ORDER)["min_ram_gb"]
+    if need < out["min_ram_gb"]:
+        out["min_ram_gb_streamed"] = need
     return out
 
 
