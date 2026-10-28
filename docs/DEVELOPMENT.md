@@ -805,6 +805,10 @@ exist for a runtime (candidates for the next accepted update):
   The changes page (`site/changes/`, git-ignored, English) is built from `CHANGELOG.md`: every released version with
   its entries, in a technical look; the version beside the name in the header leads to it. A release raises the
   version in `package.json` and changes the changelog, both deploy the site, so the page follows every release.
+  The benchmarks page (`site/benchmarks/`, git-ignored, English) shows measurements of `docs/MEASUREMENTS.md` as
+  charts: the figures are copied into `tools/build_site_benchmarks.mjs` (with their section), a new measurement goes
+  into MEASUREMENTS.md first and then there. The marks' positions go into its own `charts.css` (the site's
+  Content-Security-Policy allows no inline styles); `site/bench.js` adds the tooltips, every chart also has its table.
 - **Social preview** of the repository: `docs/images/social_preview.png` (1280 × 640, made by
   `marketing/make_social_preview.py` in the working repository).
 - **A published release** (`.github/workflows/release.yml`): `tools/announce_release.mjs` posts the version, the first

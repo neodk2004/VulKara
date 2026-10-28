@@ -520,3 +520,68 @@ footer .legal a { color: inherit; display: inline-block; padding: 5px 2px; }
   .release .entries > li { padding-left: 32px; }
   .release .entries > li::before { left: 14px; }
 }
+
+/* the benchmarks page (site/benchmarks, tools/build_site_benchmarks.mjs): dumbbells and bars in plain HTML, the marks'
+   positions in its charts.css; two validated series colours, each stepped for its surface */
+.bench-page { --s-a: #2a78d6; --s-b: #eb6834; --grid: rgba(20, 20, 30, 0.08); }
+:root[data-theme="dark"] .bench-page { --s-a: #3987e5; --s-b: #d95926; --grid: rgba(255, 255, 255, 0.08); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .bench-page { --s-a: #3987e5; --s-b: #d95926; --grid: rgba(255, 255, 255, 0.08); }
+}
+.bench-page .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 24px 0 8px; }
+.bench-page .tile { border: 1px solid var(--line); border-radius: 12px; background: var(--card); padding: 14px 16px; }
+.bench-page .tile .big { margin: 0; font-family: var(--mono); font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; }
+.bench-page .tile .big span { font-size: 0.85rem; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.bench-page .tile .what { margin: 2px 0 10px; color: var(--muted); font-size: 0.9rem; }
+.bench-page .tile .vals { margin: 6px 0 0; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.bench-page .spark { display: block; width: 100%; max-width: 180px; height: 22px; }
+.bench-page .spark .a { fill: var(--s-a); }
+.bench-page .spark .b { fill: var(--s-b); }
+.bench-page .chart { padding: 0; margin: 36px 0 0; border: 1px solid var(--line); border-radius: 12px; background: var(--card); padding: 18px 18px 8px; }
+.bench-page .chart h2 { font-family: var(--mono); font-size: 1.05rem; margin: 0 0 4px; }
+.bench-page .chart .sub { margin: 0 0 10px; color: var(--muted); line-height: 1.55; font-size: 0.92rem; }
+.bench-page .legend { display: flex; gap: 18px; margin: 0 0 6px; font-size: 0.82rem; color: var(--muted); font-family: var(--mono); }
+.bench-page .legend .k { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.bench-page .k.a { background: var(--s-a); }
+.bench-page .k.b { background: var(--s-b); }
+.bench-page .bx-row { display: grid; grid-template-columns: minmax(150px, 250px) 1fr 200px; gap: 14px; align-items: center; min-height: 40px; border-radius: 6px; }
+.bench-page .bx-row[data-tip]:hover, .bench-page .bx-row[data-tip]:focus-visible { background: var(--accent-tint); outline: none; }
+.bench-page .dot-label { font-size: 0.88rem; line-height: 1.25; padding-left: 4px; }
+.bench-page .dot-label small, .bench-page .micro td small { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.bench-page .bx-track { position: relative; height: 24px; }
+.bench-page .bx-axis { min-height: 22px; }
+.bench-page .bx-axis .bx-track { height: 18px; }
+.bench-page .tick { position: absolute; top: 0; transform: translateX(-50%); font-family: var(--mono); font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+.bench-page .grid { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+.bench-page .bar-link { position: absolute; top: 11px; height: 2px; background: var(--muted); opacity: 0.45; }
+.bench-page .bd { position: absolute; top: 6px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; box-shadow: 0 0 0 2px var(--card); }
+.bench-page .bd.a { background: var(--s-a); }
+.bench-page .bd.b { background: var(--s-b); }
+.bench-page .hbar { position: absolute; left: 0; top: 4px; height: 16px; border-radius: 0 4px 4px 0; background: var(--s-b); }
+.bench-page .bx-value { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); text-align: right; padding-right: 6px; white-space: nowrap; }
+.bench-page .bx-table { margin: 10px 0 8px; font-size: 0.85rem; }
+.bench-page .bx-table summary { cursor: pointer; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+.bench-page table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.bench-page th, .bench-page td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.bench-page th { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+.bench-page .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+.bench-page .micro tr[data-tip]:hover td, .bench-page .micro tr[data-tip]:focus-visible td { background: var(--accent-tint); }
+.bench-page .micro .bars { width: 34%; }
+.bench-page .mbar { display: block; height: 7px; border-radius: 0 3.5px 3.5px 0; margin: 2px 0; min-width: 3px; }
+.bench-page .mbar.a { background: var(--s-a); }
+.bench-page .mbar.b { background: var(--s-b); }
+.bench-page .worse { color: var(--accent-text); }
+.bx-tip { position: fixed; z-index: 50; max-width: 360px; padding: 8px 10px; border-radius: 8px; background: var(--text); color: var(--bg); font-size: 0.8rem; line-height: 1.45; pointer-events: none; box-shadow: var(--shadow); }
+@media (max-width: 860px) {
+  .bench-page .tiles { grid-template-columns: repeat(2, 1fr); }
+  .bench-page .bx-row { grid-template-columns: 1fr auto; grid-template-areas: "label value" "track track"; gap: 2px 10px; padding: 6px 0; }
+  .bench-page .bx-row .dot-label { grid-area: label; }
+  .bench-page .bx-row .bx-value { grid-area: value; align-self: start; padding-right: 0; font-size: 0.72rem; }
+  .bench-page .bx-row .bx-track { grid-area: track; margin: 0 8px; }
+  .bench-page .bx-axis { grid-template-areas: "track track"; }
+  .bench-page .bx-axis .dot-label, .bench-page .bx-axis > span:last-child { display: none; }
+  .bench-page .tile .big span { display: block; margin: 2px 0 0; }
+  .bench-page .cl-top .gh:first-of-type { display: none; }
+  .bench-page .chart { padding: 14px 12px 6px; }
+  .bench-page .micro th:nth-child(3), .bench-page .micro td:nth-child(3), .bench-page .micro th:nth-child(4), .bench-page .micro td:nth-child(4) { display: none; }
+}

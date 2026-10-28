@@ -4,6 +4,7 @@
 // below; tools/build_site.mjs then copies the pictures they use into site/assets.
 //   node tools/build_site_pages.mjs && node tools/build_site.mjs
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { benchmarksPage } from './build_site_benchmarks.mjs'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 
@@ -917,7 +918,7 @@ ${t.links.map(([ic, h, s, href]) => `          <li>${ext(href, `${icon(up, ic)}<
       <p>${t.foot}</p>
       <p>${t.footPrivate}</p>
       <p>${t.footTm}</p>
-      <p class="legal"><a href="${up}impressum/">${t.legal[0]}</a> · <a href="${up}datenschutz/">${t.legal[1]}</a> · <a href="${up}changes/">${t.changesNav}</a> · <a href="${DISCORD}" rel="noopener">Discord</a></p>
+      <p class="legal"><a href="${up}impressum/">${t.legal[0]}</a> · <a href="${up}datenschutz/">${t.legal[1]}</a> · <a href="${up}changes/">${t.changesNav}</a> · <a href="${up}benchmarks/">Benchmarks</a> · <a href="${DISCORD}" rel="noopener">Discord</a></p>
     </div>
   </footer>
 </body>
@@ -1105,6 +1106,7 @@ ${items.map(entry).join('\n')}
       <a class="brand" href="../"><img src="../assets/icon.svg" width="26" height="26" alt="">VulKara<span class="ver">v${VERSION}</span></a>
       <span class="path">~/vulkara <b>$</b> changelog --releases</span>
       <span class="spacer"></span>
+      <a class="gh" href="../benchmarks/">benchmarks</a>
       <a class="gh" href="${BLOB}/CHANGELOG.md" rel="noopener">CHANGELOG.md ↗</a>
     </div>
   </header>
@@ -1127,7 +1129,7 @@ ${list.map(section).join('\n')}
   </main>
   <footer>
     <div class="wrap">
-      <p class="legal"><a href="../">VulKara</a> · <a href="../impressum/">Impressum</a> · <a href="../datenschutz/">Datenschutz</a> · <a href="${GH}" rel="noopener">GitHub</a></p>
+      <p class="legal"><a href="../">VulKara</a> · <a href="../impressum/">Impressum</a> · <a href="../datenschutz/">Datenschutz</a> · <a href="../benchmarks/">Benchmarks</a> · <a href="${GH}" rel="noopener">GitHub</a></p>
     </div>
   </footer>
 </body>
@@ -1143,4 +1145,14 @@ ${list.map(section).join('\n')}
   mkdirSync(join(SITE, 'changes'), { recursive: true })
   writeFileSync(join(SITE, 'changes', 'index.html'), changesPage(list))
   console.log(`changes page written (${list.length} releases)`)
+}
+
+// ---------------------------------------------------------------- benchmarks: the measurements as charts
+{
+  const BENCH_V = createHash('sha256').update(readFileSync(join(SITE, 'bench.js'))).digest('hex').slice(0, 10)
+  const { html, css } = benchmarksPage({ BASE, GH, BLOB, VERSION, CSS_V, JS_V, BENCH_V })
+  mkdirSync(join(SITE, 'benchmarks'), { recursive: true })
+  writeFileSync(join(SITE, 'benchmarks', 'index.html'), html)
+  writeFileSync(join(SITE, 'benchmarks', 'charts.css'), css)
+  console.log('benchmarks page written')
 }
