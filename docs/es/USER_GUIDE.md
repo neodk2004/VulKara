@@ -827,7 +827,7 @@ Qué ocurre al importar:
   justo antes de ejecutarse. Es lento, porque cada paso lee todo el denoiser desde el SSD, pero funciona donde no cabe
   nada más. Un SSD interno rápido es mucho más rápido que un disco externo. Cuando el codificador de texto por sí solo no
   deja sitio (Qwen-Image 2.1 en un Mac con 16 GB), se comprime una vez a 4 bits y se guarda en caché; por eso la primera
-  imagen tarda varios minutos más. Los archivos GGUF (y los FP8, que se convierten en GGUF al importarlos) también se
+  imagen tarda varios minutos más. Lo que el codificador de texto saca de un prompt se guarda en el disco (`prompt_cache` en la carpeta de datos de VulKara, hasta 2 GB, los menos usados se borran primero): el mismo prompt, también tras reiniciar, ya no necesita el codificador de texto. Los archivos GGUF (y los FP8, que se convierten en GGUF al importarlos) también se
   transmiten: la primera vez, el archivo se desempaqueta en la caché de streaming, lo que tarda unos minutos y ocupa
   tanto espacio en disco como el modelo de 16 bits.
 - **MLX cede el paso a Diffusers**: el runtime MLX no puede hacer streaming. Cuando tiene muy poca memoria para un modelo

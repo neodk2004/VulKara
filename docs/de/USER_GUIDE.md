@@ -849,7 +849,7 @@ Was beim Import passiert:
   direkt vor seiner Ausführung geladen. Das ist langsam, da jeder Schritt den ganzen Denoiser von der SSD liest, aber es
   läuft, wo sonst nichts passt. Eine schnelle interne SSD ist viel schneller als eine externe Festplatte. Wenn schon der
   Text-Encoder allein keinen Platz lässt (Qwen-Image 2.1 auf einem Mac mit 16 GB), wird er einmal auf 4 Bit komprimiert
-  und zwischengespeichert; das erste Bild dauert dafür einige Minuten länger. GGUF-Dateien (und FP8-Dateien, die beim
+  und zwischengespeichert; das erste Bild dauert dafür einige Minuten länger. Was der Text-Encoder aus einem Prompt macht, bleibt auf der Platte (`prompt_cache` im Datenordner von VulKara, bis 2 GB, die am wenigsten genutzten fallen zuerst weg): Derselbe Prompt braucht danach, auch nach einem Neustart, keinen Text-Encoder. GGUF-Dateien (und FP8-Dateien, die beim
   Import zu GGUF werden) streamen ebenfalls: Beim ersten Mal wird die Datei in den Streaming-Cache entpackt, was ein
   paar Minuten dauert und so viel Festplattenplatz braucht wie das 16-Bit-Modell.
 - **MLX übergibt an Diffusers**: Die MLX-Runtime kann nicht streamen. Hat sie zu wenig Arbeitsspeicher für ein FLUX.1-,

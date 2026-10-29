@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.6 – 2026-10-29
+
+- **Prompts kept on disk.** What the text encoder makes of a prompt is kept in the data folder (`prompt_cache`, up to
+  2 GB, the least used go first). The same prompt again, also after a restart, needs no text encoder: Qwen-Image 2.1
+  streamed on a 16 GB plan peaked 2.4 GB lower and did not load its text encoder; the picture is the same.
+- **4 bit text encoders are quantized only once again.** Loading a text encoder kept in 4 bit made the compression
+  library build a C++ part, which failed on every Mac; the cached copy was dropped and the text encoder compressed again
+  on every start, hours for Qwen-Image 2.1 on a 16 GB Mac. The copy is now unpacked without it.
+
 ## 0.7.5 – 2026-10-28
 
 - **ComfyUI switches memory mode cleanly.** When a job needs the other memory mode (a GGUF model streamed from the SSD

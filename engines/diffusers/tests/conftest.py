@@ -16,3 +16,9 @@ def _install_room(monkeypatch):
     """The tests' imports do not depend on the free space of the disk they run on (test_importer checks the rule)."""
     import importer
     monkeypatch.setattr(importer, "MIN_INSTALL_FREE_GB", 0.0)
+
+
+@pytest.fixture(autouse=True)
+def _no_prompt_cache(monkeypatch):
+    """Engine tests encode for real: their embeddings stay out of the user's data folder (test_prompt_cache sets it)."""
+    monkeypatch.setenv("VK_PROMPT_CACHE_GB", "0")

@@ -15,6 +15,7 @@ import controlnet
 import lora_convert
 import memory
 import paths
+import prompt_cache
 import protocol
 import quant_cache
 import registry
@@ -768,6 +769,12 @@ class LoadedModel:
         key = (prompt, negative, guidance > 1)
         if self.embed_cache and self.embed_cache[0] == key:
             return self.embed_cache[1]
+        disk_key = self._prompt_key(prompt, negative, guidance) if prompt_cache.limit_gb() > 0 else None
+        kwargs = prompt_cache.load(disk_key, self.device)
+        if kwargs is not None:
+            protocol.log("[diffusers] prompt embeddings from the prompt cache")
+            self.embed_cache = (key, kwargs)
+            return kwargs
         # the kept blocks of a streamed model make room for the text encoder (16 GB Macs), and come back after
         release = getattr(self, "stream_release", False) and getattr(self, "stream_model", None) is not None
         if release:
@@ -795,8 +802,26 @@ class LoadedModel:
                 return [cast(x) for x in v]
             return v.to(self.dtype) if v.is_floating_point() else v
         kwargs = {k: cast(v) for k, v in kwargs.items() if v is not None}
+        prompt_cache.save(disk_key, kwargs)
         self.embed_cache = (key, kwargs)
         return kwargs
+
+    def _prompt_key(self, prompt, negative, guidance):
+        """What the embeddings depend on (prompt_cache): LoRAs do not, they leave separate text encoders out."""
+        m = self.m
+        folder = self._path(m["weights_dir"] if m["layout"] == "repo" else m["base_dir"])
+        text = {}
+        for c in self.text_components:
+            try:
+                sig = quant_cache._source_signature(folder, c)
+            except OSError:
+                sig = None
+            text[c] = [sig, self.plan["quant"].get(c, "none")]
+        return prompt_cache.key({
+            "folder": os.path.abspath(folder), "text": text, "text_dtype": str(self.text_dtype), "dtype": str(self.dtype),
+            "family": self.spec["family"], "pipeline": self.spec["pipeline"], "call": self.spec.get("call_kwargs", {}),
+            "empty_negative": self.spec.get("empty_negative", ""), "prompt": prompt, "negative": negative,
+            "guided": guidance > 1})
 
 
 # LoRA files in namings diffusers' readers do not take are converted in one place (lora_convert.py)

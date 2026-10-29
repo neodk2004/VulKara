@@ -651,6 +651,28 @@ started generating within seconds. The peak of a cached run is 2.7 GB over the p
 and read ahead are not in the plan. Left as it is until the streamed blocks are planned (16 GB still falls back to
 streaming more of the model). Open: quantizing the text encoder took three hours on a Mac short of memory.
 
+## 7t. Prompt embeddings kept on disk (2026-10-29, M2 24 GB, memory kept free 12 GB)
+
+Benchmark, Qwen-Image 2.1, 1024 px, 4 steps, seed 12, Diffusers runtime, transformer streamed from the SSD, text
+encoder in 4 bit. First run with an empty `prompt_cache`, then the app restarted and the same job again.
+
+| Run | text encoder | generating | whole | peak (engine) | plan | swap at start |
+| --- | --- | --- | --- | --- | --- | --- |
+| empty prompt cache | loaded 8.6 s (+ 11 911 s quantized again, see below) | 2 354 s | 14 292 s | 14.5 GB | 9.1 GB | 6.7 GB |
+| prompt from the cache | not loaded | 1 697 s | 1 711 s | 12.1 GB | 9.1 GB | 6.7 GB |
+
+The second run never loads the text encoder: the embeddings (156 KB) come from
+`<data>/prompt_cache/<sha256>.safetensors`, the kept blocks of the transformer stay in memory, the peak is 2.4 GB lower
+and the picture is the same to the pixel. The seconds of generating differ by swap (the Mac swapped 6.7 → 11.4 GB), not
+by the cache.
+
+The first run quantized the text encoder again although its 4 bit copy was cached: loading int4 weights on the CPU made
+optimum-quanto compile its C++ unpack kernel, which needs a compiler and fails under `Application Support` (torch
+passes the `-L` path with its space unquoted); `quant_cache` then took the copy for broken and rebuilt it. Fixed: the
+pure torch unpack that already served MPS now serves the CPU too (`quanto_mps.patch`, before every restore), and
+`test_quant_cache` covers 4 bit and checks the kernel is never built. This also hit 0.7.5 on 16 GB Macs: Qwen-Image
+2.1's text encoder was quantized for hours on every engine start.
+
 ## 8. Earlier references (from the user guide and the changelog)
 
 - Training on the M2 (2025–26): SDXL about 2.5 s per step at 768 px, FLUX.2 [klein] 4B about 15 s, 9B about 30 s,

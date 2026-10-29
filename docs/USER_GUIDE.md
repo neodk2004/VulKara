@@ -794,7 +794,7 @@ What happens on import:
   Settings), and while a picture is made each block is loaded right before it runs. It is slow, as every step reads the
   whole denoiser from the SSD, but it runs where nothing else fits. A fast internal SSD is much quicker than an external
   disk. When the text encoder alone leaves no room (Qwen-Image 2.1 on a 16 GB Mac), it is compressed to 4 bit once and
-  cached; the first picture takes several minutes longer for that. GGUF files (and FP8 files, which become GGUF on
+  cached; the first picture takes several minutes longer for that. What the text encoder makes of a prompt is kept on disk (`prompt_cache` in VulKara's data folder, up to 2 GB, the least used go first): the same prompt again, also after a restart, needs no text encoder. GGUF files (and FP8 files, which become GGUF on
   import) stream too: the first time, the file is unpacked into the streaming cache, which takes a few minutes and
   as much disk space as the 16 bit model.
 - **MLX hands over to Diffusers**: the MLX runtime can not stream. When it has too little memory for a FLUX.1,

@@ -816,7 +816,7 @@ O que acontece na importação:
   na pasta definida em Ajustes), e enquanto uma imagem é gerada cada bloco é carregado logo antes de rodar. É lento,
   pois cada passo lê o denoiser inteiro do SSD, mas roda onde nada mais cabe. Um SSD interno rápido é bem mais rápido
   que um disco externo. Quando o codificador de texto sozinho não deixa espaço (Qwen-Image 2.1 num Mac com 16 GB), ele
-  é comprimido para 4 bits uma vez e guardado em cache; a primeira imagem leva vários minutos a mais por isso. Arquivos
+  é comprimido para 4 bits uma vez e guardado em cache; a primeira imagem leva vários minutos a mais por isso. O que o codificador de texto tira de um prompt fica guardado no disco (`prompt_cache` na pasta de dados do VulKara, até 2 GB, os menos usados saem primeiro): o mesmo prompt, também depois de reiniciar, não precisa mais do codificador de texto. Arquivos
   GGUF (e arquivos FP8, que viram GGUF na importação) também fazem streaming: na primeira vez, o arquivo é
   descompactado no cache de streaming, o que leva alguns minutos e ocupa tanto espaço em disco quanto o modelo de 16
   bits.

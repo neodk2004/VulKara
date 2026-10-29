@@ -22,8 +22,9 @@ MODELS = {
 }
 
 
+@pytest.mark.parametrize("level", ["q8", "q4"])
 @pytest.mark.parametrize("kind", sorted(MODELS))
-def test_round_trip(tmp_path, kind):
+def test_round_trip(tmp_path, kind, level):
     torch.manual_seed(0)
     folder = str(tmp_path / "src")
     comp = "text_encoder"
@@ -31,25 +32,28 @@ def test_round_trip(tmp_path, kind):
     cls = type(MODELS[kind]())
     dtype = torch.bfloat16
     quantized = cls.from_pretrained(folder, subfolder=comp, dtype=dtype,
-                                    quantization_config=transformers.QuantoConfig(weights="int8"))
+                                    quantization_config=transformers.QuantoConfig(weights={"q8": "int8", "q4": "int4"}[level]))
     ids = torch.randint(0, 128, (1, 12))
     with torch.no_grad():
         ref = quantized(ids)[0].float()
 
     model_dir = str(tmp_path / "model")
     os.makedirs(model_dir)
-    quant_cache.save(model_dir, folder, comp, "q8", dtype, quantized)
-    assert os.path.isfile(os.path.join(quant_cache.cache_dir(model_dir, comp, "q8"), "model.safetensors"))
+    quant_cache.save(model_dir, folder, comp, level, dtype, quantized)
+    assert os.path.isfile(os.path.join(quant_cache.cache_dir(model_dir, comp, level), "model.safetensors"))
 
     def make_empty():
         with torch.device("meta"):
             return cls._from_config(cls.config_class.from_pretrained(folder, subfolder=comp), dtype=dtype)
 
-    restored = quant_cache.load(model_dir, folder, comp, "q8", dtype, make_empty)
+    restored = quant_cache.load(model_dir, folder, comp, level, dtype, make_empty)
     assert restored is not None
     with torch.no_grad():
         got = restored(ids)[0].float()
     assert torch.equal(ref, got)
+    # int4 unpacks without quanto's C++ kernel (it is compiled on first use and fails in paths with a space)
+    from optimum.quanto.library.extensions import get_extension
+    assert get_extension("quanto_cpp")._lib is None
     if kind == "t5":
         assert restored.shared.weight is restored.encoder.embed_tokens.weight
 

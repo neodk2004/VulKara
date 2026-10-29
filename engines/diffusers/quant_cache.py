@@ -81,6 +81,8 @@ def _restore(d, info, dtype, make_empty):
     from optimum.quanto import requantize
     from safetensors.torch import load_file
 
+    import quanto_mps
+    quanto_mps.patch()  # unpacking must not need quanto's compiled kernels
     sd = load_file(os.path.join(d, "model.safetensors"))
     buffers = {k[len(BUFFER_PREFIX):]: sd.pop(k) for k in list(sd) if k.startswith(BUFFER_PREFIX)}
     for alias, src in info["aliases"].items():
