@@ -995,7 +995,11 @@ def keep_plan(components, denoiser, family, ram_gb, streamed_plan, text_quant_op
         # the streamed plan's encoding (blocks in flight only) stays as it is; denoising holds the kept blocks
         denoising = streamed_plan["denoise_peak_gb"] + full_gb * (share - STREAM_RESIDENT_SHARE)
         if streamed_plan["staged_text_encoder"] and denoising <= streamed_plan["budget_gb"]:
-            return min(keep, 1.0 - STREAM_RESIDENT_SHARE), streamed_plan, True
+            # the kept blocks count while denoising (the job's planned peak, the room for a ControlNet), not while
+            # encoding, when they are released
+            p = dict(streamed_plan, denoise_peak_gb=round(denoising, 1),
+                     est_peak_gb=round(max(streamed_plan["est_peak_gb"], denoising), 1))
+            return min(keep, 1.0 - STREAM_RESIDENT_SHARE), p, True
     return 0.0, streamed_plan, False
 
 

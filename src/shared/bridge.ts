@@ -154,6 +154,8 @@ export function makeApi(call: Call, on: On, extra: BridgeExtra): VulkaraApi {
       onLog: (fn) => on('app:log', fn),
       update: () => call('app:update'),
       checkUpdate: () => call('app:checkUpdate'),
+      promptCache: () => call('app:promptCache'),
+      clearPromptCache: () => call('app:clearPromptCache'),
       installUpdate: () => call('app:installUpdate'),
       onUpdate: (fn) => on('app:updateChanged', fn),
     },

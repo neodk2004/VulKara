@@ -91,6 +91,9 @@ export default {
     hashLookupsHint: 'For models and LoRAs without a known origin (imported from disk): their trigger words, preview and licence. It tells Civitai which files are on this Mac.',
     updateChecks: 'Look for app and runtime updates once a day',
     updateChecksHint: 'Reads the public version lists of VulKara on GitHub and of the runtimes on PyPI and GitHub; nothing of yours is sent.',
+    promptCache: 'Prompt cache',
+    promptCacheHint: 'Prompts encoded before are kept on this Mac (at most 2 GB), so they need no text encoder again: {mb} MB now.',
+    promptCacheClear: 'Clear',
   },
   remote: {
     title: 'Remote access',

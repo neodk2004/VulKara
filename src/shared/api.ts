@@ -692,6 +692,9 @@ export interface VulkaraApi {
     openExternal(url: string): Promise<void>
     logs(): Promise<LogLine[]>
     onLog(fn: (line: LogLine) => void): () => void
+    /** bytes of encoded prompts the engines keep on disk */
+    promptCache(): Promise<number>
+    clearPromptCache(): Promise<void>
     /** the app's update: last check and installation (no network) */
     update(): Promise<AppUpdateState>
     /** asks GitHub for the newest release */

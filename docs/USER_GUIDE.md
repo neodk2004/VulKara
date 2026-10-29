@@ -1047,6 +1047,9 @@ chosen shows the message *was not given to the app: choose it again*.
   enter the page of such a file on the Licenses page yourself.
 - **Look for app and runtime updates once a day**: on by default; see [Update check](#update-check) and [App updates](#app-updates). Off, **Check now**
   still asks when you want.
+- **Prompt cache**: prompts encoded before are kept on this Mac (at most 2 GB, the least recently used go first), so
+  a prompt used again needs no text encoder, also after a restart (Diffusers, and MLX models that load their text
+  encoder only for new prompts on small Macs). The row shows its size; **Clear** removes it.
 
 ### Access tokens
 

@@ -27,6 +27,9 @@ const tokenInput = reactive<Record<Service, string>>({ huggingface: '', civitai:
 const tokenStored = reactive<Record<Service, boolean>>({ huggingface: false, civitai: false })
 const about = ref<RuntimeInfo>()
 
+/** bytes of encoded prompts on disk (Privacy) */
+const promptCacheBytes = ref(0)
+
 const remote = ref<{ running: boolean; addresses: string[]; https: boolean }>({ running: false, addresses: [], https: false })
 /** the address whose link was just copied (its icon shows a tick for a moment) */
 const copied = ref('')
@@ -35,6 +38,12 @@ async function refresh(): Promise<void> {
   await Promise.all([runtimes.refresh(), settings.load()])
   for (const s of SERVICES) tokenStored[s.id] = await window.vk.tokens.has(s.id)
   remote.value = await window.vk.remote.info()
+  promptCacheBytes.value = await window.vk.app.promptCache()
+}
+
+async function clearPromptCache(): Promise<void> {
+  await window.vk.app.clearPromptCache()
+  promptCacheBytes.value = await window.vk.app.promptCache()
 }
 
 /** the address a device opens: one on the network, with the token in it */
@@ -408,6 +417,13 @@ const THEMES: { id: 'system' | 'light' | 'dark'; title: PlainKey; icon: typeof M
             </div>
             <input type="checkbox" :checked="settings.values.updateChecks" @change="settings.set('updateChecks', ($event.target as HTMLInputElement).checked)" />
           </label>
+          <div class="row">
+            <div class="grow">
+              <strong>{{ t('settings.privacy.promptCache') }}</strong>
+              <p class="dim">{{ t('settings.privacy.promptCacheHint', { mb: dec(Math.round(promptCacheBytes / 1e5) / 10) }) }}</p>
+            </div>
+            <button class="btn small" :disabled="!promptCacheBytes" @click="clearPromptCache"><Trash2 :size="13" /> {{ t('settings.privacy.promptCacheClear') }}</button>
+          </div>
         </div>
       </section>
 

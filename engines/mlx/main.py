@@ -26,6 +26,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "diffusers"))
 import memory  # noqa: E402
 import protocol  # noqa: E402
 import paths  # noqa: E402
+import prompt_cache  # noqa: E402
+import quant_cache  # noqa: E402
 
 MANIFEST = "model.json"
 LORA_MANIFEST = "lora.json"
@@ -440,6 +442,7 @@ def cache_prompt_encodings(model, keep=8):
             cache[k] = out
         return cache[k]
     model._encode_prompts = cached
+    model.prompt_cache = cache  # as mflux's other models: kept on disk by the engine
 
 
 class DropTextEncoder:
@@ -453,6 +456,7 @@ class DropTextEncoder:
         model = self.engine.model
         if getattr(model, "text_encoder", None) is None:
             return
+        self.engine.keep_encodings()
         model.text_encoder = None
         self.engine.encoded.add(self.engine.encode_key)
         import gc
@@ -470,6 +474,8 @@ class MlxEngine:
         self.staged = False
         self.encoded = set()  # prompts in mflux's prompt cache while the text encoder is dropped
         self.encode_key = None
+        self.disk_parts = None  # what a loaded model's prompt encodings depend on (prompt cache on disk)
+        self.cache_before = set()  # mflux's prompt cache before this job's prompt was encoded
         self.bit_sizes = []  # (part, "8 bit") of the loaded model, reported with each job
         self.plan = None  # the memory plan of the loaded model (choose_quant)
         self.flux3_peak = None
@@ -478,6 +484,7 @@ class MlxEngine:
     def unload(self):
         self.model = None
         self.key = None
+        self.disk_parts = None
         self.staged = False
         self.encoded = set()
         import gc
@@ -497,7 +504,7 @@ class MlxEngine:
             raise ValueError("The MLX runtime needs models in diffusers folder layout")
         key = (model_dir, tuple((l["file"], l["scale"]) for l in loras))
         if key == self.key and (not self.staged or getattr(self.model, "text_encoder", None) is not None
-                                or prompt in self.encoded):
+                                or prompt in self.encoded or self._cached_encodings(prompt)):
             return
         self.unload()
         dtype = compute_dtype(FAMILIES.get(m["arch"]))
@@ -547,9 +554,43 @@ class MlxEngine:
         if memory.total_ram_gb() <= LOW_RAM_GB:
             low_ram(self.model)
         self.encoded = set()
+        # the text encoder's files, its bit size and the LoRAs: what the encodings on disk depend on
+        te = os.path.join(weights, "text_encoder")
+        self.disk_parts = {"engine": "mlx", "arch": m["arch"], "weights": quant_cache._source_signature(weights, None),
+                           "text_encoder": quant_cache._source_signature(te, None) if os.path.isdir(te) else None,
+                           "bits": bits, "quantize_te": quantize_te,
+                           "loras": [(f, s, os.path.getmtime(f)) for f, s in key[1]]} if self.staged else None
         protocol.log("[mlx] loaded %s, quantize=%s%s" % (m["name"], bits, ", text encoder only for new prompts"
                                                           if self.staged else ""))
+        self._cached_encodings(prompt)
         return
+
+    def _disk_key(self, prompt):
+        if self.disk_parts is None or prompt is None:
+            return None
+        import importlib.metadata as md
+        try:
+            versions = {p: md.version(p) for p in ("mlx", "mflux")}
+        except Exception:
+            return None  # no versions to key by: encoded as before, not kept
+        return prompt_cache.key(dict(self.disk_parts, prompt=list(prompt)), versions=versions)
+
+    def _cached_encodings(self, prompt):
+        """A staged model's prompt encoded before (also before a restart): its encodings from the disk into mflux's
+        prompt cache, so the text encoder is not needed (with it dropped, the model is not loaded again)."""
+        entries = prompt_cache.load_mlx(self._disk_key(prompt))
+        if not entries or getattr(self.model, "prompt_cache", None) is None:
+            return False
+        self.model.prompt_cache.update(entries)
+        self.encoded.add(prompt)
+        protocol.log("[mlx] prompt encodings from the prompt cache")
+        return True
+
+    def keep_encodings(self):
+        """After a staged model encoded this job's prompt: the new entries of mflux's prompt cache onto the disk."""
+        cache = getattr(self.model, "prompt_cache", None) or {}
+        prompt_cache.save_mlx(self._disk_key(self.encode_key),
+                              {k: v for k, v in cache.items() if k not in self.cache_before})
 
     def _save_cache(self, m, cache):
         """Writes the freshly quantized model in mflux's format (once, if the disk has room)."""
@@ -613,19 +654,20 @@ class MlxEngine:
         height = int(d.get("height") or defaults.get("height", 1024)) // 16 * 16
         if m.get("arch") == "flux3_klein":
             return self._generate_flux3(d, m, model_dir, loras, prompt, width, height)
-        # what encoded prompts are cached by: Ideogram 4 (mflux) with the size, Z-Image (cache_prompt_encodings) with the
-        # negative prompt
-        encode_key = (prompt, d.get("negative_prompt") or "") if m["arch"] == "z_image" else (prompt, width, height)
-        self._ensure(model_dir, m, loras, encode_key)
-        protocol.precision(self.bit_sizes)
-        self._plan_job(FAMILIES[m["arch"]], width, height)
-
         steps = int(d.get("num_steps") or defaults.get("num_steps", 4))
         guidance = float(d["guidance_scale"]) if d.get("guidance_scale") is not None else defaults.get("guidance_scale", 1.0)
         if m["arch"] == "flux2_klein" and steps <= 8:
             guidance = 1.0  # distilled klein models run without guidance
         if m["arch"] == "ernie_image" and not ernie_guided(m):
             guidance = 1.0
+        # what the encodings in mflux's prompt caches go by: Z-Image the negative prompt with guidance, Krea 2 negative
+        # prompt and guidance, Ideogram 4 the size
+        neg = d.get("negative_prompt") or None
+        encode_key = {"z_image": (prompt, neg if guidance > 1.0 else None), "krea2": (prompt, neg, guidance),
+                      "ideogram4": (prompt, width, height)}.get(m["arch"], (prompt,))
+        self._ensure(model_dir, m, loras, encode_key)
+        protocol.precision(self.bit_sizes)
+        self._plan_job(FAMILIES[m["arch"]], width, height)
         model_prompt = prompt
         if m["arch"] == "ideogram4" and not prompt.strip().startswith("{"):
             model_prompt = ideogram_caption(prompt)  # JSON captions are passed on as they are
@@ -637,6 +679,7 @@ class MlxEngine:
         if self.staged and not any(isinstance(cb, DropTextEncoder) for cb in self.model.callbacks.before_loop):
             self.model.callbacks.register(DropTextEncoder(self))
         self.encode_key = encode_key
+        self.cache_before = set(getattr(self.model, "prompt_cache", None) or {})
 
         if m["arch"] == "ideogram4" and steps in IDEOGRAM_PRESETS:
             # the preset brings its own guidance and noise schedules

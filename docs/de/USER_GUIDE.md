@@ -1121,6 +1121,10 @@ erneut aus*.
   Seite Lizenzen selbst an.
 - **Einmal täglich nach App- und Runtime-Updates suchen**: standardmäßig an; siehe [Update-Prüfung](#update-prüfung) und [App-Updates](#app-updates). Ist es aus,
   fragt **Jetzt prüfen** trotzdem, wann du willst.
+- **Prompt-Cache**: Schon kodierte Prompts bleiben auf diesem Mac (höchstens 2 GB, die am längsten unbenutzten gehen
+  zuerst), damit ein wieder verwendeter Prompt keinen Text-Encoder braucht, auch nach einem Neustart (Diffusers und
+  MLX-Modelle, die ihren Text-Encoder auf kleinen Macs nur für neue Prompts laden). Die Zeile zeigt seine Größe;
+  **Leeren** entfernt ihn.
 
 ### Zugriffstoken
 

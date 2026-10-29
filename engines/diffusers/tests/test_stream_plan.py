@@ -60,5 +60,8 @@ def test_a_streamed_model_keeps_what_the_memory_plan_allows():
         if release:  # 16 GB: the text encoder is staged and gets the kept blocks' room; denoising fits with them
             assert ram == 16 and kept_plan["staged_text_encoder"]
             assert plan["denoise_peak_gb"] + full_gb * (share - engine.STREAM_RESIDENT_SHARE) <= plan["budget_gb"]
+            # and the plan the job reports counts them while denoising
+            assert kept_plan["denoise_peak_gb"] == round(plan["denoise_peak_gb"] + full_gb * (share - engine.STREAM_RESIDENT_SHARE), 1)
+            assert kept_plan["est_peak_gb"] >= kept_plan["denoise_peak_gb"] > plan["denoise_peak_gb"]
         else:  # with the margin given back it still fits: kept + in flight + margin <= what the plan allowed
             assert memory.plan(comps, "transformer", "flux", ram, denoiser_fixed_gb=full_gb * share)["fits"]

@@ -1097,6 +1097,10 @@ disponible; una que nunca se eligió muestra el mensaje *no se entregó a la app
   Civitai qué archivos hay en este Mac. Desactivado, indica tú mismo la página de ese archivo en la página Licencias.
 - **Buscar actualizaciones de la app y de los runtimes una vez al día**: activado por defecto; consulta
   [Búsqueda de actualizaciones](#búsqueda-de-actualizaciones). Desactivado, **Comprobar ahora** sigue preguntando cuando quieras.
+- **Caché de prompts**: los prompts ya codificados se guardan en este Mac (como máximo 2 GB, primero se van los que
+  llevan más tiempo sin usarse), así un prompt usado de nuevo no necesita el codificador de texto, también tras un
+  reinicio (Diffusers y los modelos MLX que en Macs pequeños cargan su codificador de texto solo para prompts nuevos).
+  La fila muestra su tamaño; **Vaciar** la elimina.
 
 ### Tokens de acceso
 

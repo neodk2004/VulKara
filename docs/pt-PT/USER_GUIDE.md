@@ -1091,6 +1091,10 @@ de novo*.
   estão neste Mac. Desativado, indique o utilizador a página desse ficheiro na página Licenças.
 - **Procurar atualizações da app e dos runtimes uma vez por dia**: ativado por predefinição; consulte
   [Verificação de atualizações](#verificação-de-atualizações). Desativado, **Verificar agora** continua a consultar quando quiser.
+- **Cache de prompts**: os prompts já codificados ficam guardados neste Mac (no máximo 2 GB, os usados há mais tempo
+  saem primeiro), por isso um prompt usado de novo não precisa do codificador de texto, também depois de reiniciar
+  (Diffusers e os modelos MLX que em Macs pequenos carregam o codificador de texto só para prompts novos). A linha
+  mostra o tamanho; **Esvaziar** apaga a cache.
 
 ### Tokens de acesso
 

@@ -124,7 +124,7 @@ export function staleRuntimes(): RuntimeId[] {
   }).map((rt) => rt.id)
 }
 
-function dirSize(dir: string): number {
+export function dirSize(dir: string): number {
   let total = 0
   const stack = [dir]
   while (stack.length) {

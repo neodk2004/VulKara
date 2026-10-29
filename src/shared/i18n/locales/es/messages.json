@@ -1331,7 +1331,10 @@
    "hashLookups": "Buscar archivos en Civitai por su suma de verificación",
    "hashLookupsHint": "Para modelos y LoRAs sin origen conocido (importados desde el disco): sus palabras clave, su vista previa y su licencia. Esto le indica a Civitai qué archivos hay en este Mac.",
    "updateChecks": "Buscar actualizaciones de la app y de los runtimes una vez al día",
-   "updateChecksHint": "Lee las listas públicas de versiones de VulKara en GitHub y de los runtimes en PyPI y GitHub; no se envía nada tuyo."
+   "updateChecksHint": "Lee las listas públicas de versiones de VulKara en GitHub y de los runtimes en PyPI y GitHub; no se envía nada tuyo.",
+   "promptCache": "Caché de prompts",
+   "promptCacheHint": "Los prompts ya codificados se guardan en este Mac (como máximo 2 GB) para no necesitar otra vez el codificador de texto: ahora {mb} MB.",
+   "promptCacheClear": "Vaciar"
   },
   "remote": {
    "title": "Acceso remoto",

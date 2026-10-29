@@ -1079,6 +1079,10 @@ uma que nunca foi escolhida mostra a mensagem *não foi entregue ao app: escolha
   indique você mesmo a página desse arquivo na página Licenças.
 - **Procurar atualizações do app e dos runtimes uma vez por dia**: ativado por padrão; veja
   [Verificação de atualizações](#verificação-de-atualizações). Desativado, **Verificar agora** continua consultando quando você quiser.
+- **Cache de prompts**: prompts já codificados ficam guardados neste Mac (no máximo 2 GB, os usados há mais tempo saem
+  primeiro), então um prompt usado de novo não precisa do codificador de texto, também depois de reiniciar (Diffusers
+  e os modelos MLX que em Macs pequenos carregam o codificador de texto só para prompts novos). A linha mostra o
+  tamanho; **Esvaziar** apaga o cache.
 
 ### Tokens de acesso
 

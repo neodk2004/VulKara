@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.9 – 2026-10-29
+
+- **Prompt cache for MLX models too.** Z-Image, Krea 2 and Ideogram 4 on a 16 GB Mac load their text encoder only for
+  new prompts; a prompt used before (also after a restart) now comes from the prompt cache on disk instead of loading
+  the model again: Z-Image Turbo 64 s instead of 99 s per picture for a prompt used before, the same picture. A
+  negative prompt or guidance changed for Krea 2 is encoded anew.
+- **Prompt cache in the settings.** Settings → Privacy shows how much the encoded prompts take on disk, and **Clear**
+  removes them.
+- **The memory plan of streamed models counts the blocks kept in memory.** On a 16 GB Mac VulKara keeps some blocks
+  of a model streamed from the SSD in memory and frees them only while a new prompt is encoded; the plan left them out
+  while denoising (Qwen-Image 2.1: 9.1 GB planned, 12.1 GB used, now 11.8 GB planned). The warning about free memory
+  and the room for a ControlNet next to such a model now go by the right figure.
+
 ## 0.7.8 – 2026-10-29
 
 - **4 bit models start their work in seconds, not minutes.** Moving a part kept in 4 bit onto the GPU repacked every

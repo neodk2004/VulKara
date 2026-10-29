@@ -54,3 +54,20 @@ def test_oldest_go_beyond_the_limit_and_broken_files_are_dropped(cache, monkeypa
     assert prompt_cache.load(keys[1]) is None and not (cache / (keys[1] + ".safetensors")).exists()
     monkeypatch.setenv("VK_PROMPT_CACHE_GB", "0")  # off
     assert prompt_cache.load(keys[2]) is None
+
+
+def test_mlx_entries_round_trip(cache):
+    mx = pytest.importorskip("mlx.core")
+    entries = {("a fox", None, 4.0): (mx.ones((1, 3, 8)), None),       # Krea 2: (embeds, no negative)
+               ("{caption}", 1024, 768): mx.arange(6).reshape(2, 3)}    # Ideogram 4: one array
+    k = prompt_cache.key({"prompt": ["a fox"]}, versions={"mlx": "test"})
+    assert prompt_cache.load_mlx(k) is None
+    prompt_cache.save_mlx(k, entries)
+    out = prompt_cache.load_mlx(k)
+    assert set(out) == set(entries)
+    embeds, neg = out[("a fox", None, 4.0)]
+    assert neg is None and mx.array_equal(embeds, entries[("a fox", None, 4.0)][0])
+    assert mx.array_equal(out[("{caption}", 1024, 768)], entries[("{caption}", 1024, 768)])
+    assert not [f for f in os.listdir(cache) if ".tmp" in f]
+    (cache / (k + ".safetensors")).write_bytes(b"broken")
+    assert prompt_cache.load_mlx(k) is None and not (cache / (k + ".safetensors")).exists()

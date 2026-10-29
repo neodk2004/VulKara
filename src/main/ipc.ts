@@ -35,7 +35,7 @@ import { detectPose, findFaces } from './pose'
 import { Trainer, folderImages } from './training'
 import { JobQueue } from './queue'
 import { runTool } from './tool_process'
-import { engineCommand, installRuntime, listRuntimes, removeRuntime, staleRuntimes, updateTargets, type RuntimeId } from './runtimes'
+import { dirSize, engineCommand, installRuntime, listRuntimes, removeRuntime, staleRuntimes, updateTargets, type RuntimeId } from './runtimes'
 import { AUTO_INTERVAL, UpdateChecker } from './runtime_updates'
 import { AppUpdater } from './app_update'
 import { getToken, hasToken, setToken, type TokenService } from './secrets'
@@ -402,6 +402,10 @@ export function registerIpc(): void {
     send('runtimes:updatesChanged', runtimeUpdates().status())
   })
   handle('runtimes:updates', () => runtimeUpdates().status())
+  // the engines' prompt cache (prompt_cache.py): its size, and emptied on request
+  const promptCache = (): string => join(dataDir(), 'prompt_cache')
+  handle('app:promptCache', () => dirSize(promptCache()))
+  handle('app:clearPromptCache', () => rmSync(promptCache(), { recursive: true, force: true }))
   handle('app:update', () => appUpdate().status())
   handle('app:checkUpdate', () => appUpdate().check())
   handle('app:installUpdate', () => {

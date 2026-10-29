@@ -730,6 +730,57 @@ neighbouring columns (the median column is 0.23):
 At normal contrast the streaks are gone; boosted 4 times one faint seam is left. 512 px tiles were dropped for the
 16 GB plan: 1.7 GB more and the seam only moved.
 
+## 7w. Where the peak of a streamed Qwen-Image 2.1 picture lies (2026-10-29, M2 24 GB, memory kept free 12 GB)
+
+The 16 GB plan of 7v plans 9.1 GB, the engine peaks at 12.1 GB. Whether decoding is the missing part: the same run
+(prompt from the prompt cache, 9 of 32 blocks kept, 3.7 GB) with the footprint of the engine sampled about every 2 s
+next to its log:
+
+| Phase | footprint (sampled) |
+| --- | --- |
+| model loaded, before the first step | 9.9–10.1 GB |
+| denoising, blocks streamed | 9.4–11.6 GB, swinging with the blocks in flight |
+| VAE decoding in 256 px tiles (about 40 s) | 9.7 GB at its start, then 7.6 GB |
+| after the picture | 6.6–7.1 GB |
+
+Peak of the job (macOS's interval maximum): 12.1 GB, 1 863 s. Decoding is not the peak in the Diffusers runtime: its
+tiles need about 1.1 GB, less than the denoising's activations it follows.
+
+The gap was the plan itself: where a 16 GB plan keeps blocks and releases them while a new prompt is encoded
+(`keep_plan`), it returned the streamed plan without them, so 9.1 GB was the encoding's peak and the 3.7 GB of kept
+blocks were not counted while denoising (also not in the warning about free memory and the room for a ControlNet). Now
+the plan counts them while denoising:
+
+| Run (same picture) | planned | engine at most | whole |
+| --- | --- | --- | --- |
+| before | 9.1 GB | 12.1 GB | 1 863 s |
+| after | 11.8 GB | 12.1 GB | 1 705 s |
+
+The rest, 0.3 GB, is within what the blocks in flight swing by. Also seen: after the last step two blocks read ahead
+for the next picture stay in memory (0.85 GB, until the next picture or the model is unloaded), and reading a block into
+one buffer that the tensors view (no second copy) is faster (3 blocks 0.8 s instead of 1.4 s) but holds the same
+memory; neither is changed.
+
+## 7x. Prompt encodings of MLX models on disk (2026-10-29, M2 24 GB, memory kept free 12 GB)
+
+On a 16 GB plan Z-Image, Krea 2 and Ideogram 4 on MLX drop their text encoder after encoding a prompt; another prompt
+loads the whole model again. Their encodings (the entries of mflux's prompt caches) now go into the prompt cache on
+disk as well (`prompt_cache.save_mlx`), so a prompt encoded before needs neither the text encoder nor a new load, also
+after a restart. Z-Image Turbo (MLX, 8 bit, staged), 512 px, 9 steps, seed 5: prompt A, prompt B, A again, a restart
+of the app, A again:
+
+| Picture | cache off | cache on | read from disk (off / on) |
+| --- | --- | --- | --- |
+| A, first | 105.5 s | 104.2 s | 30.5 / 30.4 GB |
+| B | 97.7 s | 97.8 s | 30.4 / 30.3 GB |
+| A again (the model held B's prompt) | 98.7 s (loaded again) | 64.4 s (not loaded) | 30.4 / 0 GB |
+| A after a restart | 104.7 s | 95.5 s (text encoder not run) | 30.5 / 23.2 GB |
+
+Peaks 8.7–9.7 GB either way; the four pictures of A are the same to the pixel. Again after the review's fixes (keys per model as mflux's own: the size only for Ideogram 4): A again 61.6 s with nothing read, after a restart 96.4 s, the same pictures. One entry is about 80 KB at 512 px. Also
+fixed: the key of what a staged model had encoded held neither the negative prompt nor the guidance, which Krea 2's
+encodings depend on. Not done: a model loaded for a prompt from the cache still loads its text encoder (mflux loads
+every part at once).
+
 ## 8. Earlier references (from the user guide and the changelog)
 
 - Training on the M2 (2025–26): SDXL about 2.5 s per step at 768 px, FLUX.2 [klein] 4B about 15 s, 9B about 30 s,

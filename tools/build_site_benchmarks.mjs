@@ -47,15 +47,17 @@ const PLAN_AFTER = [
   ['Anima-Turbo', 'ComfyUI', 10.0, 9.1],
   ['NetaYume v4 (Lumina 2)', 'ComfyUI', 14.7, 14.1],
   ['Pony V7 Q8_0 (AuraFlow)', 'ComfyUI, GGUF', 13.0, 13.9],
+  ['Qwen-Image 2.1, streamed (16 GB plan)', 'Diffusers, kept blocks counted (7w)', 12.1, 11.8],
 ]
 
-// work done once and kept, and a stop that waited (MEASUREMENTS 7r, 7s, 7t, 7u): before, after, unit
+// work done once and kept, and a stop that waited (MEASUREMENTS 7r, 7s, 7t, 7u, 7x): before, after, unit
 const ONCE = [
   { ref: '7s', what: 'Qwen-Image 2.1, whole picture', sub: '16 GB plan: text encoder quantized to 4 bit, then from the quantized cache', a: 10971, b: 221, unit: 's' },
   { ref: '7s', what: 'Qwen-Image 2.1, memory at most', sub: 'the same two pictures', a: 14.5, b: 11.8, unit: 'GB' },
   { ref: '7t', what: 'Qwen-Image 2.1, prompt from the prompt cache', sub: 'memory at most; the text encoder is not loaded, same picture to the pixel', a: 14.5, b: 12.1, unit: 'GB' },
   { ref: '7t', what: 'Qwen-Image 2.1, a prompt used before, after a restart', sub: 'whole picture: text encoder from its 4 bit copy, then the prompt from the prompt cache', a: 4264, b: 1711, unit: 's' },
   { ref: '7u', what: 'Qwen-Image 2.1, text encoder for a new prompt', sub: 'its 4 bit copy moved to the GPU and the prompt encoded: TinyGemm repacked per layer, then the plain packing', a: 2586, b: 28.9, unit: 's' },
+  { ref: '7x', what: 'Z-Image Turbo (MLX), a prompt used before', sub: '16 GB plan, 512 px, after another prompt: the model loaded again, then its encodings from the prompt cache', a: 98.7, b: 64.4, unit: 's' },
   { ref: '7r', what: 'Stop while SSD streaming is prepared', sub: 'Chroma1 Flash, stopped at 21 %: seconds until the job ended', a: 84.9, b: 0, unit: 's' },
 ]
 
@@ -288,7 +290,7 @@ function seamsChart() {
   return `
     <section class="chart" id="seams">
       <h2>Seams between VAE tiles (Qwen-Image)</h2>
-      <p class="sub">Qwen-Image's VAE decodes 1024 px in tiles; where they meet, plain areas showed faint streaks. The bar is the strongest column's difference to decoding whole (0–255); decoding whole needs 13.2 GB. In the real 16 GB run: 0.3 GB and 33 s more per picture, the streaks gone.</p>
+      <p class="sub">Qwen-Image's VAE decodes 1024 px in tiles; where they meet, plain areas showed faint streaks. The bar is the strongest column's difference to decoding whole (0–255); decoding whole needs 13.2 GB. In the real 16 GB run: 0.3 GB and 33 s more per picture, the streaks gone. Decoding is not the peak there (MEASUREMENTS 7w): sampled 9.7 GB at its start, then 7.6 GB, against up to 11.6 GB in the steps.</p>
       <div class="bx">${ticksRow(ax, '')}${rows}
       </div>${table(['Tiles', 'Used', 'Strongest column', 'Mean', 'GB', 's'], SEAMS.map(([t, w, c, m, gb, sec]) => [esc(t), esc(w), fmt(c, 2), fmt(m, 2), fmt(gb, 2), sec]))}
     </section>`
@@ -299,7 +301,7 @@ export function benchmarksPage({ BASE, GH, BLOB, VERSION, CSS_V, JS_V, BENCH_V }
   RULES = []
   const body = [speedChart(), memoryChart(),
     planChart('plan', 'The memory plan against the measurement', 'Before every picture VulKara plans the memory a model needs and picks bit size, staging or streaming from it. Here the plan against what the engine used, 1024 px; the right column is the difference. Before the fixes of the same day (decoding in tiles, padded attention).', PLAN, '7m'),
-    planChart('plan-after', 'Plans brought to the measurements', 'SD 1.5 planned at its own size with fused attention, ComfyUI models with the plan of a model held whole (shown in the benchmark since 0.7.5). The ComfyUI figures are the middle of two runs.', PLAN_AFTER, '7p'),
+    planChart('plan-after', 'Plans brought to the measurements', 'SD 1.5 planned at its own size with fused attention, ComfyUI models with the plan of a model held whole (shown in the benchmark since 0.7.5). The ComfyUI figures are the middle of two runs. Qwen-Image 2.1 streamed: the blocks kept in memory were not counted while denoising (planned 9.1 GB before).', PLAN_AFTER, '7p'),
     onceTable(), seamsChart(), headsChart(), attentionTable()].join('\n')
   const tileHtml = tiles()
   const css = RULES.map((r, i) => `.bench-page .p${i}{${r}}`).join('\n') + '\n'
