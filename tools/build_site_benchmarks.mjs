@@ -40,6 +40,23 @@ const PLAN = [
   ['AuraFlow v0.3', 'Diffusers, 8 bit', 14.6, 13.3],
 ]
 
+// the plans brought to the measurements (MEASUREMENTS 7p; used = 7n for SD 1.5, the middle of 7o's range for ComfyUI)
+const PLAN_AFTER = [
+  ['epiCPhotoGasm (SD 1.5), 512 px', 'Diffusers, 16 bit', 3.7, 3.6],
+  ['epiCPhotoGasm (SD 1.5), 1024 px', 'Diffusers, 16 bit', 5.0, 5.0],
+  ['Anima-Turbo', 'ComfyUI', 10.0, 9.1],
+  ['NetaYume v4 (Lumina 2)', 'ComfyUI', 14.7, 14.1],
+  ['Pony V7 Q8_0 (AuraFlow)', 'ComfyUI, GGUF', 13.0, 13.9],
+]
+
+// work done once and kept, and a stop that waited (MEASUREMENTS 7r, 7s, 7t): before, after, unit
+const ONCE = [
+  { ref: '7s', what: 'Qwen-Image 2.1, whole picture', sub: '16 GB plan: text encoder quantized to 4 bit, then from the quantized cache', a: 10971, b: 221, unit: 's' },
+  { ref: '7s', what: 'Qwen-Image 2.1, memory at most', sub: 'the same two pictures', a: 14.5, b: 11.8, unit: 'GB' },
+  { ref: '7t', what: 'Qwen-Image 2.1, prompt from the prompt cache', sub: 'memory at most; the text encoder is not loaded, same picture to the pixel', a: 14.5, b: 12.1, unit: 'GB' },
+  { ref: '7r', what: 'Stop while SSD streaming is prepared', sub: 'Chroma1 Flash, stopped at 21 %: seconds until the job ended', a: 84.9, b: 0, unit: 's' },
+]
+
 // attention alone on MPS, ComfyUI's functions, 5 runs (MEASUREMENTS 7o): [case, sub-quadratic ms, PyTorch ms, note]
 const ATTENTION = [
   ['SD 1.5 at 512 px', '2 × 8 heads × 40, 4096 tokens', 108, 32, 'padded to 64'],
@@ -163,20 +180,46 @@ function memoryChart() {
     </section>`
 }
 
-function planChart() {
-  const ax = axis(Math.max(...PLAN.flatMap((p) => [p[2], p[3]])), 4)
-  const rows = PLAN.map(([model, rt, used, plan]) => {
+function planChart(id, title, sub, data, ref) {
+  const ax = axis(Math.max(...data.flatMap((p) => [p[2], p[3]])), 4)
+  const rows = data.map(([model, rt, used, plan]) => {
     const d = used - plan
     const v = `${d >= 0 ? '+' : '−'}${fmt(Math.abs(d))} GB`
-    return dumbbell({ label: model, sub: rt, a: plan, b: used, ax, value: v, tip: `${model} (${rt}): planned ${fmt(plan)} GB, used ${fmt(used)} GB (${v}). MEASUREMENTS 7m` })
+    return dumbbell({ label: model, sub: rt, a: plan, b: used, ax, value: v, tip: `${model} (${rt}): planned ${fmt(plan)} GB, used ${fmt(used)} GB (${v}). MEASUREMENTS ${ref}` })
   }).join('')
   return `
-    <section class="chart" id="plan">
-      <h2>The memory plan against the measurement</h2>
-      <p class="sub">Before every picture VulKara plans the memory a model needs and picks bit size, staging or streaming from it. Here the plan against what the engine used, 1024 px; the right column is the difference. Before the fixes of the same day (decoding in tiles, padded attention).</p>
+    <section class="chart" id="${id}">
+      <h2>${title}</h2>
+      <p class="sub">${sub}</p>
       ${legend('planned', 'measured')}
       <div class="bx">${ticksRow(ax, '')}${rows}
-      </div>${table(['Model', 'Runtime', 'Planned GB', 'Measured GB', 'Difference'], PLAN.map(([m, rt, u, p]) => [esc(m), esc(rt), fmt(p), fmt(u), (u - p >= 0 ? '+' : '−') + fmt(Math.abs(u - p))]))}
+      </div>${table(['Model', 'Runtime', 'Planned GB', 'Measured GB', 'Difference'], data.map(([m, rt, u, p]) => [esc(m), esc(rt), fmt(p), fmt(u), (u - p >= 0 ? '+' : '−') + fmt(Math.abs(u - p))]))}
+    </section>`
+}
+
+function onceTable() {
+  const rows = ONCE.map((o) => {
+    const max = Math.max(o.a, o.b)
+    const bar = (v, cls) => `<span class="mbar ${cls} ${at(`width:${pct(v, max)}%`)}"></span>`
+    const less = o.a ? Math.round((1 - o.b / o.a) * 100) : 0
+    return `
+          <tr data-tip="${esc(`${o.what}: ${fmt(o.a)} → ${fmt(o.b)} ${o.unit}. MEASUREMENTS ${o.ref}`)}" tabindex="0">
+            <td>${esc(o.what)}<small>${esc(o.sub)}</small></td>
+            <td class="bars">${bar(o.a, 'a')}${bar(o.b, 'b')}</td>
+            <td class="num">${fmt(o.a)} ${o.unit}</td><td class="num">${fmt(o.b)} ${o.unit}</td>
+            <td class="num">−${less} %</td>
+          </tr>`
+  }).join('')
+  return `
+    <section class="chart" id="once">
+      <h2>Done once, then kept</h2>
+      <p class="sub">What a cache or a fix saves on a 16 GB plan (memory kept free 12 GB on the 24 GB Mac). Each row's bars share its own scale. Also measured: an FP8 model on a Mac short of memory stopped at its first step (MPS cannot compute FP8); it now runs in 16 bit (Anima-Turbo, 4.9 GB, MEASUREMENTS 7q).</p>
+      ${legend('before', 'after')}
+      <table class="micro">
+        <thead><tr><th>Case</th><th>per row</th><th class="num">before</th><th class="num">after</th><th class="num">less</th></tr></thead>
+        <tbody>${rows}
+        </tbody>
+      </table>
     </section>`
 }
 
@@ -226,7 +269,10 @@ function headsChart() {
 /** The page and its charts.css (the positions of the marks). */
 export function benchmarksPage({ BASE, GH, BLOB, VERSION, CSS_V, JS_V, BENCH_V }) {
   RULES = []
-  const body = [speedChart(), memoryChart(), planChart(), headsChart(), attentionTable()].join('\n')
+  const body = [speedChart(), memoryChart(),
+    planChart('plan', 'The memory plan against the measurement', 'Before every picture VulKara plans the memory a model needs and picks bit size, staging or streaming from it. Here the plan against what the engine used, 1024 px; the right column is the difference. Before the fixes of the same day (decoding in tiles, padded attention).', PLAN, '7m'),
+    planChart('plan-after', 'Plans brought to the measurements', 'SD 1.5 planned at its own size with fused attention, ComfyUI models with the plan of a model held whole (shown in the benchmark since 0.7.5). The ComfyUI figures are the middle of two runs.', PLAN_AFTER, '7p'),
+    onceTable(), headsChart(), attentionTable()].join('\n')
   const tileHtml = tiles()
   const css = RULES.map((r, i) => `.bench-page .p${i}{${r}}`).join('\n') + '\n'
   const cssV = createHash('sha256').update(css).digest('hex').slice(0, 10)
