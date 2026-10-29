@@ -19,6 +19,7 @@ export const DOC_ICONS = {
   'moon': 'website: dark appearance',
   'sun-moon': 'website: appearance like the system',
   'copy': 'website: copy a command',
+  'gauge': 'website: the benchmark',
   'monitor': 'everything on the Mac',
   'tablet-smartphone': 'website: remote access from a phone or tablet',
   'boxes': 'Models',
