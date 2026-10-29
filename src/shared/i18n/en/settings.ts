@@ -89,8 +89,8 @@ export default {
     intro: 'Prompts, pictures and paths never leave this Mac. Usage reports of the libraries are switched off.',
     hashLookups: 'Look up files on Civitai by their checksum',
     hashLookupsHint: 'For models and LoRAs without a known origin (imported from disk): their trigger words, preview and licence. It tells Civitai which files are on this Mac.',
-    updateChecks: 'Look for runtime updates once a day',
-    updateChecksHint: 'Reads the public version lists of PyPI and GitHub; nothing of yours is sent.',
+    updateChecks: 'Look for app and runtime updates once a day',
+    updateChecksHint: 'Reads the public version lists of VulKara on GitHub and of the runtimes on PyPI and GitHub; nothing of yours is sent.',
   },
   remote: {
     title: 'Remote access',

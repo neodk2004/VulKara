@@ -6,6 +6,8 @@ import { useRoute, useRouter } from 'vue-router'
 import NavRail from './components/NavRail.vue'
 import JobBar from './components/JobBar.vue'
 import ImagePicker from './components/ImagePicker.vue'
+import UpdateBanner from './components/UpdateBanner.vue'
+import { isRemote } from './remote_vk'
 import ViewerPage from './pages/ViewerPage.vue'
 import { useFavoritesStore } from './stores/favorites'
 import { useHandoffStore } from './stores/handoff'
@@ -23,6 +25,8 @@ const router = useRouter()
 const navOpen = ref(false)
 watch(() => route.path, () => { navOpen.value = false })
 // a viewer or splash window shows its page alone
+// the remote web UI does not update the Mac's app
+const remote = isRemote()
 const bare = computed(() => route.meta.bare === true || /^#\/(viewer|splash)/.test(location.hash))
 
 onMounted(() => {
@@ -76,6 +80,7 @@ function onOverlayAct(action: ViewerAction): void {
     </main>
       <JobBar />
       <ImagePicker />
+      <UpdateBanner v-if="!remote" />
     </div>
   </template>
   <div v-if="viewerOverlay" class="viewer-overlay">

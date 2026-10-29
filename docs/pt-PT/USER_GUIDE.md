@@ -4,7 +4,7 @@
 
 O VulKara, *o seu gerador local de imagens com IA, com elevada privacidade*, cria imagens e vídeos curtos e restaura
 fotografias antigas num Mac com Apple silicon. Tudo é calculado no próprio Mac; a rede só é utilizada para transferir
-runtimes, modelos e as descrições de LoRAs. Este guia descreve cada página da app, o que faz cada definição e onde a app
+runtimes, modelos e as descrições de LoRAs, e para procurar atualizações. Este guia descreve cada página da app, o que faz cada definição e onde a app
 guarda os seus dados.
 
 ![VulKara](../images/banner.jpg)
@@ -952,6 +952,16 @@ resultado fica guardado e é mostrado quando a página abre.
 
 Não é enviado nenhum token, nem nada sobre os seus ficheiros; só são lidas as listas públicas de versões.
 
+#### Atualizações da app
+
+Com a mesma verificação diária (e **Procurar atualização** na página Novidades) o VulKara pergunta ao GitHub pela sua
+versão mais recente. Se houver uma mais recente, um cartão no canto indica-o: **Atualizar e reiniciar** transfere-a,
+verifica-a (o checksum SHA-256 que o GitHub indica para o ficheiro, a versão que contém, a assinatura Developer ID das
+versões do VulKara e o Gatekeeper) e coloca-a no lugar da app quando o VulKara é encerrado; depois a nova versão
+arranca. **Notas da versão** abre as notas da versão, **Mais tarde** esconde o cartão até à próxima versão. Só atualiza
+enquanto nada está a ser gerado ou instalado, e só uma app numa pasta onde pode escrever (em Aplicações, não aberta a
+partir da imagem de disco). Instalada com o Homebrew? Funciona da mesma forma; `brew upgrade --cask vulkara` também.
+
 ### Pastas
 
 | Pasta | Predefinição | Observação |
@@ -1079,7 +1089,7 @@ de novo*.
   conhecida (importados do disco) são procurados no Civitai pelo SHA-256: as palavras-gatilho, uma imagem de
   pré-visualização e a licença na página Licenças. Só é enviado o checksum, mas este indica ao Civitai que ficheiros
   estão neste Mac. Desativado, indique o utilizador a página desse ficheiro na página Licenças.
-- **Procurar atualizações de runtimes uma vez por dia**: ativado por predefinição; consulte
+- **Procurar atualizações da app e dos runtimes uma vez por dia**: ativado por predefinição; consulte
   [Verificação de atualizações](#verificação-de-atualizações). Desativado, **Verificar agora** continua a consultar quando quiser.
 
 ### Tokens de acesso

@@ -4,7 +4,7 @@
 
 O VulKara, *seu gerador local de imagens com IA, com alta privacidade*, cria imagens e vídeos curtos e restaura fotos
 antigas num Mac com Apple silicon. Tudo é calculado no próprio Mac; a rede só é usada para baixar runtimes, modelos e
-as descrições de LoRAs. Este guia descreve cada página do app, o que cada ajuste faz e onde o app guarda seus dados.
+as descrições de LoRAs, e para procurar atualizações. Este guia descreve cada página do app, o que cada ajuste faz e onde o app guarda seus dados.
 
 ![VulKara](../images/banner.jpg)
 
@@ -946,6 +946,16 @@ guardado e é mostrado quando a página abre.
 
 Nenhum token é enviado, nem nada sobre seus arquivos; só as listas públicas de versões são lidas.
 
+#### Atualizações do app
+
+Com a mesma verificação diária (e **Procurar atualização** na página Novidades) o VulKara pergunta ao GitHub pela sua
+versão mais recente. Se houver uma mais nova, um cartão no canto avisa: **Atualizar e reiniciar** baixa a versão,
+verifica (o checksum SHA-256 que o GitHub informa para o arquivo, a versão dentro dele, a assinatura Developer ID das
+versões do VulKara e o Gatekeeper) e a coloca no lugar do app quando o VulKara é encerrado; depois a nova versão
+inicia. **Notas da versão** abre as notas da versão, **Mais tarde** esconde o cartão até a próxima versão. Só atualiza
+enquanto nada está sendo gerado ou instalado, e só um app numa pasta onde ele pode escrever (em Aplicativos, não aberto
+pela imagem de disco). Instalado com o Homebrew? Funciona igual; `brew upgrade --cask vulkara` também.
+
 ### Pastas
 
 | Pasta | Padrão | Observação |
@@ -1067,7 +1077,7 @@ uma que nunca foi escolhida mostra a mensagem *não foi entregue ao app: escolha
   (importados do disco) são procurados no Civitai pelo SHA-256: as palavras-gatilho, uma imagem de prévia e a licença na
   página Licenças. Só o checksum é enviado, mas ele informa ao Civitai quais arquivos estão neste Mac. Desativado,
   indique você mesmo a página desse arquivo na página Licenças.
-- **Procurar atualizações de runtimes uma vez por dia**: ativado por padrão; veja
+- **Procurar atualizações do app e dos runtimes uma vez por dia**: ativado por padrão; veja
   [Verificação de atualizações](#verificação-de-atualizações). Desativado, **Verificar agora** continua consultando quando você quiser.
 
 ### Tokens de acesso

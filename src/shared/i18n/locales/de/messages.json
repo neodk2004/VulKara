@@ -1330,8 +1330,8 @@
    "intro": "Prompts, Bilder und Pfade verlassen diesen Mac nie. Nutzungsberichte der Bibliotheken sind abgeschaltet.",
    "hashLookups": "Dateien anhand ihrer Prüfsumme auf Civitai nachschlagen",
    "hashLookupsHint": "Für Modelle und LoRAs ohne bekannte Herkunft (von der Festplatte importiert): ihre Trigger-Wörter, Vorschau und Lizenz. Civitai erfährt dabei, welche Dateien auf diesem Mac liegen.",
-   "updateChecks": "Einmal täglich nach Runtime-Updates suchen",
-   "updateChecksHint": "Liest die öffentlichen Versionslisten von PyPI und GitHub; nichts von dir wird gesendet."
+   "updateChecks": "Einmal täglich nach App- und Runtime-Updates suchen",
+   "updateChecksHint": "Liest die öffentlichen Versionslisten von VulKara auf GitHub und der Runtimes auf PyPI und GitHub; nichts von dir wird gesendet."
   },
   "remote": {
    "title": "Fernzugriff",
@@ -1470,7 +1470,7 @@
    "where": {
     "title": "Was wo läuft",
     "local": "Alles wird auf diesem Mac berechnet. Prompts, Bilder und Videos werden nirgendwohin gesendet.",
-    "network": "Das Netzwerk wird nur für Downloads genutzt: die Runtimes (Python-Pakete, ComfyUI), die Modelle und LoRAs mit ihren Beschreibungen und Vorschaubildern (Hugging Face, Civitai, mit den in den Einstellungen gespeicherten Zugriffstokens) und die Hilfsmodelle (Steuerungs-, Posen- und Tiefenerkennung, Vergrößern, Inhaltsfilter).",
+    "network": "Das Netzwerk wird nur für Downloads genutzt: die Runtimes (Python-Pakete, ComfyUI), die Modelle und LoRAs mit ihren Beschreibungen und Vorschaubildern (Hugging Face, Civitai, mit den in den Einstellungen gespeicherten Zugriffstokens) und die Hilfsmodelle (Steuerungs-, Posen- und Tiefenerkennung, Vergrößern, Inhaltsfilter). Einmal täglich werden, wenn Einstellungen → Datenschutz es erlaubt, die öffentlichen Versionslisten der App (GitHub) und der Runtimes nach Updates gelesen.",
     "runtimesBefore": "Runtimes: Diffusers (PyTorch auf der GPU), MLX (mflux) und ComfyUI. Modelle und Runtimes sind nicht Teil der App; sie werden bei Bedarf heruntergeladen, in die Ordner aus den",
     "settingsLink": "Einstellungen",
     "runtimesAfter": "."
@@ -1588,7 +1588,28 @@
    "subtitleVersion": "Was sich von Version zu Version geändert hat · dies ist Version {version}",
    "unreleased": "Noch nicht veröffentlicht",
    "version": "Version {version}",
-   "installed": "installiert"
+   "installed": "installiert",
+   "checkNow": "Nach Update suchen",
+   "checking": "Suche auf GitHub nach einer neueren Version…",
+   "newer": "Version {version} ist verfügbar.",
+   "upToDate": "Das ist die neueste Version (gesucht {when}).",
+   "notChecked": "Noch nicht nach einer neueren Version gesucht.",
+   "checkFailed": "Konnte nicht nach einer neueren Version suchen ({reason})."
+  },
+  "update": {
+   "available": "VulKara {version} ist verfügbar",
+   "current": "Du hast {version}.",
+   "install": "Aktualisieren und neu starten",
+   "retry": "Erneut versuchen",
+   "notes": "Was ist neu",
+   "later": "Später",
+   "downloading": "Lade VulKara {version}… {percent} %",
+   "checking": "Prüfe VulKara {version} (Prüfsumme und Signatur)…",
+   "restarting": "VulKara startet neu als {version}…",
+   "failed": "Das Update hat nicht geklappt: {reason}",
+   "notPackaged": "das ist keine installierte App (ein Entwicklungs-Build)",
+   "notInstalled": "VulKara läuft aus dem Disk-Image; zieh es zuerst in Programme",
+   "readOnly": "VulKara kann sich in seinem Ordner nicht ersetzen; lade die neue Version von der Release-Seite"
   },
   "licenses": {
    "title": "Lizenzen",
@@ -1801,6 +1822,10 @@
    "engineFilesMissing": "die Engine-Dateien von {name} fehlen",
    "notReadyBuilt": "{pkg} ist für diesen Mac (Apple Silicon, Python 3.11) nicht fertig gebaut verfügbar, und VulKara kompiliert keine Pakete: Versuch es später mit „Aktualisieren“ oder melde es. ({message})",
    "notReadyBuiltAny": "Ein Paket ist für diesen Mac (Apple Silicon, Python 3.11) nicht fertig gebaut verfügbar, und VulKara kompiliert keine Pakete: Versuch es später mit „Aktualisieren“ oder melde es. ({message})"
+  },
+  "appUpdate": {
+   "busy": "Aktualisiere, wenn kein Bild erzeugt und nichts installiert wird.",
+   "restarting": "VulKara startet für sein Update neu, sobald die Warteschlange leer ist; füge Bilder nach dem Neustart hinzu."
   },
   "updates": {
    "notChecked": "noch nicht geprüft",

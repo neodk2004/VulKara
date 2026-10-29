@@ -152,6 +152,10 @@ export function makeApi(call: Call, on: On, extra: BridgeExtra): VulkaraApi {
       openExternal: (url) => call('app:openExternal', url),
       logs: () => call('app:logs'),
       onLog: (fn) => on('app:log', fn),
+      update: () => call('app:update'),
+      checkUpdate: () => call('app:checkUpdate'),
+      installUpdate: () => call('app:installUpdate'),
+      onUpdate: (fn) => on('app:updateChanged', fn),
     },
     remote: {
       info: () => call('remote:info'),

@@ -1330,8 +1330,8 @@
    "intro": "Prompts, imagens e caminhos nunca saem deste Mac. Os relatórios de utilização das bibliotecas estão desativados.",
    "hashLookups": "Procurar ficheiros no Civitai pelo checksum",
    "hashLookupsHint": "Para modelos e LoRAs sem origem conhecida (importados do disco): as palavras-gatilho, a pré-visualização e a licença. Isto revela ao Civitai que ficheiros estão neste Mac.",
-   "updateChecks": "Procurar atualizações de runtimes uma vez por dia",
-   "updateChecksHint": "Lê as listas públicas de versões do PyPI e do GitHub; nada seu é enviado."
+   "updateChecks": "Procurar atualizações da app e dos runtimes uma vez por dia",
+   "updateChecksHint": "Lê as listas públicas de versões do VulKara no GitHub e dos runtimes no PyPI e no GitHub; nada teu é enviado."
   },
   "remote": {
    "title": "Acesso remoto",
@@ -1470,7 +1470,7 @@
    "where": {
     "title": "O que é executado onde",
     "local": "Tudo é calculado neste Mac. Prompts, imagens e vídeos não são enviados para lado nenhum.",
-    "network": "A rede é usada apenas para transferências: os runtimes (pacotes Python, ComfyUI), os modelos e LoRAs com as respetivas descrições e imagens de pré-visualização (Hugging Face, Civitai, com os tokens de acesso guardados nas Definições) e os modelos auxiliares (controlo, deteção de pose e profundidade, ampliação, filtro de conteúdo).",
+    "network": "A rede é usada apenas para transferências: os runtimes (pacotes Python, ComfyUI), os modelos e LoRAs com as respetivas descrições e imagens de pré-visualização (Hugging Face, Civitai, com os tokens de acesso guardados nas Definições) e os modelos auxiliares (controlo, deteção de pose e profundidade, ampliação, filtro de conteúdo). Uma vez por dia, se Definições → Privacidade o permitir, as listas públicas de versões da app (GitHub) e dos runtimes são lidas para procurar atualizações.",
     "runtimesBefore": "Runtimes: Diffusers (PyTorch na GPU), MLX (mflux) e ComfyUI. Os modelos e runtimes não fazem parte da app; são transferidos quando necessário, para as pastas escolhidas em",
     "settingsLink": "Definições",
     "runtimesAfter": "."
@@ -1588,7 +1588,28 @@
    "subtitleVersion": "O que mudou de versão para versão · esta é a versão {version}",
    "unreleased": "Ainda não lançada",
    "version": "Versão {version}",
-   "installed": "instalada"
+   "installed": "instalada",
+   "checkNow": "Procurar atualização",
+   "checking": "A procurar uma versão mais recente no GitHub…",
+   "newer": "A versão {version} está disponível.",
+   "upToDate": "Esta é a versão mais recente (procurado {when}).",
+   "notChecked": "Ainda não foi procurada uma versão mais recente.",
+   "checkFailed": "Não foi possível procurar uma versão mais recente ({reason})."
+  },
+  "update": {
+   "available": "VulKara {version} está disponível",
+   "current": "Tens a {version}.",
+   "install": "Atualizar e reiniciar",
+   "retry": "Tentar novamente",
+   "notes": "Notas da versão",
+   "later": "Mais tarde",
+   "downloading": "A transferir VulKara {version}… {percent} %",
+   "checking": "A verificar VulKara {version} (checksum e assinatura)…",
+   "restarting": "O VulKara reinicia como {version}…",
+   "failed": "A atualização não resultou: {reason}",
+   "notPackaged": "esta não é uma app instalada (uma compilação de desenvolvimento)",
+   "notInstalled": "O VulKara está a correr a partir da imagem de disco; move-o primeiro para Aplicações",
+   "readOnly": "O VulKara não se consegue substituir na sua pasta; transfere a nova versão a partir da página da versão"
   },
   "licenses": {
    "title": "Licenças",
@@ -1801,6 +1822,10 @@
    "engineFilesMissing": "faltam os ficheiros do motor {name}",
    "notReadyBuilt": "{pkg} não está disponível pré-compilado para este Mac (Apple silicon, Python 3.11), e o VulKara não compila pacotes: tente Atualizar mais tarde ou comunique o problema. ({message})",
    "notReadyBuiltAny": "Um pacote não está disponível pré-compilado para este Mac (Apple silicon, Python 3.11), e o VulKara não compila pacotes: tente Atualizar mais tarde ou comunique o problema. ({message})"
+  },
+  "appUpdate": {
+   "busy": "Atualiza quando nenhuma imagem estiver a ser gerada e nada estiver a ser instalado.",
+   "restarting": "O VulKara reinicia para a atualização assim que a fila estiver vazia; adiciona imagens depois do reinício."
   },
   "updates": {
    "notChecked": "ainda não verificado",

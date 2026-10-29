@@ -54,6 +54,7 @@ const ONCE = [
   { ref: '7s', what: 'Qwen-Image 2.1, whole picture', sub: '16 GB plan: text encoder quantized to 4 bit, then from the quantized cache', a: 10971, b: 221, unit: 's' },
   { ref: '7s', what: 'Qwen-Image 2.1, memory at most', sub: 'the same two pictures', a: 14.5, b: 11.8, unit: 'GB' },
   { ref: '7t', what: 'Qwen-Image 2.1, prompt from the prompt cache', sub: 'memory at most; the text encoder is not loaded, same picture to the pixel', a: 14.5, b: 12.1, unit: 'GB' },
+  { ref: '7t', what: 'Qwen-Image 2.1, a prompt used before, after a restart', sub: 'whole picture: text encoder from its 4 bit copy, then the prompt from the prompt cache', a: 4264, b: 1711, unit: 's' },
   { ref: '7r', what: 'Stop while SSD streaming is prepared', sub: 'Chroma1 Flash, stopped at 21 %: seconds until the job ended', a: 84.9, b: 0, unit: 's' },
 ]
 
@@ -79,6 +80,7 @@ let RULES = []
 const at = (css) => { RULES.push(css); return 'p' + (RULES.length - 1) }
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+const cap = (s) => s[0].toUpperCase() + s.slice(1)
 const fmt = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toString()
 const pct = (v, max) => (Math.max(0, Math.min(1, v / max)) * 100).toFixed(2)
 
@@ -150,7 +152,7 @@ function speedChart() {
     const r = c.range
     const v = `${r ? r[0] : fmt(a, 2)} → ${r ? r[1] : fmt(b, 2)} s`
     return dumbbell({ label: c.model, sub: c.runtime, a: 100, b: (b / a) * 100, ax, value: v,
-      tip: `${c.model} (${c.runtime}): ${v} per step, ${Math.round((b / a) * 100)} % of before. ${c.why}. MEASUREMENTS ${c.ref}` })
+      tip: `${c.model} (${c.runtime}): ${v} per step, ${Math.round((b / a) * 100)} % of before. ${cap(c.why)}. MEASUREMENTS ${c.ref}` })
   }).join('')
   return `
     <section class="chart" id="speed">
@@ -168,7 +170,7 @@ function memoryChart() {
     const [a, b] = c.gb
     const r = c.range
     const v = `${r ? r[2] : fmt(a)} → ${r ? r[3] : fmt(b)} GB`
-    return dumbbell({ label: c.model, sub: c.runtime, a, b, ax, value: v, tip: `${c.model} (${c.runtime}): engine at most ${v}. ${c.why}. MEASUREMENTS ${c.ref}` })
+    return dumbbell({ label: c.model, sub: c.runtime, a, b, ax, value: v, tip: `${c.model} (${c.runtime}): engine at most ${v}. ${cap(c.why)}. MEASUREMENTS ${c.ref}` })
   }).join('')
   return `
     <section class="chart" id="memory">

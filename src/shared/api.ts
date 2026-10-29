@@ -54,6 +54,21 @@ export interface RuntimeUpdates {
   runtimes: RuntimeUpdate[]
 }
 
+/** The app's own update: the newest release on GitHub against this version, and how far its installation is. */
+export interface AppUpdateState {
+  current: string
+  checking?: boolean
+  checkedAt?: number
+  checkError?: string
+  /** a newer released version, with its release notes */
+  available?: string
+  notesUrl?: string
+  /** downloading (percent), checking the DMG, restarting into it, or error (a reason key or message) */
+  stage: 'idle' | 'downloading' | 'checking' | 'restarting' | 'error'
+  percent: number
+  error?: string
+}
+
 /** Time the steps of a job waited for parts of the model to be read again, and how much was read. */
 export interface Waited {
   /** ssd_stream: blocks of a model streamed from the SSD */
@@ -677,6 +692,13 @@ export interface VulkaraApi {
     openExternal(url: string): Promise<void>
     logs(): Promise<LogLine[]>
     onLog(fn: (line: LogLine) => void): () => void
+    /** the app's update: last check and installation (no network) */
+    update(): Promise<AppUpdateState>
+    /** asks GitHub for the newest release */
+    checkUpdate(): Promise<AppUpdateState>
+    /** downloads and checks the newest release, then restarts into it */
+    installUpdate(): Promise<void>
+    onUpdate(fn: (s: AppUpdateState) => void): () => void
   }
   remote: {
     /** whether the remote web UI is serving, the addresses it can be reached at on this Mac, and whether over HTTPS */

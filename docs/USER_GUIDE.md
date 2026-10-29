@@ -4,7 +4,7 @@
 
 VulKara, *your local AI image generator with high privacy*, makes pictures and short videos and restores old photos on a
 Mac with Apple silicon. Everything is computed on the Mac itself; the network is only used to download runtimes,
-models and the descriptions of LoRAs. This guide describes every page of the app, what each
+models and the descriptions of LoRAs, and to look for updates. This guide describes every page of the app, what each
 setting does, and where the app keeps its data.
 
 ![VulKara](images/banner.jpg)
@@ -917,6 +917,16 @@ MLX, ComfyUI itself for ComfyUI. **Check now** asks at once; the last result is 
 
 No token is sent and nothing about your files; only the public version lists are read.
 
+#### App updates
+
+With the same daily check (and **Look for an update** on the Changelog page) VulKara asks GitHub for its newest
+release. When there is a newer one, a card in the corner says so: **Update and restart** downloads it, checks it
+(the SHA-256 checksum GitHub lists for the file, the version inside, the Developer ID signature of the VulKara releases
+and Gatekeeper) and puts it in place of the app once VulKara has quit; then the new version starts. **What's new** opens
+the release notes, **Later** hides the card until the next version. It updates only while nothing is being made or
+installed, and only an app in a folder it may write to (in Applications, not started from the disk image). Installed
+with Homebrew? It works the same; `brew upgrade --cask vulkara` does too.
+
 ### Folders
 
 | Folder | Default | Note |
@@ -1035,7 +1045,7 @@ chosen shows the message *was not given to the app: choose it again*.
   (imported from disk) are looked up on Civitai by their SHA-256: their trigger words, a preview picture and the
   licence on the Licenses page. Only the checksum is sent, but it tells Civitai which files are on this Mac. Off,
   enter the page of such a file on the Licenses page yourself.
-- **Look for runtime updates once a day**: on by default; see [Update check](#update-check). Off, **Check now**
+- **Look for app and runtime updates once a day**: on by default; see [Update check](#update-check) and [App updates](#app-updates). Off, **Check now**
   still asks when you want.
 
 ### Access tokens

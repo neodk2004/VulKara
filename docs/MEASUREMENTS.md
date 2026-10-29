@@ -660,6 +660,7 @@ encoder in 4 bit. First run with an empty `prompt_cache`, then the app restarted
 | --- | --- | --- | --- | --- | --- | --- |
 | empty prompt cache | loaded 8.6 s (+ 11 911 s quantized again, see below) | 2 354 s | 14 292 s | 14.5 GB | 9.1 GB | 6.7 GB |
 | prompt from the cache | not loaded | 1 697 s | 1 711 s | 12.1 GB | 9.1 GB | 6.7 GB |
+| 4 bit copy, empty prompt cache (after the fix) | from `quant_cache` and encoding: 2 586 s | 1 658 s | 4 264 s | 12.0 GB | 9.1 GB | 6.1 GB |
 
 The second run never loads the text encoder: the embeddings (156 KB) come from
 `<data>/prompt_cache/<sha256>.safetensors`, the kept blocks of the transformer stay in memory, the peak is 2.4 GB lower
@@ -670,7 +671,11 @@ The first run quantized the text encoder again although its 4 bit copy was cache
 optimum-quanto compile its C++ unpack kernel, which needs a compiler and fails under `Application Support` (torch
 passes the `-L` path with its space unquoted); `quant_cache` then took the copy for broken and rebuilt it. Fixed: the
 pure torch unpack that already served MPS now serves the CPU too (`quanto_mps.patch`, before every restore), and
-`test_quant_cache` covers 4 bit and checks the kernel is never built. This also hit 0.7.5 on 16 GB Macs: Qwen-Image
+`test_quant_cache` covers 4 bit and checks the kernel is never built. With the fix the third run loaded the 4 bit copy
+(21.7 s alone in a probe, 368 int4 layers unpacked in torch on the CPU: 10.8 s of it) but stayed 2 586 s in *Loading
+text_encoder* before generating: the time goes to encoding the prompt with the restored int4 encoder, not to loading.
+Open: why encoding with the restored copy is that slow (the freshly quantized one in 7s encoded within its first
+picture's few minutes); the prompt cache hides it for every prompt used before. This also hit 0.7.5 on 16 GB Macs: Qwen-Image
 2.1's text encoder was quantized for hours on every engine start.
 
 ## 8. Earlier references (from the user guide and the changelog)

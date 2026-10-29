@@ -74,7 +74,7 @@ The app and its user guide in **English** · [Deutsch](docs/de/USER_GUIDE.md) ·
 
 ### <img src="docs/icons/monitor.svg" width="20" height="20" alt=""> Everything on the Mac
 Pictures, videos, photo restoration and LoRA training run on the Apple GPU. Prompts and pictures never leave the Mac;
-the network is only used to download runtimes, models and LoRA descriptions. Phone, tablet or a second computer reach
+the network is only used to download runtimes, models and LoRA descriptions and to look for updates. Phone, tablet or a second computer reach
 it over your own network, as a web UI in the browser.
 
 </td>

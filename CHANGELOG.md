@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.7 – 2026-10-29
+
+- **Updates from inside the app.** Once a day (Settings → Privacy, with the runtime check) and with **Look for an
+  update** on the Changelog page, VulKara asks GitHub for its newest release. A newer one shows a card: **Update and
+  restart** downloads it, checks its SHA-256 checksum, the version inside, the Developer ID signature of the releases and
+  Gatekeeper, puts it in place of the app when VulKara quits and starts it; **What's new** opens the release notes,
+  **Later** waits for the next version. Not while pictures are made or something is installed.
+
 ## 0.7.6 – 2026-10-29
 
 - **Prompts kept on disk.** What the text encoder makes of a prompt is kept in the data folder (`prompt_cache`, up to

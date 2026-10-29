@@ -69,6 +69,10 @@ export default {
     notReadyBuilt: '{pkg} is not available ready-built for this Mac (Apple silicon, Python 3.11), and VulKara does not compile packages: try Update later, or report it. ({message})',
     notReadyBuiltAny: 'A package is not available ready-built for this Mac (Apple silicon, Python 3.11), and VulKara does not compile packages: try Update later, or report it. ({message})',
   },
+  appUpdate: {
+    busy: 'Update when no picture is being made and nothing is being installed.',
+    restarting: 'VulKara restarts for its update as soon as the queue is empty; add pictures after the restart.',
+  },
   updates: {
     notChecked: 'not checked yet',
     couldNotCheck: 'could not check ({reason})',

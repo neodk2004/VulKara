@@ -37,6 +37,7 @@ import { JobQueue } from './queue'
 import { runTool } from './tool_process'
 import { engineCommand, installRuntime, listRuntimes, removeRuntime, staleRuntimes, updateTargets, type RuntimeId } from './runtimes'
 import { AUTO_INTERVAL, UpdateChecker } from './runtime_updates'
+import { AppUpdater } from './app_update'
 import { getToken, hasToken, setToken, type TokenService } from './secrets'
 import { closeViewers, isViewer, onViewersChange, openViewer, viewerPayload } from './viewer'
 import { confirmSplash, isSplash, splashState } from './splash'
@@ -289,9 +290,27 @@ const runtimeUpdates = (): UpdateChecker => (updateChecker ??= new UpdateChecker
   log,
 }))
 
-/** Once a day, a few seconds after the start and then on the hour, while nothing is generated or installed. */
+// the app's own update: the newest release on GitHub (app_update.ts)
+let appUpdater: AppUpdater | undefined
+const appUpdate = (): AppUpdater => (appUpdater ??= new AppUpdater({
+  fetcher: (url, init) => net.fetch(url, { ...init, headers: { ...(init?.headers as Record<string, string>), 'User-Agent': 'VulKara' } }),
+  current: app.getVersion(),
+  exe: app.getPath('exe'),
+  packaged: app.isPackaged,
+  pid: process.pid,
+  args: process.argv.slice(1),
+  changed: (s) => send('app:updateChanged', s),
+  log,
+}))
+
+/** Once a day, a few seconds after the start and then on the hour, while nothing is generated or installed (the
+ *  runtimes); the app's own release list once a day too, whenever. */
 function scheduleUpdateChecks(): void {
   const tick = (): void => {
+    const own = appUpdate().status()
+    // a failed look (offline at the start) is tried again within the hour
+    const again = own.checkError ? 55 * 60 * 1000 : AUTO_INTERVAL
+    if (getSettings().updateChecks && (!own.checkedAt || Date.now() - own.checkedAt >= again)) void appUpdate().check()
     const checker = runtimeUpdates()
     if (!getSettings().updateChecks || !checker.olderThan(AUTO_INTERVAL) || busy() || installing.size) return
     checker.check(true).then((u) => send('runtimes:updatesChanged', u), () => undefined)
@@ -383,6 +402,14 @@ export function registerIpc(): void {
     send('runtimes:updatesChanged', runtimeUpdates().status())
   })
   handle('runtimes:updates', () => runtimeUpdates().status())
+  handle('app:update', () => appUpdate().status())
+  handle('app:checkUpdate', () => appUpdate().check())
+  handle('app:installUpdate', () => {
+    if (busy() || installing.size) throw new Error(t('main.appUpdate.busy'))
+    // a job queued while the update downloaded finishes first; the new version starts after the quit
+    const quitWhenIdle = (): void => { if (busy() || installing.size) setTimeout(quitWhenIdle, 2000); else app.quit() }
+    void appUpdate().install(quitWhenIdle)
+  })
   handle('runtimes:checkUpdates', async (force: boolean) => {
     const checker = runtimeUpdates()
     const pending = checker.check(force === true)
@@ -414,7 +441,11 @@ export function registerIpc(): void {
     fileAccess.check(job.photoTool?.mask, 'selection')
     return queue.add(job, count)
   }
-  handle('queue:add', addJob)
+  handle('queue:add', (job: Omit<Job, 'id'>, count?: number) => {
+    // the app quits for its update as soon as the queue is empty
+    if (appUpdater?.status().stage === 'restarting') throw new Error(t('main.appUpdate.restarting'))
+    return addJob(job, count)
+  })
   handle('benchmark:start', (job: Omit<Job, 'id'>, count: number, model: string) => {
     const run = { ...job, page: 'benchmark' }
     const ids = addJob(run, count)

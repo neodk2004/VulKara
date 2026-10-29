@@ -4,7 +4,7 @@
 
 VulKara, *tu generador local de imágenes con IA, con alta privacidad*, crea imágenes y vídeos cortos y restaura fotos
 antiguas en un Mac con Apple silicon. Todo se calcula en el propio Mac; la red solo se usa para descargar runtimes,
-modelos y las descripciones de las LoRAs. Esta guía describe cada página de la app, lo que hace cada ajuste y dónde
+modelos y las descripciones de las LoRAs, y para buscar actualizaciones. Esta guía describe cada página de la app, lo que hace cada ajuste y dónde
 guarda la app sus datos.
 
 ![VulKara](../images/banner.jpg)
@@ -957,6 +957,17 @@ resultado se guarda y se muestra al abrir la página.
 
 No se envía ningún token ni nada sobre tus archivos; solo se leen las listas públicas de versiones.
 
+#### Actualizaciones de la app
+
+Con la misma búsqueda diaria (y **Buscar actualización** en la página Cambios) VulKara pregunta a GitHub por su versión
+más reciente. Si hay una más nueva, una tarjeta en la esquina lo indica: **Actualizar y reiniciar** la descarga, la
+comprueba (la suma SHA-256 que GitHub indica para el archivo, la versión que contiene, la firma Developer ID de las
+versiones de VulKara y Gatekeeper) y la pone en lugar de la app cuando VulKara se cierra; luego se inicia la nueva
+versión. **Novedades** abre las notas de la versión, **Más tarde** oculta la tarjeta hasta la siguiente versión. Solo
+actualiza mientras no se genera ni se instala nada, y solo una app en una carpeta en la que puede escribir (en
+Aplicaciones, no iniciada desde la imagen de disco). ¿Instalada con Homebrew? Funciona igual; `brew upgrade --cask
+vulkara` también.
+
 ### Carpetas
 
 | Carpeta | Predeterminada | Nota |
@@ -1084,7 +1095,7 @@ disponible; una que nunca se eligió muestra el mensaje *no se entregó a la app
   LoRAs sin origen conocido (importados desde el disco) se buscan en Civitai por su SHA-256: sus palabras clave, una
   imagen de vista previa y la licencia en la página Licencias. Solo se envía la suma de verificación, pero le dice a
   Civitai qué archivos hay en este Mac. Desactivado, indica tú mismo la página de ese archivo en la página Licencias.
-- **Buscar actualizaciones de runtimes una vez al día**: activado por defecto; consulta
+- **Buscar actualizaciones de la app y de los runtimes una vez al día**: activado por defecto; consulta
   [Búsqueda de actualizaciones](#búsqueda-de-actualizaciones). Desactivado, **Comprobar ahora** sigue preguntando cuando quieras.
 
 ### Tokens de acceso

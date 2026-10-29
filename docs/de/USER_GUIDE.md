@@ -4,7 +4,7 @@
 
 VulKara, *dein lokaler KI-Bildgenerator mit hohem Datenschutz*, erstellt Bilder und kurze Videos und restauriert alte
 Fotos auf einem Mac mit Apple-Chip. Alles wird auf dem Mac selbst berechnet; das Netzwerk dient nur zum Herunterladen
-von Runtimes, Modellen und den Beschreibungen von LoRAs. Dieses Handbuch beschreibt jede Seite der App, was jede
+von Runtimes, Modellen und den Beschreibungen von LoRAs und zur Suche nach Updates. Dieses Handbuch beschreibt jede Seite der App, was jede
 Einstellung bewirkt und wo die App ihre Daten ablegt.
 
 ![VulKara](../images/banner.jpg)
@@ -980,6 +980,17 @@ und beim Öffnen der Seite gezeigt.
 
 Es wird kein Token gesendet und nichts über deine Dateien; gelesen werden nur die öffentlichen Versionslisten.
 
+#### App-Updates
+
+Mit derselben täglichen Prüfung (und **Nach Update suchen** auf der Seite Änderungen) fragt VulKara GitHub nach seinem
+neuesten Release. Gibt es ein neueres, sagt es eine Karte in der Ecke: **Aktualisieren und neu starten** lädt es,
+prüft es (die SHA-256-Prüfsumme, die GitHub für die Datei angibt, die Version darin, die Developer-ID-Signatur der
+VulKara-Releases und Gatekeeper) und setzt es an die Stelle der App, sobald VulKara beendet ist; dann startet die neue
+Version. **Was ist neu** öffnet die Release-Notizen, **Später** blendet die Karte bis zur nächsten Version aus.
+Aktualisiert wird nur, während nichts erzeugt oder installiert wird, und nur eine App in einem Ordner, in den sie
+schreiben darf (in Programme, nicht aus dem Disk-Image gestartet). Mit Homebrew installiert? Das geht genauso;
+`brew upgrade --cask vulkara` auch.
+
 ### Ordner
 
 | Ordner | Standard | Hinweis |
@@ -1108,7 +1119,7 @@ erneut aus*.
   Trigger-Wörter, ein Vorschaubild und die Lizenz auf der Seite Lizenzen. Gesendet wird nur die Prüfsumme, aber sie
   verrät Civitai, welche Dateien auf diesem Mac liegen. Ist es aus, gibst du die Seite einer solchen Datei auf der
   Seite Lizenzen selbst an.
-- **Einmal täglich nach Runtime-Updates suchen**: standardmäßig an; siehe [Update-Prüfung](#update-prüfung). Ist es aus,
+- **Einmal täglich nach App- und Runtime-Updates suchen**: standardmäßig an; siehe [Update-Prüfung](#update-prüfung) und [App-Updates](#app-updates). Ist es aus,
   fragt **Jetzt prüfen** trotzdem, wann du willst.
 
 ### Zugriffstoken
