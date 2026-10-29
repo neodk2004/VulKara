@@ -29,4 +29,20 @@ def patch():
         warnings.simplefilter("ignore")
         for key in ("MPS", "CPU") if torch.backends.mps.is_available() else ("CPU",):
             torch.library.impl("quanto::unpack", key)(_unpack)
+    if torch.backends.mps.is_available():
+        _plain_on_cpu()
     _patched = True
+
+
+def _plain_on_cpu():
+    """int4 weights made or restored on the CPU stay in quanto's plain packing: its TinyGemm layout (chosen for the CPU)
+    is unpacked and packed again layer by layer when the model moves to the GPU, about 20 s per large layer (43 minutes
+    for Qwen-Image 2.1's text encoder, MEASUREMENTS 7t). Nothing here computes int4 weights on the CPU."""
+    from optimum.quanto.tensor.weights.qbits import WeightQBitsTensor
+    create = WeightQBitsTensor.create
+
+    def plain(qtype, axis, group_size, size, stride, data, scale, shift, requires_grad=False):
+        if data.device.type == "cpu":
+            return WeightQBitsTensor(qtype, axis, group_size, size, stride, data, scale, shift, requires_grad)
+        return create(qtype, axis, group_size, size, stride, data, scale, shift, requires_grad)
+    WeightQBitsTensor.create = staticmethod(plain)

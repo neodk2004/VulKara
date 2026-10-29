@@ -674,9 +674,61 @@ pure torch unpack that already served MPS now serves the CPU too (`quanto_mps.pa
 `test_quant_cache` covers 4 bit and checks the kernel is never built. With the fix the third run loaded the 4 bit copy
 (21.7 s alone in a probe, 368 int4 layers unpacked in torch on the CPU: 10.8 s of it) but stayed 2 586 s in *Loading
 text_encoder* before generating: the time goes to encoding the prompt with the restored int4 encoder, not to loading.
-Open: why encoding with the restored copy is that slow (the freshly quantized one in 7s encoded within its first
-picture's few minutes); the prompt cache hides it for every prompt used before. This also hit 0.7.5 on 16 GB Macs: Qwen-Image
+Found and fixed in 7u: moving the int4 layers to the GPU repacked each of them (now 28.9 s instead of 2 586 s). This also hit 0.7.5 on 16 GB Macs: Qwen-Image
 2.1's text encoder was quantized for hours on every engine start.
+
+## 7u. int4 weights moved to the GPU (2026-10-29, M2 24 GB, memory kept free 12 GB)
+
+Why encoding took 2 586 s in 7t: optimum-quanto stores int4 weights made or restored on the CPU in its TinyGemm layout
+(meant for computing on the CPU); `.to("mps")` unpacks and packs every layer again. One layer of Qwen-Image 2.1's text
+encoder (3584 x 18944, bfloat16, group 128):
+
+| | to MPS | forward, 64 tokens | max. difference to the CPU result |
+| --- | --- | --- | --- |
+| TinyGemm on the CPU (before) | 20.7–21.8 s | 0.07–0.21 s | |
+| plain packing on the CPU (after) | 0.04 s | 0.045 s | 0.008 of 2.8 (bfloat16 rounding) |
+
+`quanto_mps.patch` keeps the plain packing on the CPU on Macs with MPS (nothing computes int4 weights on the CPU there).
+The run of 7t again (Qwen-Image 2.1, 4 bit copy, empty prompt cache, new start):
+
+| Run | *Loading text_encoder* (with encoding) | generating | whole | peak (engine) |
+| --- | --- | --- | --- | --- |
+| before | 2 586 s | 1 658 s | 4 264 s | 12.0 GB |
+| after | 28.9 s | 1 677 s | 1 724 s | 11.8 GB |
+
+The picture is the same to the pixel. It applies to every int4 component of the Diffusers runtime (16 GB plans), also
+to one quantized freshly.
+
+## 7v. Seams between VAE tiles of Qwen-Image (2026-10-29, M2 24 GB)
+
+Qwen-Image 2.1 showed faint vertical streaks in plain areas (a sky at x 825 and 974 of 1024 px). They are the seams of
+the VAE's tiles: its decoder tiles at 256 px with a stride of 192, so neighbours are blended over 64 px only (the
+setting `tile_sample_min_size` VulKara capped before does not exist on this VAE). One latent of that picture decoded
+in tiles against decoded whole (0–255 per channel, bfloat16):
+
+| Tiles | strongest column | mean | memory of decoding | seconds |
+| --- | --- | --- | --- | --- |
+| 256 px, stride 192 (before) | 4.4 | 1.19 | 1.1 GB | 20 |
+| 256 px, stride 128 | 2.8 | 0.91 | 1.15 GB | 40 |
+| 256 px, stride 128, next tile whole 16 px before the end (16 GB plans) | 2.0 | 0.79 | 1.15 GB | 40 |
+| 512 px, stride 384 | 2.1 | 0.46 | 3.3 GB | 18 |
+| 512 px, stride 384, next tile whole 16 px before the end (where the plan has room) | 0.96 | 0.42 | 3.3 GB | 18 |
+| whole, no tiles | 0 | 0 | 13.2 GB | |
+
+The outermost pixels of a tile differ most from its neighbour, so the blend now reaches the next tile 16 px before the
+overlap ends. 512 px tiles are used only where the plan leaves 2.5 GB beside denoising and the model is not streamed.
+The real run of 7u (Qwen-Image 2.1, 1024 px, seed 12), sky x 700–1024, y 60–420, mean step between
+neighbouring columns (the median column is 0.23):
+
+| Run | strongest seam | peak (engine) | whole |
+| --- | --- | --- | --- |
+| 16 GB plan, before (7u) | 0.73 (x 825), 0.64 (x 974) | 11.8 GB | 1 724 s |
+| 16 GB plan, 512 px tiles tried first | 0.78 (x 885) | 13.6 GB | 1 805 s |
+| 16 GB plan, 256 px, stride 128, new blend | 0.47 | 12.1 GB | 1 757 s |
+| memory kept free 8 GB (streamed, the same tiles) | 0.48 | 16.7 GB | 1 843 s |
+
+At normal contrast the streaks are gone; boosted 4 times one faint seam is left. 512 px tiles were dropped for the
+16 GB plan: 1.7 GB more and the seam only moved.
 
 ## 8. Earlier references (from the user guide and the changelog)
 

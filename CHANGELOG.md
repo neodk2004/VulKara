@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.8 – 2026-10-29
+
+- **4 bit models start their work in seconds, not minutes.** Moving a part kept in 4 bit onto the GPU repacked every
+  layer (about 20 s each): Qwen-Image 2.1 on a 16 GB Mac needed 43 minutes for its text encoder before each new
+  prompt; now 29 seconds, with the same picture. All parts in 4 bit of the Diffusers runtime gain from it.
+- **No more streaks in Qwen-Image pictures.** Its VAE decodes in tiles and blended them over only 64 px, which left
+  faint vertical streaks in plain areas such as a sky. The tiles now overlap by 128 px and blend so that the edge
+  pixels of a tile are not used; with room in memory the tiles are twice as large. About 30 s more per picture on a
+  16 GB Mac.
+
 ## 0.7.7 – 2026-10-29
 
 - **Updates from inside the app.** Once a day (Settings → Privacy, with the runtime check) and with **Look for an

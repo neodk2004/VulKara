@@ -7,6 +7,7 @@ import json
 import os
 import random
 import time
+import types
 import uuid
 from pathlib import Path
 
@@ -487,7 +488,17 @@ class LoadedModel:
         if self.decode_self:
             _bf16_vae(vae)
         try:
-            vae.enable_tiling()
+            if type(vae).__name__.startswith("AutoencoderKLQwenImage"):
+                # Qwen-Image's VAEs tile at 256 px blended over 64 px: the seams show as streaks in plain
+                # areas. Blended over 128 px they are half as strong; 512 px tiles (2 GB more) a quarter, where the
+                # plan leaves the room (not when streaming, which fills the memory with kept blocks), MEASUREMENTS 7v
+                size = 512 if not self.stream and self.plan["budget_gb"] - self.plan["denoise_peak_gb"] >= 2.5 else 256
+                vae.enable_tiling(tile_sample_min_height=size, tile_sample_min_width=size,
+                                  tile_sample_stride_height=size - 128, tile_sample_stride_width=size - 128)
+                vae.blend_v = types.MethodType(_blend_v, vae)
+                vae.blend_h = types.MethodType(_blend_h, vae)
+            else:
+                vae.enable_tiling()
             if getattr(vae, "tile_sample_min_size", 0) > 512:
                 vae.tile_sample_min_size = 512
                 vae.tile_latent_min_size = 512 // (2 ** (len(vae.config.block_out_channels) - 1))
@@ -1090,6 +1101,27 @@ def _bf16_vae(vae):
         vae.register_to_config(force_upcast=False)
         encode = vae.encode
         vae.encode = lambda x, *a, **k: encode(x.to(torch.bfloat16), *a, **k)
+
+
+def _blend_weights(n, like):
+    """The next tile's share over an overlap of n: 0 to 1, reached 16 px before the end (the outermost pixels of a tile
+    differ most from its neighbour's)."""
+    import torch
+    return torch.clamp(torch.arange(n, device=like.device, dtype=torch.float32) / max(1, n - 16), 0, 1).to(like.dtype)
+
+
+def _blend_v(self, a, b, extent):
+    extent = min(a.shape[-2], b.shape[-2], extent)
+    w = _blend_weights(extent, b).view(1, 1, 1, extent, 1)
+    b[:, :, :, :extent, :] = a[:, :, :, -extent:, :] * (1 - w) + b[:, :, :, :extent, :] * w
+    return b
+
+
+def _blend_h(self, a, b, extent):
+    extent = min(a.shape[-1], b.shape[-1], extent)
+    w = _blend_weights(extent, b).view(1, 1, 1, 1, extent)
+    b[:, :, :, :, :extent] = a[:, :, :, :, -extent:] * (1 - w) + b[:, :, :, :, :extent] * w
+    return b
 
 
 def _free_memory():

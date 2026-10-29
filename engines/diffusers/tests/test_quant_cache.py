@@ -72,3 +72,16 @@ def test_outdated_cache_is_dropped(tmp_path):
     os.utime(weights, (1, 1))
     assert quant_cache.load(model_dir, folder, comp, "q8", torch.bfloat16, lambda: None) is None
     assert not os.path.exists(quant_cache.cache_dir(model_dir, comp, "q8"))
+
+
+@pytest.mark.skipif(not torch.backends.mps.is_available(), reason="the plain packing is kept for MPS")
+def test_int4_on_the_cpu_keeps_the_plain_packing():
+    """TinyGemm's CPU layout is repacked layer by layer on the way to the GPU (20 s each, MEASUREMENTS 7t)."""
+    import quanto_mps
+    from optimum.quanto import freeze, qint4, quantize
+    from optimum.quanto.tensor.weights.qbits import WeightQBitsTensor
+    quanto_mps.patch()
+    lin = torch.nn.Sequential(torch.nn.Linear(256, 128)).to(torch.bfloat16)
+    quantize(lin, weights=qint4)
+    freeze(lin)
+    assert type(lin[0].weight) is WeightQBitsTensor

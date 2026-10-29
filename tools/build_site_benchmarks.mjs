@@ -49,12 +49,13 @@ const PLAN_AFTER = [
   ['Pony V7 Q8_0 (AuraFlow)', 'ComfyUI, GGUF', 13.0, 13.9],
 ]
 
-// work done once and kept, and a stop that waited (MEASUREMENTS 7r, 7s, 7t): before, after, unit
+// work done once and kept, and a stop that waited (MEASUREMENTS 7r, 7s, 7t, 7u): before, after, unit
 const ONCE = [
   { ref: '7s', what: 'Qwen-Image 2.1, whole picture', sub: '16 GB plan: text encoder quantized to 4 bit, then from the quantized cache', a: 10971, b: 221, unit: 's' },
   { ref: '7s', what: 'Qwen-Image 2.1, memory at most', sub: 'the same two pictures', a: 14.5, b: 11.8, unit: 'GB' },
   { ref: '7t', what: 'Qwen-Image 2.1, prompt from the prompt cache', sub: 'memory at most; the text encoder is not loaded, same picture to the pixel', a: 14.5, b: 12.1, unit: 'GB' },
   { ref: '7t', what: 'Qwen-Image 2.1, a prompt used before, after a restart', sub: 'whole picture: text encoder from its 4 bit copy, then the prompt from the prompt cache', a: 4264, b: 1711, unit: 's' },
+  { ref: '7u', what: 'Qwen-Image 2.1, text encoder for a new prompt', sub: 'its 4 bit copy moved to the GPU and the prompt encoded: TinyGemm repacked per layer, then the plain packing', a: 2586, b: 28.9, unit: 's' },
   { ref: '7r', what: 'Stop while SSD streaming is prepared', sub: 'Chroma1 Flash, stopped at 21 %: seconds until the job ended', a: 84.9, b: 0, unit: 's' },
 ]
 
@@ -73,6 +74,14 @@ const HEADS = [
   ['head size 64 (fused)', 31, 0],
   ['head size 40 (not fused)', 193, 3.0],
   ['head size 40 padded to 64', 31, 0.03],
+]
+
+// seams between the VAE tiles of Qwen-Image, one latent decoded in tiles against whole (MEASUREMENTS 7v):
+// [tiles, when, strongest column 0–255, mean, GB, s]
+const SEAMS = [
+  ['256 px, 64 px overlap', 'before', 4.4, 1.19, 1.1, 20],
+  ['256 px, 128 px overlap, new blend', '16 GB plans', 2.0, 0.79, 1.15, 40],
+  ['512 px, 128 px overlap, new blend', 'where the plan has room', 0.96, 0.42, 3.3, 18],
 ]
 
 // the site's Content-Security-Policy allows no inline styles: every position becomes a class in charts.css
@@ -268,13 +277,30 @@ function headsChart() {
     </section>`
 }
 
+function seamsChart() {
+  const ax = axis(Math.max(...SEAMS.map((r) => r[2])), 4)
+  const rows = SEAMS.map(([tiles, when, col, mean, gb, sec]) => `
+        <div class="bx-row" data-tip="${esc(`${tiles} (${when}): strongest column ${fmt(col, 2)}, mean ${fmt(mean, 2)}, ${fmt(gb)} GB, ${sec} s. MEASUREMENTS 7v`)}" tabindex="0">
+          <span class="dot-label">${esc(tiles)}<small>${esc(when)}</small></span>
+          <span class="bx-track">${grid(ax)}<span class="hbar ${at(`width:${pct(col, ax.top)}%`)}"></span></span>
+          <span class="bx-value">${fmt(col, 2)} · ${fmt(gb)} GB</span>
+        </div>`).join('')
+  return `
+    <section class="chart" id="seams">
+      <h2>Seams between VAE tiles (Qwen-Image)</h2>
+      <p class="sub">Qwen-Image's VAE decodes 1024 px in tiles; where they meet, plain areas showed faint streaks. The bar is the strongest column's difference to decoding whole (0–255); decoding whole needs 13.2 GB. In the real 16 GB run: 0.3 GB and 33 s more per picture, the streaks gone.</p>
+      <div class="bx">${ticksRow(ax, '')}${rows}
+      </div>${table(['Tiles', 'Used', 'Strongest column', 'Mean', 'GB', 's'], SEAMS.map(([t, w, c, m, gb, sec]) => [esc(t), esc(w), fmt(c, 2), fmt(m, 2), fmt(gb, 2), sec]))}
+    </section>`
+}
+
 /** The page and its charts.css (the positions of the marks). */
 export function benchmarksPage({ BASE, GH, BLOB, VERSION, CSS_V, JS_V, BENCH_V }) {
   RULES = []
   const body = [speedChart(), memoryChart(),
     planChart('plan', 'The memory plan against the measurement', 'Before every picture VulKara plans the memory a model needs and picks bit size, staging or streaming from it. Here the plan against what the engine used, 1024 px; the right column is the difference. Before the fixes of the same day (decoding in tiles, padded attention).', PLAN, '7m'),
     planChart('plan-after', 'Plans brought to the measurements', 'SD 1.5 planned at its own size with fused attention, ComfyUI models with the plan of a model held whole (shown in the benchmark since 0.7.5). The ComfyUI figures are the middle of two runs.', PLAN_AFTER, '7p'),
-    onceTable(), headsChart(), attentionTable()].join('\n')
+    onceTable(), seamsChart(), headsChart(), attentionTable()].join('\n')
   const tileHtml = tiles()
   const css = RULES.map((r, i) => `.bench-page .p${i}{${r}}`).join('\n') + '\n'
   const cssV = createHash('sha256').update(css).digest('hex').slice(0, 10)
